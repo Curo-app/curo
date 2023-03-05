@@ -1,2 +1,2 @@
 # Curo
-Notes, collections, calendat etc.
+Notes, collections, calendar etc.
