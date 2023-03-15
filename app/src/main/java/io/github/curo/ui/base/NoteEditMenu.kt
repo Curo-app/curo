@@ -9,11 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.curo.ui.theme.CuroTheme
 import io.github.curo.data.Note
+import io.github.curo.ui.theme.CuroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,58 +22,8 @@ fun NoteEditMenu(
     onDiscardNote: () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            Surface(
-                // TODO: add topbar evaluation change on lazyList scroll
-                tonalElevation = 4.dp,
-                color = MaterialTheme.colorScheme.surface,
-            ) {
-                TopAppBar(
-                    title = { Text("") },
-                    navigationIcon = {
-                        IconButton(onClick = onDiscardNote) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Discard changes")
-                        }
-                    },
-                )
-            }
-        },
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier
-                    .imePadding()
-                    .navigationBarsPadding(),
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = { onSaveNote(note) },
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        content = {
-                            Icon(
-                                imageVector = Icons.Default.Done,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                contentDescription = "Save note",
-                            )
-                        }
-                    )
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            contentDescription = "Share note"
-                        )
-                    }
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            contentDescription = "Delete note"
-                        )
-                    }
-                }
-            )
-        },
+        topBar = { TopBar(onDiscardNote) },
+        bottomBar = { BottomBar(note, onSaveNote) },
     ) {
         var title by remember { mutableStateOf(note.title) }
         var content by remember { mutableStateOf(note.content) }
@@ -85,26 +34,14 @@ fun NoteEditMenu(
                 .padding(horizontal = 16.dp)
         ) {
             item {
-                Box {
-                    BasicTextField(
-                        value = title,
-                        onValueChange = { text -> title = text },
-                        textStyle = TextStyle(
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Start,
-                            fontSize = MaterialTheme.typography.headlineSmall.fontSize
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
+                TransparentHintTextField(
+                    text = title,
+                    hint = "Title",
+                    onValueChange = { text -> title = text },
+                    textStyle = TextStyle(
+                        fontSize = MaterialTheme.typography.headlineSmall.fontSize
                     )
-                    if (title.isEmpty()) {
-                        Text(
-                            text = "Title",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+                )
             }
 
             item {
@@ -112,29 +49,110 @@ fun NoteEditMenu(
             }
 
             item {
-                Box(modifier = Modifier.fillMaxHeight()) {
-                    BasicTextField(
-                        value = content,
-                        onValueChange = { text -> content = text },
-                        textStyle = TextStyle(
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Start,
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
+                TransparentHintTextField(
+                    modifier = Modifier.fillMaxHeight(),
+                    text = content,
+                    hint = "Note",
+                    onValueChange = { text -> content = text },
+                    textStyle = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize
                     )
-                    if (content.isEmpty()) {
-                        Text(
-                            text = "Note",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                )
             }
         }
     }
+}
+
+@Composable
+private fun TransparentHintTextField(
+    modifier: Modifier = Modifier,
+    text: String,
+    hint: String = "",
+    onValueChange: (String) -> Unit,
+    textStyle: TextStyle = TextStyle(),
+) {
+    Box(
+        modifier = modifier
+    ) {
+        BasicTextField(
+            value = text,
+            onValueChange = onValueChange,
+            textStyle = TextStyle(
+                color = MaterialTheme.colorScheme.onSurface
+            ).merge(
+                textStyle
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        if (text.isEmpty()) {
+            Text(
+                text = hint,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = textStyle
+            )
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TopBar(onDiscardNote: () -> Unit) {
+    Surface(
+        // TODO: add topbar evaluation change on lazyList scroll
+        tonalElevation = 4.dp,
+        color = MaterialTheme.colorScheme.surface,
+    ) {
+        TopAppBar(
+            title = { Text("") },
+            navigationIcon = {
+                IconButton(onClick = onDiscardNote) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Discard changes")
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun BottomBar(
+    note: Note,
+    onSaveNote: (Note) -> Unit
+) {
+    BottomAppBar(
+        modifier = Modifier
+            .imePadding()
+            .navigationBarsPadding(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { onSaveNote(note) },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.Done,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        contentDescription = "Save note",
+                    )
+                }
+            )
+        },
+        actions = {
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    contentDescription = "Share note"
+                )
+            }
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    contentDescription = "Delete note"
+                )
+            }
+        }
+    )
 }
 
 @Preview
