@@ -19,5 +19,11 @@ data class CollectionPreviewModel(
 }
 
 @Immutable
-data class CollectionProgress(val total: Int, val done: Int)
+data class CollectionProgress(val total: Int, val done: Int) {
+    override fun toString(): String {
+        return "$done/$total"
+    }
+
+    fun isFinished(): Boolean = total== done
+}
 

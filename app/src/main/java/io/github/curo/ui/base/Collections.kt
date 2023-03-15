@@ -116,13 +116,13 @@ fun CollectionNotes(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun listItemColors(progress: CollectionProgress?): ListItemColors =
-    if (progress == null || progress.total != progress.done) {
-        ListItemDefaults.colors()
-    } else {
+    if (progress != null && progress.isFinished()) {
         ListItemDefaults.colors(
             containerColor = MaterialTheme.colorScheme.inverseOnSurface,
             headlineColor = Color.DarkGray
         )
+    } else {
+        ListItemDefaults.colors()
     }
 
 @Composable
@@ -139,8 +139,8 @@ private fun collectionsProgressFactory(item: CollectionPreviewModel): @Composabl
     item.progress?.let {
         {
             Text(
-                text = "${it.done}/${it.total}",
-                maxLines = 2,
+                text = it.toString(),
+                maxLines = 1,
                 style = MaterialTheme.typography.bodyMedium,
                 overflow = TextOverflow.Ellipsis,
                 fontSize = 4.em
