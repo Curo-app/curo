@@ -24,12 +24,5 @@ sealed class BottomBarScreen(
     @Immutable
     companion object {
         val items = listOf(Home, Create, Settings)
-
-        fun fromRoute(route: String): BottomBarScreen = when (route) {
-            Home.route -> Home
-            Create.route -> Create
-            Settings.route -> Settings
-            else -> Home
-        }
     }
 }
