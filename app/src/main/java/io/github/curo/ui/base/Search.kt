@@ -12,15 +12,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import io.github.curo.R
 
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
-    hint: String = "Search...",
     onSearch: (String) -> Unit = {},
 ) {
+    val hint: String = stringResource(R.string.search_hint)
     var text by remember { mutableStateOf("") }
     var isHint by remember { mutableStateOf(hint.isNotEmpty()) }
 
