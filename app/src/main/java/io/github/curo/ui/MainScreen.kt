@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.curo.data.BottomBarScreen
 import io.github.curo.ui.base.SearchBar
@@ -38,11 +39,29 @@ fun SearchTopAppBar(
     }
 }
 
+@Composable
+private fun NavigationBottomBar(onItemSelected: (Int) -> Unit = {}) {
+    var selectedItem by remember { mutableStateOf(0) }
+    NavigationBar {
+        BottomBarScreen.items.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = selectedItem == index,
+                icon = { Icon(item.icon, contentDescription = stringResource(item.name)) },
+                label = { Text(stringResource(item.name)) },
+                onClick = {
+                    selectedItem = index
+                    onItemSelected(index)
+                    // TODO: navController.navigate()
+                }
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(/* navController: NavHostController = rememberNavController() */) {
     var searchText by remember { mutableStateOf("") }
-    var selectedItem by remember { mutableStateOf(0) }
     Scaffold(
         topBar = {
             // SearchBar is not yet implemented, so we need to make our own
@@ -52,19 +71,9 @@ fun MainScreen(/* navController: NavHostController = rememberNavController() */)
         },
         bottomBar = {
             // TODO: rewrite this using proper navigation
-            NavigationBar {
-                BottomBarScreen.items.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectedItem == index,
-                        icon = { Icon(item.icon, contentDescription = item.name) },
-                        label = { Text(item.name) },
-                        onClick = {
-                            selectedItem = index
-                            // TODO: navController.navigate()
-                        }
-                    )
-                }
-            }
+            NavigationBottomBar(
+                onItemSelected = { /* TODO */ }
+            )
         }
     ) { innerPadding ->
         // use HomeScreen() hardcoded for now
