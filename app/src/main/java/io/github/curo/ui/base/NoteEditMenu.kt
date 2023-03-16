@@ -2,6 +2,7 @@ package io.github.curo.ui.base
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -21,14 +22,24 @@ fun NoteEditMenu(
     onSaveNote: (Note) -> Unit,
     onDiscardNote: () -> Unit
 ) {
+    val listState = rememberLazyListState()
+    val firstVisibleItemIndex by remember {
+        derivedStateOf { listState.firstVisibleItemIndex }
+    }
+    val firstVisibleItemScrollOffset by remember {
+        derivedStateOf { listState.firstVisibleItemScrollOffset }
+    }
+    val isBodyUnmoved = firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+
     Scaffold(
-        topBar = { TopBar(onDiscardNote) },
+        topBar = { TopBar(onDiscardNote, isBodyUnmoved) },
         bottomBar = { BottomBar(note, onSaveNote) },
     ) {
         var title by remember { mutableStateOf(note.title) }
         var content by remember { mutableStateOf(note.content) }
 
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .padding(it)
                 .padding(horizontal = 16.dp),
@@ -94,10 +105,9 @@ private fun TransparentHintTextField(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(onDiscardNote: () -> Unit) {
+private fun TopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
     Surface(
-        // TODO: add topbar evaluation change on lazyList scroll
-        tonalElevation = 4.dp,
+        tonalElevation = if (isUnmoved) 0.dp else 4.dp,
         color = MaterialTheme.colorScheme.surface,
     ) {
         TopAppBar(
