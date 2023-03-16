@@ -113,7 +113,7 @@ private fun TopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
         color = MaterialTheme.colorScheme.surface,
     ) {
         TopAppBar(
-            title = { Text("") },
+            title = {},
             navigationIcon = {
                 IconButton(onClick = onDiscardNote) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Discard changes")
