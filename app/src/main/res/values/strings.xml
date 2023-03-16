@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Curo</string>
+    <string name="title_textfield_hint">Title</string>
+    <string name="note_textfield_hint">Note</string>
 </resources>

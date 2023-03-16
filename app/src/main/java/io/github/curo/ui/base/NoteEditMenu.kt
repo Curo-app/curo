@@ -9,9 +9,11 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.curo.R
 import io.github.curo.data.Note
 import io.github.curo.ui.theme.CuroTheme
 
@@ -50,7 +52,7 @@ fun NoteEditMenu(
             item {
                 TransparentHintTextField(
                     text = title,
-                    hint = "Title",
+                    hint = stringResource(R.string.title_textfield_hint),
                     onValueChange = { text -> title = text },
                     textStyle = TextStyle(
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
@@ -62,7 +64,7 @@ fun NoteEditMenu(
                 TransparentHintTextField(
                     modifier = Modifier.fillMaxHeight(),
                     text = content,
-                    hint = "Note",
+                    hint = stringResource(R.string.note_textfield_hint),
                     onValueChange = { text -> content = text },
                     textStyle = TextStyle(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
