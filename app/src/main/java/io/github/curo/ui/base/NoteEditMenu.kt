@@ -20,7 +20,9 @@ import io.github.curo.ui.theme.CuroTheme
 fun NoteEditMenu(
     note: Note,
     onSaveNote: (Note) -> Unit,
-    onDiscardNote: () -> Unit
+    onDiscardNote: () -> Unit,
+    onShareNote: () -> Unit,
+    onDeleteNode: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val firstVisibleItemIndex by remember {
@@ -33,7 +35,7 @@ fun NoteEditMenu(
 
     Scaffold(
         topBar = { TopBar(onDiscardNote, isBodyUnmoved) },
-        bottomBar = { BottomBar(note, onSaveNote) },
+        bottomBar = { BottomBar(note, onSaveNote, onShareNote, onDeleteNode) },
     ) {
         var title by remember { mutableStateOf(note.title) }
         var content by remember { mutableStateOf(note.content) }
@@ -74,7 +76,7 @@ fun NoteEditMenu(
 @Composable
 private fun TransparentHintTextField(
     modifier: Modifier = Modifier,
-    text: String,
+    text: String = "",
     hint: String = "",
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
@@ -124,7 +126,9 @@ private fun TopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
 @Composable
 private fun BottomBar(
     note: Note,
-    onSaveNote: (Note) -> Unit
+    onSaveNote: (Note) -> Unit,
+    onShareNote: () -> Unit,
+    onDeleteNode: () -> Unit
 ) {
     BottomAppBar(
         modifier = Modifier
@@ -144,14 +148,14 @@ private fun BottomBar(
             )
         },
         actions = {
-            IconButton(onClick = { /* TODO */ }) {
+            IconButton(onClick = onShareNote) {
                 Icon(
                     imageVector = Icons.Default.Share,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     contentDescription = "Share note"
                 )
             }
-            IconButton(onClick = { /* TODO */ }) {
+            IconButton(onClick = onDeleteNode) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -184,7 +188,7 @@ fun EditNoteScreenPreview() {
     )
     CuroTheme(darkTheme = true) {
         Surface {
-            NoteEditMenu(note = note, onSaveNote = {}, onDiscardNote = {})
+            NoteEditMenu(note = note, onSaveNote = {}, onDiscardNote = {}, onShareNote = {}, onDeleteNode = {})
         }
     }
 }
