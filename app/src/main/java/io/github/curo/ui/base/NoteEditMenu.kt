@@ -31,7 +31,8 @@ fun NoteEditMenu(
         LazyColumn(
             modifier = Modifier
                 .padding(it)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
                 TransparentHintTextField(
@@ -42,10 +43,6 @@ fun NoteEditMenu(
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
                     )
                 )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
