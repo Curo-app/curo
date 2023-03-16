@@ -17,6 +17,7 @@ import io.github.curo.ui.screens.HomeScreen
 fun SearchTopAppBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit = {},
+    onSettingsClick: () -> Unit = {},
 ) {
     Row(
         modifier = modifier
@@ -30,7 +31,7 @@ fun SearchTopAppBar(
             onSearch = onSearch
         )
         Spacer(modifier = Modifier.width(16.dp))
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = onSettingsClick) {
             Icon(
                 imageVector = Icons.Rounded.Settings,
                 contentDescription = "Settings",
