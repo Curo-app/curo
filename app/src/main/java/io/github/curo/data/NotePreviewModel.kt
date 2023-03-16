@@ -8,7 +8,8 @@ data class NotePreviewModel(
     val emoji: Emoji = Emoji("\uD83D\uDCDD"),
     val name: String,
     val description: String? = null,
-    val collections: List<CollectionName> = emptyList()
+    val collections: List<CollectionName> = emptyList(),
+    val done: Boolean? = null
 )
 
 @JvmInline

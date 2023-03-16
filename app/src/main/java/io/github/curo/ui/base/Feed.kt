@@ -76,18 +76,39 @@ fun Feed(
     }
 }
 
+@Composable
+fun FeedForced(
+    modifier: Modifier = Modifier,
+    onNoteClick: (NotePreviewModel) -> Unit,
+    content: List<NotePreviewModel>,
+) {
+    Column(
+        modifier = modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .wrapContentSize()
+    ) {
+        content.forEach { item ->
+            NoteCard(
+                item = item,
+                onNoteClick = onNoteClick,
+                onCollectionClick = null,
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NoteCard(
     item: NotePreviewModel,
     onNoteClick: (NotePreviewModel) -> Unit,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: ((CollectionName) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
-        modifier = Modifier.noteCardModifier(interactionSource) { onNoteClick(item) },
+        modifier = Modifier.cardModifier(interactionSource) { onNoteClick(item) },
         headlineText = { FeedItemHeader(item) },
-        supportingText = feedItemSupportingTextFactory(item, onCollectionClick),
+        supportingText = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
         leadingContent = { EmojiContainer(item.emoji) },
         overlineText = feedItemDeadlineFactory(item),
     )
@@ -129,7 +150,7 @@ private fun FeedItemHeader(item: NotePreviewModel) {
     )
 }
 
-private fun Modifier.noteCardModifier(
+fun Modifier.cardModifier(
     interactionSource: MutableInteractionSource,
     onNoteClick: () -> Unit,
 ) = composed {
@@ -231,7 +252,7 @@ private fun CollectionChip(
 }
 
 @Composable
-private fun EmojiContainer(item: Emoji) {
+fun EmojiContainer(item: Emoji) {
     AndroidView(
         factory = { context ->
             AppCompatTextView(context).apply {
