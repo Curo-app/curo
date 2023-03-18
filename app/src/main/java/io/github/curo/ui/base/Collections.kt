@@ -68,7 +68,7 @@ private fun CollectionCard(
         headlineText = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },
         trailingContent = collectionsProgressFactory(collection),
-        colors = listItemColors(collection.progress?.run { total != done } ?: true)
+        colors = listItemColors(collection.progress?.run { !isFinished() } ?: true)
     )
 }
 
