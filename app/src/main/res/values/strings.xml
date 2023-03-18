@@ -5,4 +5,14 @@
     <string name="shopping_list">Shopping list</string>
     <string name="todolist">TODOList</string>
     <string name="note">Note</string>
+    <string name="setup_deadline_date">Setup deadline date</string>
+    <string name="setup_deadline_time">Setup deadline time</string>
+    <string name="clear">Clear</string>
+    <string name="add">Add</string>
+    <string name="collection_name">Collection name</string>
+    <string name="clear_input">Clear input</string>
+    <string name="maximum_collections_amount_reached">Maximum collections amount reached</string>
+    <string name="with_checkbox">With checkbox</string>
+    <string name="clear_collection">Clear collection</string>
+    <string name="done">Done</string>
 </resources>
