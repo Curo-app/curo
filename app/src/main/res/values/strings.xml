@@ -2,4 +2,8 @@
     <string name="app_name">Curo</string>
     <string name="title_textfield_hint">Title</string>
     <string name="note_textfield_hint">Note</string>
+    <string name="delete_note_content_description">Delete note</string>
+    <string name="share_note_content_description">Share note</string>
+    <string name="save_note_content_description">Save note</string>
+    <string name="discard_note_content_description">Discard changes</string>
 </resources>

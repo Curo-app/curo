@@ -118,7 +118,10 @@ private fun TopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
             title = {},
             navigationIcon = {
                 IconButton(onClick = onDiscardNote) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Discard changes")
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.discard_note_content_description)
+                    )
                 }
             },
         )
@@ -144,7 +147,7 @@ private fun BottomBar(
                     Icon(
                         imageVector = Icons.Default.Done,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        contentDescription = "Save note",
+                        contentDescription = stringResource(R.string.save_note_content_description),
                     )
                 }
             )
@@ -154,14 +157,14 @@ private fun BottomBar(
                 Icon(
                     imageVector = Icons.Default.Share,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    contentDescription = "Share note"
+                    contentDescription = stringResource(R.string.share_note_content_description)
                 )
             }
             IconButton(onClick = onDeleteNode) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    contentDescription = "Delete note"
+                    contentDescription = stringResource(R.string.delete_note_content_description)
                 )
             }
         }
