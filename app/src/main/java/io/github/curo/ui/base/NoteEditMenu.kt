@@ -171,10 +171,12 @@ private fun BottomBar(
 @Preview
 @Composable
 fun EditNoteScreenPreview() {
-    val note = Note(
-        id = 1,
-        title = "",
-        content = """
+    val note by remember {
+        mutableStateOf(
+            Note(
+                id = 1,
+                title = "",
+                content = """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Habitant morbi tristique senectus et netus. Maecenas pharetra convallis posuere morbi leo urna molestie at. Ac feugiat sed lectus vestibulum. In ornare quam viverra orci sagittis eu volutpat odio. Phasellus faucibus scelerisque eleifend donec pretium. Laoreet id donec ultrices tincidunt arcu non. Et tortor consequat id porta. Sit amet consectetur adipiscing elit ut aliquam purus sit. Amet justo donec enim diam vulputate ut pharetra. Elit at imperdiet dui accumsan sit amet nulla facilisi. Eu sem integer vitae justo. In tellus integer feugiat scelerisque varius morbi enim.
 
             In hac habitasse platea dictumst quisque sagittis purus. Urna cursus eget nunc scelerisque viverra mauris. Ut faucibus pulvinar elementum integer enim neque volutpat ac. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Dictumst quisque sagittis purus sit. Vulputate odio ut enim blandit. Turpis egestas integer eget aliquet nibh praesent tristique. Nunc vel risus commodo viverra maecenas accumsan lacus vel. Feugiat nisl pretium fusce id. Vitae justo eget magna fermentum iaculis eu non diam phasellus. Ac felis donec et odio. Lorem dolor sed viverra ipsum nunc aliquet. Massa massa ultricies mi quis hendrerit dolor magna eget. Sagittis vitae et leo duis ut diam. Ipsum faucibus vitae aliquet nec ullamcorper sit amet risus nullam.
@@ -187,10 +189,17 @@ fun EditNoteScreenPreview() {
             
             Cursus vitae congue mauris rhoncus aenean vel elit scelerisque. At elementum eu facilisis sed. Leo integer malesuada nunc vel risus commodo viverra maecenas. Sit amet risus nullam eget felis eget nunc lobortis. Ipsum faucibus vitae aliquet nec ullamcorper sit. Dignissim diam quis enim lobortis scelerisque fermentum dui faucibus. Mattis enim ut tellus elementum sagittis. Augue ut lectus arcu bibendum. Amet consectetur adipiscing elit duis. Imperdiet nulla malesuada pellentesque elit eget gravida cum.
         """.trimIndent()
-    )
+            )
+        )
+    }
     CuroTheme(darkTheme = true) {
         Surface {
-            NoteEditMenu(note = note, onSaveNote = {}, onDiscardNote = {}, onShareNote = {}, onDeleteNode = {})
+            NoteEditMenu(
+                note = note,
+                onSaveNote = {},
+                onDiscardNote = {},
+                onShareNote = {},
+                onDeleteNode = {})
         }
     }
 }
