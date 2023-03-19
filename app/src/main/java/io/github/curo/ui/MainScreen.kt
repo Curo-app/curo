@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.curo.R
 import io.github.curo.data.BottomBarScreen
 import io.github.curo.ui.base.SearchBar
 import io.github.curo.ui.screens.HomeScreen
@@ -34,7 +35,7 @@ fun SearchTopAppBar(
         IconButton(onClick = onSettingsClick) {
             Icon(
                 imageVector = Icons.Rounded.Settings,
-                contentDescription = "Settings",
+                contentDescription = stringResource(R.string.topappbar_settings_icon_description),
             )
         }
     }

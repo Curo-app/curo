@@ -36,7 +36,7 @@ fun SearchBar(
         Row() {
             Icon(
                 imageVector = Icons.Rounded.Search,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.searchbar_icon_description),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
