@@ -11,8 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.curo.ui.MainScreen
 import io.github.curo.ui.theme.CuroTheme
+import androidx.activity.viewModels
+import io.github.curo.data.CollectionViewModel
+import io.github.curo.ui.base.Collections
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel by viewModels<CollectionViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -25,6 +31,8 @@ class MainActivity : ComponentActivity() {
                     MainScreen()
                 }
             }
+            
+            // Collections(viewModel = viewModel) // Maybe move to ui/screens?
         }
     }
 }
