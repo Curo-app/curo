@@ -33,7 +33,7 @@ fun SearchBar(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 3.dp,
     ) {
-        Row() {
+        Row {
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = stringResource(R.string.searchbar_icon_description),
@@ -42,7 +42,7 @@ fun SearchBar(
                     .padding(horizontal = 16.dp)
                     .align(Alignment.CenterVertically)
             )
-            Box() {
+            Box {
                 BasicTextField(
                     value = text,
                     onValueChange = {
