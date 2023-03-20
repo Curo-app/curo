@@ -56,9 +56,7 @@ fun NavigationMenu(
                         icon = Icons.Rounded.Info
                     ),
                 ),
-                onItemClick = {
-                    println("Clicked on ${it.title}")
-                }
+                onItemClick = { }
             )
         }
     ) { innerPadding ->
