@@ -273,13 +273,13 @@ private fun CollectionChip(
 }
 
 @Composable
-fun EmojiContainer(item: Emoji) {
+fun EmojiContainer(item: Emoji, size: Float = 30F) {
     AndroidView(
         factory = { context ->
             AppCompatTextView(context).apply {
                 setTextColor(Color.Black.toArgb())
                 text = item.value
-                textSize = 30F
+                textSize = size
                 textAlignment = View.TEXT_ALIGNMENT_CENTER
             }
         },
