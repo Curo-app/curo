@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
 
@@ -71,4 +72,10 @@ fun SearchBar(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SearchBarPreview() {
+    SearchBar()
 }
