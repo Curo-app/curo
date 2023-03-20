@@ -46,15 +46,17 @@ fun Settings(modifier: Modifier = Modifier) {
 @Composable
 fun SettingsContent(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(horizontal = 30.dp, vertical = 5.dp)) {
-        SelectSettingItem(
-            modifier = modifier,
-            suggestions = listOf(
-                stringResource(id = R.string.russian_lang),
-                stringResource(id = R.string.english_lang)
-            ),
-            label = stringResource(id = R.string.lang_label),
-            contentDescription = stringResource(id = R.string.lang_content_description)
-        )
+        Column(modifier.padding(5.dp)) {
+            SelectSettingItem(
+                modifier = modifier,
+                suggestions = listOf(
+                    stringResource(id = R.string.russian_lang),
+                    stringResource(id = R.string.english_lang)
+                ),
+                label = stringResource(id = R.string.lang_label),
+                contentDescription = stringResource(id = R.string.lang_content_description)
+            )
+        }
     }
 }
 
@@ -68,22 +70,17 @@ fun SelectSettingItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf("") }
-    var textfieldSize by remember { mutableStateOf(Size.Zero) }
 
     val icon =
         if (expanded) Icons.Rounded.KeyboardArrowUp
         else Icons.Rounded.KeyboardArrowDown
 
 
-    Column(modifier.padding(5.dp)) {
+    Box {
         OutlinedTextField(
             value = selectedText,
             onValueChange = { selectedText = it },
-            modifier = modifier
-                .fillMaxWidth()
-                .onGloballyPositioned { coordinates ->
-                    textfieldSize = coordinates.size.toSize()
-                },
+            modifier = modifier.width(330.dp),
             label = { Text(label) },
             trailingIcon = {
                 Icon(icon, contentDescription, modifier.clickable { expanded = !expanded })
@@ -92,8 +89,7 @@ fun SelectSettingItem(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = modifier
-                .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
+            modifier = modifier.width(330.dp)
         ) {
             suggestions.forEach { label ->
                 DropdownMenuItem(
@@ -105,6 +101,7 @@ fun SelectSettingItem(
             }
         }
     }
+
 }
 
 @Composable
@@ -134,7 +131,7 @@ fun AboutUsContent(modifier: Modifier = Modifier) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        EmojiContainer(Emoji("\uD83C\uDF46"), size = 200F)
+        EmojiContainer(Emoji(stringResource(id = R.string.main_emoji)), size = 200F)
         Text(
             text = stringResource(id = R.string.app_name),
             fontSize = 30.sp,
