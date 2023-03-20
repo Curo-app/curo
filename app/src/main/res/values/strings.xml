@@ -1,5 +1,27 @@
 <resources>
     <string name="app_name">Curo</string>
+    
+    <string name="home_route">home</string>
+    <string name="add_route">add</string>
+    <string name="settings_route">settings</string>
+    
+    <string name="home_screen_name">Home</string>
+    <string name="add_screen_name">Add</string>
+    <string name="settings_screen_name">Settings</string>
+    
+    <string name="search_hint">Search…</string>
+    
+    <string name="searchbar_icon_description">Search</string>
+    <string name="topappbar_settings_icon_description">Settings</string>
+    
+    <string name="title_textfield_hint">Title</string>
+    <string name="note_textfield_hint">Note</string>
+    
+    <string name="delete_note_content_description">Delete note</string>
+    <string name="share_note_content_description">Share note</string>
+    <string name="save_note_content_description">Save note</string>
+    <string name="discard_note_content_description">Discard changes</string>
+
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="shopping_list">Shopping list</string>
