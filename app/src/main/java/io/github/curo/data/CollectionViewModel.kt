@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import kotlin.random.Random
 
 @Stable
 class CollectionViewModel : ViewModel() {
@@ -41,21 +42,25 @@ class CollectionViewModel : ViewModel() {
 
                 val notes = listOf(
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                         description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE3F"),
                         name = "Забыть матан",
                         done = false
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE13"),
                         name = "Something",
                         description = "Buy milk",
                         done = false
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         deadline = Deadline.of(today),
                         emoji = Emoji("\uD83D\uDE02"),
                         name = "Не забыть про нюанс",
@@ -63,12 +68,14 @@ class CollectionViewModel : ViewModel() {
                         done = true,
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE02"),
                         name = "Там еще какой-то прикол был...",
                         description = "Что-то про еврея, американца и русского",
                         collections = listOf("Приколы").map { CollectionName(it) }
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         deadline = Deadline.of(today.plusDays(1)),
                         emoji = Emoji("\uD83D\uDC7D"),
                         name = "FP HW 3",
@@ -82,43 +89,52 @@ class CollectionViewModel : ViewModel() {
                         done = true
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         name = "Отжаться 21 раз",
                         done = true
                     )
                 )
                 val collections = listOf(
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         name = "Homework",
                         notes = listOf(notes[5])
                     ),
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         name = "Shopping list",
                         notes = notes.drop(1)
                     ),
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83E\uDD21"),
                         name = "Jokes",
                         notes = listOf(notes[4])
                     ),
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDC7D"),
                         name = "My super list",
                         notes = notes.drop(2)
                     ),
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         name = "TODO",
                         notes = notes.drop(5)
                     ),
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83C\uDF34"),
                         name = "Suuuuuuuuuuuuuuuuuuuper name",
                         notes = notes.drop(6)
                     ),
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         name = "Suuuuuuuuuuuuuuuuuuuuuuper list",
                         notes = notes.drop(4)
                     ),
                     CollectionPreviewModel(
+                        id = Random.nextInt(),
                         name = "Suuuuuuuuuuuuuuuuuuuuuuuuper list 22222",
                         notes = notes
                     ),

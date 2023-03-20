@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 
 @Stable
 class NotePreviewModel(
+    val id: Int,
     val deadline: Deadline? = null,
     val emoji: Emoji = Emoji("\uD83D\uDCDD"),
     val name: String,

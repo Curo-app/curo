@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import io.github.curo.data.*
+import kotlin.random.Random
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -149,19 +150,23 @@ fun CollectionsScreenPreview() {
 fun ClosedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
+            id = Random.nextInt(),
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
                 NotePreviewModel(
+                    id = Random.nextInt(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
                 NotePreviewModel(
+                    id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
                 NotePreviewModel(
+                    id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
@@ -186,19 +191,23 @@ fun ClosedCollectionPreview() {
 fun OpenedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
+            id = Random.nextInt(),
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
                 NotePreviewModel(
+                    id = Random.nextInt(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
                 NotePreviewModel(
+                    id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
                 NotePreviewModel(
+                    id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
@@ -223,10 +232,12 @@ fun OpenedCollectionPreview() {
 fun FinishedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
+            id = Random.nextInt(),
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
                 NotePreviewModel(
+                    id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",

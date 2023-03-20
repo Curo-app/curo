@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import kotlin.random.Random
 
 @Stable
 class NoteViewModel : ViewModel() {
@@ -26,21 +27,25 @@ class NoteViewModel : ViewModel() {
 
                 val notes = listOf(
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                         description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE3F"),
                         name = "Забыть матан",
                         done = false
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE13"),
                         name = "Something",
                         description = "Buy milk",
                         done = false
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         deadline = Deadline.of(today),
                         emoji = Emoji("\uD83D\uDE02"),
                         name = "Не забыть про нюанс",
@@ -48,12 +53,14 @@ class NoteViewModel : ViewModel() {
                         done = true
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE02"),
                         name = "Там еще какой-то прикол был...",
                         description = "Что-то про еврея, американца и русского",
                         collections = listOf("Приколы").map { CollectionName(it) }
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         deadline = Deadline.of(today.plusDays(1)),
                         emoji = Emoji("\uD83D\uDC7D"),
                         name = "FP HW 3",
@@ -67,18 +74,22 @@ class NoteViewModel : ViewModel() {
                         done = true
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         name = "Отжаться 21 раз",
                         done = true
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         name = "Отжаться 22 раз",
                         done = true
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         name = "Отжаться 23 раз",
                         done = true
                     ),
                     NotePreviewModel(
+                        id = Random.nextInt(),
                         name = "Отжаться 24 раз",
                         done = true
                     )
