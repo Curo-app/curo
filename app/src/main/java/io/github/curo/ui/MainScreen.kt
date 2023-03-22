@@ -11,8 +11,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
 import io.github.curo.data.BottomBarScreen
+import io.github.curo.data.CollectionViewModel
+import io.github.curo.ui.screens.CollectionsScreen
 import io.github.curo.ui.base.SearchBar
-import io.github.curo.ui.screens.HomeScreen
 
 @Composable
 fun SearchTopAppBar(
@@ -62,7 +63,7 @@ private fun NavigationBottomBar(onItemSelected: (Int) -> Unit = {}) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(/* navController: NavHostController = rememberNavController() */) {
+fun MainScreen(viewModel: CollectionViewModel, /* navController: NavHostController = rememberNavController() */) {
     var searchText by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
@@ -79,8 +80,6 @@ fun MainScreen(/* navController: NavHostController = rememberNavController() */)
         }
     ) { innerPadding ->
         // use HomeScreen() hardcoded for now
-        HomeScreen(
-            modifier = Modifier.padding(innerPadding)
-        )
+        CollectionsScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding))
     }
 }

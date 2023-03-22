@@ -99,7 +99,7 @@ fun FeedForced(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NoteCard(
+fun NoteCard(
     item: NotePreviewModel,
     onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionClick: ((CollectionName) -> Unit)?,

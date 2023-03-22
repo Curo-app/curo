@@ -12,8 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import io.github.curo.ui.MainScreen
 import io.github.curo.ui.theme.CuroTheme
 import androidx.activity.viewModels
+import androidx.compose.runtime.remember
 import io.github.curo.data.CollectionViewModel
-import io.github.curo.ui.base.Collections
 
 class MainActivity : ComponentActivity() {
 
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    MainScreen(viewModel = viewModel)
                 }
             }
             
@@ -45,7 +45,8 @@ fun AppPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            MainScreen()
+            val viewModel = remember { CollectionViewModel() }
+            MainScreen(viewModel = viewModel)
         }
     }
 }
