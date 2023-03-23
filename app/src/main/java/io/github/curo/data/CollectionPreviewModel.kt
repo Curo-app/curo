@@ -1,20 +1,28 @@
 package io.github.curo.data
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 
-@Immutable
-data class CollectionPreviewModel(
+@Stable
+class CollectionPreviewModel(
     val id: Int,
     val emoji: Emoji = Emoji("\uD83D\uDDC2"),
     val name: String,
     val notes: List<NotePreviewModel>
 ) {
-    val progress: CollectionProgress? by lazy {
-        val size = notes.size
-        val todoNotes = notes.filter { it.done != null }
+    val progress: CollectionProgress? by derivedStateOf {
+        notes.let { notes ->
+            val size = notes.size
+            val todoNotes = notes.count { it.done != null }
 
-        if (todoNotes.isEmpty()) null
-        else CollectionProgress(total = size, done = size - todoNotes.count { it.done == false })
+            if (todoNotes == 0) null
+            else CollectionProgress(
+                total = size,
+                done = size - notes.count { it.done == false }
+            )
+        }
     }
 }
 

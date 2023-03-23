@@ -1,8 +1,8 @@
 package io.github.curo.utils
 
-import android.icu.text.DateFormat
+import java.time.format.DateTimeFormatter
 
 object DateTimeUtils {
-    val dateFormatter: DateFormat = DateFormat.getDateInstance()
-    val timeShortFormatter: DateFormat = DateFormat.getTimeInstance(DateFormat.SHORT)
+    val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+    val timeShortFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 }

@@ -1,25 +1,26 @@
 package io.github.curo.data
 
 import androidx.compose.runtime.Immutable
-import java.util.Date
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Immutable
 sealed interface Deadline {
-    val date: Date
+    val date: LocalDate
 
     companion object {
-        fun of(date: Date) = SimpleDeadline(date)
-        fun of(date: Date, time: Date) = TimedDeadline(date, time)
+        fun of(date: LocalDate) = SimpleDeadline(date)
+        fun of(date: LocalDate, time: LocalTime) = TimedDeadline(date, time)
     }
 }
 
 @Immutable
 data class SimpleDeadline(
-    override val date: Date,
+    override val date: LocalDate,
 ) : Deadline
 
 @Immutable
 data class TimedDeadline(
-    override val date: Date,
-    val time: Date,
+    override val date: LocalDate,
+    val time: LocalTime,
 ) : Deadline

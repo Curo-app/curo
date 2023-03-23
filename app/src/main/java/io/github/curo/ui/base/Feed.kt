@@ -11,15 +11,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgeDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
@@ -47,11 +53,11 @@ import io.github.curo.data.CollectionName
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
 import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.NoteViewModel
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
-import java.util.Calendar
-import java.util.Date
+import java.time.LocalDate
 
 
 @Composable
@@ -59,14 +65,14 @@ fun Feed(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionClick: (CollectionName) -> Unit,
-    content: List<NotePreviewModel>,
+    viewModel: NoteViewModel,
 ) {
     LazyColumn(
         modifier = modifier
             .background(color = MaterialTheme.colorScheme.background)
             .wrapContentSize()
     ) {
-        items(content) { item ->
+        items(viewModel.items.value) { item ->
             NoteCard(
                 item = item,
                 onNoteClick = onNoteClick,
@@ -111,30 +117,59 @@ private fun NoteCard(
         supportingText = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
         leadingContent = { EmojiContainer(item.emoji) },
         overlineText = feedItemDeadlineFactory(item),
+        trailingContent = feedItemCheckboxFactory(item),
+        colors = listItemColors(item.done != true),
     )
 }
 
+@Composable
 @OptIn(ExperimentalMaterial3Api::class)
+fun listItemColors(enabled: Boolean): ListItemColors =
+    if (enabled) {
+        ListItemDefaults.colors()
+    } else {
+        ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.inverseOnSurface,
+            headlineColor = Color.DarkGray
+        )
+    }
+
+fun feedItemCheckboxFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
+    item.done?.let {
+        {
+            Checkbox(
+                modifier = Modifier.size(20.dp),
+                checked = it,
+                onCheckedChange = { item.done = it }
+            )
+        }
+    }
+
 fun feedItemDeadlineFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
     item.deadline?.let { deadline ->
         {
             val header = formatHeader(deadline)
             val hasWarn = hasWarn(deadline)
-            Row {
+            val color = when {
+                hasWarn && item.done == true -> MaterialTheme.colorScheme.secondary
+                hasWarn -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.outline
+            }
 
+            Row {
                 Text(
                     textAlign = TextAlign.Center,
                     text = header,
-                    color = if (hasWarn) BadgeDefaults.containerColor
-                    else MaterialTheme.colorScheme.outline,
+                    color = color,
                 )
                 if (hasWarn) {
-                    Badge(Modifier.padding(start = 4.dp)) {
-                        Text(
-                            textAlign = TextAlign.Center,
-                            text = "!",
-                        )
-                    }
+                    Icon(
+                        imageVector = if (item.done == true) Icons.Filled.CheckCircle
+                        else Icons.Filled.Error,
+                        contentDescription = stringResource(R.string.done),
+                        modifier = Modifier.padding(start = 4.dp).size(15.dp),
+                        tint = color,
+                    )
                 }
             }
         }
@@ -172,33 +207,19 @@ fun Modifier.cardModifier(
 }
 
 private fun hasWarn(deadline: Deadline): Boolean {
-    val afterTomorrow = Calendar.getInstance().apply {
-        time = Date()
-        set(Calendar.HOUR_OF_DAY, 0)
-        add(Calendar.DATE, 2)
-    }.time
-
-    return deadline.date.before(afterTomorrow)
+    val afterTomorrow = LocalDate.now().plusDays(2)
+    return deadline.date < afterTomorrow
 }
 
 @Composable
 private fun formatHeader(deadline: Deadline): String {
-    val calendar = Calendar.getInstance().apply {
-        time = Date()
-        set(Calendar.HOUR_OF_DAY, 0)
-    }
-
-    val tomorrow = calendar.apply {
-        add(Calendar.DATE, 1)
-    }.time
-    val afterTomorrow = calendar.apply {
-        add(Calendar.DATE, 1)
-    }.time
-
+    val today = remember { LocalDate.now() }
+    val tomorrow = remember { today.plusDays(1) }
+    val afterTomorrow = remember { tomorrow.plusDays(1) }
 
     val dateHeader = when {
-        deadline.date.before(tomorrow) -> stringResource(R.string.today)
-        deadline.date.before(afterTomorrow) -> stringResource(R.string.tomorrow)
+        deadline.date < tomorrow -> stringResource(R.string.today)
+        deadline.date < afterTomorrow -> stringResource(R.string.tomorrow)
         else -> dateFormatter.format(deadline.date)
     }
 
@@ -269,74 +290,13 @@ fun EmojiContainer(item: Emoji) {
 @Preview
 @Composable
 fun NoteCardPreview() {
-    val calendar = Calendar.getInstance().apply {
-        time = Date()
-    }
-
-    fun Calendar.inc(): Calendar {
-        add(Calendar.DATE, 1)
-        return this
-    }
+    val viewModel = remember { NoteViewModel() }
 
     Scaffold(
         content = { padding ->
             Feed(
                 modifier = Modifier.padding(padding),
-                content = listOf(
-                    NotePreviewModel(
-                        name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
-                        description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
-                    ),
-                    NotePreviewModel(
-                        emoji = Emoji("\uD83D\uDE3F"),
-                        name = "Забыть матан",
-                    ),
-                    NotePreviewModel(
-                        emoji = Emoji("\uD83D\uDE13"),
-                        name = "Something",
-                        description = "Buy milk",
-                    ),
-                    NotePreviewModel(
-                        deadline = Deadline.of(calendar.time),
-                        emoji = Emoji("\uD83D\uDE02"),
-                        name = "Не забыть про нюанс",
-                        collections = listOf("Приколы").map { CollectionName(it) }
-                    ),
-                    NotePreviewModel(
-                        deadline = Deadline.of(calendar.inc().time, Calendar.getInstance().time),
-                        emoji = Emoji("\uD83D\uDE02"),
-                        name = "Там еще какой-то прикол был...",
-                        description = "Что-то про еврея, американца и русского",
-                        collections = listOf("Приколы").map { CollectionName(it) }
-                    ),
-                    NotePreviewModel(
-                        deadline = Deadline.of(calendar.inc().time),
-                        emoji = Emoji("\uD83D\uDC7D"),
-                        name = "FP HW 3",
-                        description = "Надо быстрее сделать",
-                        collections = listOf(
-                            "Домашка",
-                            "Важное",
-                            "Haskell",
-                            "Ненавижу ФП"
-                        ).map { CollectionName(it) }
-                    ),
-                    NotePreviewModel(
-                        name = "Отжаться 21 раз",
-                    ),
-                    NotePreviewModel(
-                        name = "Отжаться 22 раза",
-                    ),
-                    NotePreviewModel(
-                        name = "Отжаться 24 раза",
-                    ),
-                    NotePreviewModel(
-                        name = "Отжаться 25 раз",
-                    ),
-                    NotePreviewModel(
-                        name = "Отжаться 26 раз",
-                    ),
-                ),
+                viewModel = viewModel,
                 onCollectionClick = {},
                 onNoteClick = {},
             )
