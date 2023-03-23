@@ -27,4 +27,10 @@
     <string name="shopping_list">Shopping list</string>
     <string name="todolist">TODOList</string>
     <string name="note">Note</string>
+
+    <string name="back_to_collections">Back to collections</string>
+    <string name="edit_collection">Edit Collection</string>
+    <string name="delete_collection">Delete Collection</string>
+    <string name="share_collection">Share Collection</string>
+    <string name="add_note">Add Note</string>
 </resources>
