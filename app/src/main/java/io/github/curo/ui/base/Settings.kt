@@ -45,7 +45,7 @@ fun Settings(modifier: Modifier = Modifier) {
 
 @Composable
 fun SettingsContent(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(horizontal = 30.dp, vertical = 5.dp)) {
+    Surface(modifier = modifier.padding(horizontal = 30.dp, vertical = 5.dp)) {
         Column(modifier.padding(5.dp)) {
             SelectSettingItem(
                 modifier = modifier,
