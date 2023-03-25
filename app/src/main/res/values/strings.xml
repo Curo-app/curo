@@ -3,11 +3,11 @@
     
     <string name="home_route">home</string>
     <string name="add_route">add</string>
-    <string name="settings_route">settings</string>
+    <string name="calendar_route">calendar</string>
     
     <string name="home_screen_name">Home</string>
     <string name="add_screen_name">Add</string>
-    <string name="settings_screen_name">Settings</string>
+    <string name="calendar_screen_name">Calendar</string>
     
     <string name="search_hint">Search…</string>
     
@@ -27,4 +27,6 @@
     <string name="shopping_list">Shopping list</string>
     <string name="todolist">TODOList</string>
     <string name="note">Note</string>
+    <string name="calendar_menu">Calendar menu</string>
+    <string name="calendar_search">Calendar search</string>
 </resources>

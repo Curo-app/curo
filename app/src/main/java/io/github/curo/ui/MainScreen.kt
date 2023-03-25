@@ -9,10 +9,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.kizitonwose.calendar.compose.rememberCalendarState
+import com.kizitonwose.calendar.core.OutDateStyle
+import com.kizitonwose.calendar.core.daysOfWeek
 import io.github.curo.R
 import io.github.curo.data.BottomBarScreen
 import io.github.curo.ui.base.SearchBar
-import io.github.curo.ui.screens.HomeScreen
+import io.github.curo.ui.screens.CalendarMenu
+import io.github.curo.ui.screens.CalendarMenuTopAppBar
+import java.time.YearMonth
 
 @Composable
 fun SearchTopAppBar(
@@ -43,7 +48,7 @@ fun SearchTopAppBar(
 
 @Composable
 private fun NavigationBottomBar(onItemSelected: (Int) -> Unit = {}) {
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableStateOf(2) }
     NavigationBar {
         BottomBarScreen.items.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -64,11 +69,25 @@ private fun NavigationBottomBar(onItemSelected: (Int) -> Unit = {}) {
 @Composable
 fun MainScreen(/* navController: NavHostController = rememberNavController() */) {
     var searchText by remember { mutableStateOf("") }
+
+    val currentMonth = remember { YearMonth.now() }
+    val startMonth = remember { currentMonth.minusMonths(100) }
+    val endMonth = remember { currentMonth.plusMonths(100) }
+    val daysOfWeek = remember { daysOfWeek() }
+    val state = rememberCalendarState(
+        startMonth = startMonth,
+        endMonth = endMonth,
+        firstVisibleMonth = currentMonth,
+        firstDayOfWeek = daysOfWeek.first(),
+        outDateStyle = OutDateStyle.EndOfGrid,
+    )
+
     Scaffold(
         topBar = {
-            // SearchBar is not yet implemented, so we need to make our own
-            SearchTopAppBar(
-                onSearch = { searchText = it }
+            CalendarMenuTopAppBar(
+                state,
+                onNavigationIconClick = { /* TODO */ },
+                onSearchIconClick = { /* TODO */ }
             )
         },
         bottomBar = {
@@ -79,8 +98,9 @@ fun MainScreen(/* navController: NavHostController = rememberNavController() */)
         }
     ) { innerPadding ->
         // use HomeScreen() hardcoded for now
-        HomeScreen(
-            modifier = Modifier.padding(innerPadding)
+        CalendarMenu(
+            modifier = Modifier.padding(innerPadding),
+            state,
         )
     }
 }
