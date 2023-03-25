@@ -10,7 +10,7 @@ class CollectionPreviewModel(
     val id: Int,
     val emoji: Emoji = Emoji("\uD83D\uDDC2"),
     val name: String,
-    val notes: List<NotePreviewModel>
+    val notes: List<Note>
 ) {
     val progress: CollectionProgress? by derivedStateOf {
         notes.let { notes ->

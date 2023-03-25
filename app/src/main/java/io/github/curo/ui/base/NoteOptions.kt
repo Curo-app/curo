@@ -60,9 +60,10 @@ import androidx.compose.ui.window.PopupProperties
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import io.github.curo.R
+import io.github.curo.data.CollectionName
 import io.github.curo.data.CollectionViewModel
 import io.github.curo.data.Deadline
-import io.github.curo.data.NotePatchModel
+import io.github.curo.data.NotePatch
 import io.github.curo.data.SimpleDeadline
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
@@ -76,12 +77,12 @@ private val emptyTextFieldValue = TextFieldValue("", TextRange.Zero)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteOptionsScreen(
-    note: NotePatchModel,
+    note: NotePatch,
     collectionViewModel: CollectionViewModel,
     onReturn: () -> Unit,
 ) {
     Scaffold(
-        topBar = { TopBar(onReturn) },
+        topBar = { NoteOptionsTopBar(onReturn) },
         content = {
             NoteOptions(
                 modifier = Modifier.padding(it),
@@ -94,7 +95,7 @@ fun NoteOptionsScreen(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(onReturn: () -> Unit) {
+private fun NoteOptionsTopBar(onReturn: () -> Unit) {
     TopAppBar(
         title = {
             Text(text = "Settings", style = MaterialTheme.typography.titleLarge)
@@ -114,7 +115,7 @@ private fun SettingsDivider() = Divider(modifier = Modifier.padding(vertical = 1
 @Composable
 private fun NoteOptions(
     modifier: Modifier = Modifier,
-    note: NotePatchModel,
+    note: NotePatch,
     collectionViewModel: CollectionViewModel,
 ) {
     val today = remember { LocalDate.now() }
@@ -292,7 +293,7 @@ private fun EmptyChip(
 @Composable
 private fun CollectionAdder(
     collectionViewModel: CollectionViewModel,
-    collections: SnapshotStateList<String>,
+    collections: SnapshotStateList<CollectionName>,
 ) {
     var suggestionState: Suggestion by remember { mutableStateOf(Suggestion.Hidden) }
     var textFieldValue by remember { mutableStateOf(emptyTextFieldValue) }
@@ -343,7 +344,7 @@ private fun CollectionAdder(
                     collections.size != MAX_NOTE_COLLECTIONS_AMOUNT,
             onClick = {
                 suggestionState = Suggestion.Suggested
-                collections += textFieldValue.text
+                collections += CollectionName(textFieldValue.text)
                 textFieldValue = TextFieldValue("", selection = TextRange.Zero)
             },
         )
@@ -474,7 +475,7 @@ private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? =
 } else null
 
 @Composable
-private fun CurrentCollections(collections: SnapshotStateList<String>) {
+private fun CurrentCollections(collections: SnapshotStateList<CollectionName>) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -488,18 +489,18 @@ private fun CurrentCollections(collections: SnapshotStateList<String>) {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
-    collection: String,
-    collections: SnapshotStateList<String>
+    current: CollectionName,
+    collections: SnapshotStateList<CollectionName>
 ) {
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = collection) },
+        label = { Text(text = current.name) },
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Clear,
                 contentDescription = stringResource(R.string.clear_collection),
-                modifier = Modifier.clickable { collections -= collection },
+                modifier = Modifier.clickable { collections -= current },
             )
         }
     )
@@ -514,7 +515,7 @@ sealed class Suggestion {
 @Preview
 @Composable
 fun NoteOptionsPreview() {
-    val noteModel = remember { NotePatchModel() }
+    val noteModel = remember { NotePatch() }
     val viewModel = remember { CollectionViewModel() }
     NoteOptionsScreen(noteModel, viewModel) {}
 }

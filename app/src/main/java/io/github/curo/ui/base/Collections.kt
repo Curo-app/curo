@@ -3,14 +3,18 @@ package io.github.curo.ui.base
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
@@ -20,7 +24,10 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Collections(viewModel: CollectionViewModel) {
+fun Collections(
+    onCollectionClick: (CollectionName) -> Unit,
+    viewModel: CollectionViewModel,
+) {
     val itemIds by viewModel.itemIds.collectAsState()
 
     Scaffold { padding ->
@@ -34,8 +41,9 @@ fun Collections(viewModel: CollectionViewModel) {
                 ExpandableCollectionView(
                     collection = item,
                     onNoteClick = {},
-                    onCollectionClick = { viewModel.onItemClicked(index) },
-                    isExpanded = itemIds.contains(index)
+                    onCollectionClick = onCollectionClick,
+                    isExpanded = itemIds.contains(index),
+                    onCollectionExpand = { viewModel.onItemClicked(index) },
                 )
             }
         }
@@ -45,13 +53,14 @@ fun Collections(viewModel: CollectionViewModel) {
 @Composable
 fun ExpandableCollectionView(
     collection: CollectionPreviewModel,
-    onNoteClick: (NotePreviewModel) -> Unit,
-    onCollectionClick: (CollectionPreviewModel) -> Unit,
-    isExpanded: Boolean
+    onNoteClick: (Note) -> Unit,
+    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionExpand: () -> Unit,
+    isExpanded: Boolean,
 ) {
     Box {
         Column {
-            CollectionCard(collection, onCollectionClick)
+            CollectionCard(collection, onCollectionClick, onCollectionExpand, isExpanded)
             CollectionNotes(collection.notes, onNoteClick, isExpanded)
         }
     }
@@ -61,22 +70,28 @@ fun ExpandableCollectionView(
 @Composable
 private fun CollectionCard(
     collection: CollectionPreviewModel,
-    onCollectionClick: (CollectionPreviewModel) -> Unit,
+    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionExpand: () -> Unit,
+    isExpanded: Boolean,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
-        modifier = Modifier.cardModifier(interactionSource) { onCollectionClick(collection) },
+        modifier = Modifier.cardModifier(interactionSource) {
+            onCollectionClick(
+                CollectionName(collection.name)
+            )
+        },
         headlineText = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },
-        trailingContent = collectionsProgressFactory(collection),
+        trailingContent = { CollectionTrailing(collection, isExpanded, onCollectionExpand) },
         colors = listItemColors(collection.progress?.run { !isFinished() } ?: true)
     )
 }
 
 @Composable
 fun CollectionNotes(
-    notes: List<NotePreviewModel>,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    notes: List<Note>,
+    onNoteClick: (Note) -> Unit,
     isExpanded: Boolean
 ) {
     // Opening Animation
@@ -114,7 +129,6 @@ fun CollectionNotes(
 }
 
 
-
 @Composable
 private fun CollectionsItemHeader(item: CollectionPreviewModel) {
     Text(
@@ -125,9 +139,31 @@ private fun CollectionsItemHeader(item: CollectionPreviewModel) {
     )
 }
 
-private fun collectionsProgressFactory(item: CollectionPreviewModel): @Composable (() -> Unit)? =
-    item.progress?.let {
-        {
+@Composable
+private fun CollectionTrailing(
+    item: CollectionPreviewModel,
+    isExpanded: Boolean,
+    onExpand: () -> Unit,
+) {
+    val arrowRotation by updateTransition(
+        targetState = isExpanded,
+        label = "ExpandCollectionArrowTransition"
+    ).animateFloat(
+        label = "ExpandCollectionArrowRotation",
+        transitionSpec = { tween(delayMillis = 100) }
+    ) {
+        if (it) 90f
+        else 0f
+    }
+
+    Row(
+        Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = { onExpand() },
+        )
+    ) {
+        item.progress?.let {
             Text(
                 text = it.toString(),
                 maxLines = 1,
@@ -136,13 +172,18 @@ private fun collectionsProgressFactory(item: CollectionPreviewModel): @Composabl
                 fontSize = 4.em
             )
         }
+        Icon(
+            modifier = Modifier.rotate(arrowRotation),
+            imageVector = Icons.Rounded.ArrowDropDown, contentDescription = "aboba"
+        )
     }
+}
 
 @Preview(showBackground = true)
 @Composable
 fun CollectionsScreenPreview() {
     val viewModel = remember { CollectionViewModel() }
-    Collections(viewModel = viewModel)
+    Collections(viewModel = viewModel, onCollectionClick = {})
 }
 
 @Preview(showBackground = true)
@@ -154,18 +195,18 @@ fun ClosedCollectionPreview() {
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                NotePreviewModel(
+                Note(
                     id = Random.nextInt(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                NotePreviewModel(
+                Note(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                NotePreviewModel(
+                Note(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
@@ -182,7 +223,8 @@ fun ClosedCollectionPreview() {
         ),
         onNoteClick = {},
         onCollectionClick = {},
-        isExpanded = false
+        isExpanded = false,
+        onCollectionExpand = {},
     )
 }
 
@@ -195,18 +237,18 @@ fun OpenedCollectionPreview() {
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                NotePreviewModel(
+                Note(
                     id = Random.nextInt(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                NotePreviewModel(
+                Note(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                NotePreviewModel(
+                Note(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
@@ -223,7 +265,8 @@ fun OpenedCollectionPreview() {
         ),
         onNoteClick = {},
         onCollectionClick = {},
-        isExpanded = true
+        isExpanded = true,
+        onCollectionExpand = {},
     )
 }
 
@@ -236,7 +279,7 @@ fun FinishedCollectionPreview() {
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                NotePreviewModel(
+                Note(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
@@ -253,6 +296,7 @@ fun FinishedCollectionPreview() {
         ),
         onNoteClick = {},
         onCollectionClick = {},
-        isExpanded = true
+        isExpanded = true,
+        onCollectionExpand = {},
     )
 }

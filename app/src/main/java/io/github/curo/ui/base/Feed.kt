@@ -3,6 +3,7 @@ package io.github.curo.ui.base
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -52,7 +53,7 @@ import io.github.curo.R
 import io.github.curo.data.CollectionName
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
-import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.Note
 import io.github.curo.data.NoteViewModel
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
@@ -63,7 +64,7 @@ import java.time.LocalDate
 @Composable
 fun Feed(
     modifier: Modifier = Modifier,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    onNoteClick: (Note) -> Unit,
     onCollectionClick: (CollectionName) -> Unit,
     viewModel: NoteViewModel,
 ) {
@@ -85,8 +86,8 @@ fun Feed(
 @Composable
 fun FeedForced(
     modifier: Modifier = Modifier,
-    onNoteClick: (NotePreviewModel) -> Unit,
-    content: List<NotePreviewModel>,
+    onNoteClick: (Note) -> Unit,
+    content: List<Note>,
 ) {
     Column(
         modifier = modifier
@@ -106,8 +107,8 @@ fun FeedForced(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NoteCard(
-    item: NotePreviewModel,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    item: Note,
+    onNoteClick: (Note) -> Unit,
     onCollectionClick: ((CollectionName) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
@@ -134,7 +135,7 @@ fun listItemColors(enabled: Boolean): ListItemColors =
         )
     }
 
-fun feedItemCheckboxFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
+fun feedItemCheckboxFactory(item: Note): @Composable (() -> Unit)? =
     item.done?.let {
         {
             Checkbox(
@@ -145,7 +146,7 @@ fun feedItemCheckboxFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
         }
     }
 
-fun feedItemDeadlineFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
+fun feedItemDeadlineFactory(item: Note): @Composable (() -> Unit)? =
     item.deadline?.let { deadline ->
         {
             val header = formatHeader(deadline)
@@ -167,7 +168,9 @@ fun feedItemDeadlineFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
                         imageVector = if (item.done == true) Icons.Filled.CheckCircle
                         else Icons.Filled.Error,
                         contentDescription = stringResource(R.string.done),
-                        modifier = Modifier.padding(start = 4.dp).size(15.dp),
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .size(15.dp),
                         tint = color,
                     )
                 }
@@ -176,7 +179,7 @@ fun feedItemDeadlineFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
     }
 
 @Composable
-private fun FeedItemHeader(item: NotePreviewModel) {
+private fun FeedItemHeader(item: Note) {
     Text(
         text = item.name,
         maxLines = 1,
@@ -231,7 +234,7 @@ private fun formatHeader(deadline: Deadline): String {
 }
 
 private fun feedItemSupportingTextFactory(
-    item: NotePreviewModel,
+    item: Note,
     onCollectionClick: (CollectionName) -> Unit,
 ): @Composable (() -> Unit)? = if (item.description != null || item.collections.isNotEmpty()) {
     {
@@ -291,6 +294,10 @@ fun EmojiContainer(item: Emoji, size: Float = 30F) {
 @Composable
 fun NoteCardPreview() {
     val viewModel = remember { NoteViewModel() }
+    var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Opened) }
+    val transition =
+        updateTransition(targetState = fabButtonState.opened(), label = "FABAddMenuTransition")
+    val fabAnimationProperties = fabAnimationProperties(transition)
 
     Scaffold(
         content = { padding ->
@@ -301,21 +308,15 @@ fun NoteCardPreview() {
                 onNoteClick = {},
             )
 
-            var isOpen by remember {
-                mutableStateOf(false)
-            }
-
             FABAddMenu(
-                isOpen = isOpen,
-                onToggle = { isOpen = !isOpen },
-                onClose = { state, _ ->
-                    if (state) {
-                        isOpen = !isOpen
-                    }
-                })
+                fabButtonState = fabButtonState,
+                onToggle = { fabButtonState = fabButtonState.act() },
+                onClose = { fabButtonState = fabButtonState.act() },
+                properties = fabAnimationProperties,
+            )
 
-            BackHandler(enabled = isOpen, onBack = {
-                isOpen = !isOpen
+            BackHandler(enabled = fabButtonState.opened(), onBack = {
+                fabButtonState = fabButtonState.act()
             })
         }
     )

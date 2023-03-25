@@ -7,10 +7,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 @Stable
-class NotePatchModel {
+class NotePatch(
+    val id: Int = 0,
+) {
     var name: String by mutableStateOf("My Note")
+    var content: String by mutableStateOf("")
 
     var deadline: Deadline? by mutableStateOf(null)
-    var collections = mutableStateListOf<String>()
+    var collections = mutableStateListOf<CollectionName>()
     var hasCheckbox by mutableStateOf(false)
 }

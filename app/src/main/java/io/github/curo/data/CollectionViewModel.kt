@@ -41,25 +41,25 @@ class CollectionViewModel : ViewModel() {
                 val today = LocalDate.now()
 
                 val notes = listOf(
-                    NotePreviewModel(
+                    Note(
                         id = Random.nextInt(),
                         name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                         description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                     ),
-                    NotePreviewModel(
+                    Note(
                         id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE3F"),
                         name = "Забыть матан",
                         done = false
                     ),
-                    NotePreviewModel(
+                    Note(
                         id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE13"),
                         name = "Something",
                         description = "Buy milk",
                         done = false
                     ),
-                    NotePreviewModel(
+                    Note(
                         id = Random.nextInt(),
                         deadline = Deadline.of(today),
                         emoji = Emoji("\uD83D\uDE02"),
@@ -67,14 +67,14 @@ class CollectionViewModel : ViewModel() {
                         collections = listOf("Приколы").map { CollectionName(it) },
                         done = true,
                     ),
-                    NotePreviewModel(
+                    Note(
                         id = Random.nextInt(),
                         emoji = Emoji("\uD83D\uDE02"),
                         name = "Там еще какой-то прикол был...",
                         description = "Что-то про еврея, американца и русского",
                         collections = listOf("Приколы").map { CollectionName(it) }
                     ),
-                    NotePreviewModel(
+                    Note(
                         id = Random.nextInt(),
                         deadline = Deadline.of(today.plusDays(1)),
                         emoji = Emoji("\uD83D\uDC7D"),
@@ -88,7 +88,7 @@ class CollectionViewModel : ViewModel() {
                         ).map { CollectionName(it) },
                         done = true
                     ),
-                    NotePreviewModel(
+                    Note(
                         id = Random.nextInt(),
                         name = "Отжаться 21 раз",
                         done = true

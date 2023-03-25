@@ -5,26 +5,20 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,48 +27,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.curo.data.FABMenuItem
+import io.github.curo.data.FABMenu
 
 @Composable
 fun FABAddMenu(
-    isOpen: Boolean,
-    onClose: (state: Boolean, selected: FABMenuItem) -> Unit,
+    fabButtonState: FABButtonState,
+    onClose: (selected: FABMenu) -> Unit,
     onToggle: () -> Unit,
+    properties: FABAnimationProperties,
 ) {
-    val transition = updateTransition(targetState = isOpen, label = "FABAddMenuTransition")
-    val (rotation, backgroundAlpha, actionMenuScale) = animationProperties(transition)
-
-    Box(Modifier.fabBackgroundModifier(isOpen, onClose, backgroundAlpha)) {
-        Column(
-            Modifier
-                .align(Alignment.BottomEnd)
-                .wrapContentSize(),
-            horizontalAlignment = Alignment.End
-        ) {
-            if (isOpen) {
-                ActiveFABMenu(
-                    isOpen = true,
-                    actionMenuScale = actionMenuScale,
-                    onClose = onClose,
-                )
-            }
-            MainAddButton(
-                onToggle = onToggle,
-                rotation = rotation,
+    if (fabButtonState == FABButtonState.Hidden) {
+        return
+    }
+    Column(
+        Modifier
+            .wrapContentSize()
+            .padding(end = 16.dp, bottom = 96.dp),
+        horizontalAlignment = Alignment.End
+    ) {
+        if (fabButtonState == FABButtonState.Opened) {
+            ActiveFABMenu(
+                actionMenuScale = properties.actionMenuScale,
+                onClose = onClose,
             )
         }
+        MainAddButton(
+            onToggle = onToggle,
+            rotation = properties.rotation,
+        )
     }
 }
 
 @Composable
 private fun MainAddButton(onToggle: () -> Unit, rotation: Float) {
     FloatingActionButton(
-        modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
         onClick = { onToggle() },
     ) {
         Icon(
@@ -86,7 +78,7 @@ private fun MainAddButton(onToggle: () -> Unit, rotation: Float) {
 }
 
 @Composable
-private fun animationProperties(transition: Transition<Boolean>) = FABAnimationProperties(
+fun fabAnimationProperties(transition: Transition<Boolean>) = FABAnimationProperties(
     rotation = transitionAnimation(
         transition = transition,
         trueValue = 45f
@@ -101,44 +93,27 @@ private fun animationProperties(transition: Transition<Boolean>) = FABAnimationP
     ),
 )
 
-@Suppress("SameParameterValue")
-// isOpen is delegated
+val fabMenu = listOf(FABMenu.Note, FABMenu.ShoppingList, FABMenu.TODOList)
+
 @Composable
 private fun ActiveFABMenu(
-    isOpen: Boolean,
     actionMenuScale: Float,
-    onClose: (state: Boolean, selected: FABMenuItem) -> Unit,
+    onClose: (selected: FABMenu) -> Unit,
 ) {
-    ActiveFABMenuItem(
-        item = FABMenuItem.ShoppingList,
-        icon = Icons.Filled.ShoppingCart,
-        isOpen = isOpen,
-        actionMenuScale = actionMenuScale,
-        onClose = onClose,
-    )
-    ActiveFABMenuItem(
-        item = FABMenuItem.TODOList,
-        icon = Icons.Filled.Menu,
-        isOpen = isOpen,
-        actionMenuScale = actionMenuScale,
-        onClose = onClose,
-    )
-    ActiveFABMenuItem(
-        item = FABMenuItem.Note,
-        icon = Icons.Filled.Edit,
-        isOpen = isOpen,
-        actionMenuScale = actionMenuScale,
-        onClose = onClose,
-    )
+    fabMenu.forEach {
+        ActiveFABMenuItem(
+            actionMenuScale = actionMenuScale,
+            onClose = onClose,
+            item = it,
+        )
+    }
 }
 
 @Composable
 private fun ActiveFABMenuItem(
-    isOpen: Boolean,
     actionMenuScale: Float,
-    onClose: (state: Boolean, selected: FABMenuItem) -> Unit,
-    item: FABMenuItem,
-    icon: ImageVector,
+    onClose: (selected: FABMenu) -> Unit,
+    item: FABMenu,
 ) {
     ExtendedFloatingActionButton(
         modifier = Modifier
@@ -146,11 +121,11 @@ private fun ActiveFABMenuItem(
             .padding(end = 16.dp)
             .height(40.dp),
         onClick = {
-            onClose(isOpen, item)
+            onClose(item)
         },
     ) {
-        val name = stringResource(item.id)
-        Icon(icon, name)
+        val name = stringResource(item.name)
+        Icon(item.icon, name)
         Spacer(modifier = Modifier.padding(start = 6.dp))
         Text(text = name)
     }
@@ -178,26 +153,19 @@ private fun transitionAnimation(
     return animationValue
 }
 
-private fun Modifier.fabBackgroundModifier(
+fun Modifier.fabBackgroundModifier(
     isOpen: Boolean,
-    onClose: (state: Boolean, selected: FABMenuItem) -> Unit,
-    backgroundAlpha: Float,
+    onClose: () -> Unit,
 ): Modifier =
     if (isOpen) {
-        clickable(
-            indication = null,
-            interactionSource = MutableInteractionSource(),
-            onClick = {
-                @Suppress("KotlinConstantConditions")
-                // isOpen is delegated
-                onClose(isOpen, FABMenuItem.None)
+        this
+            .pointerInput(onClose) { detectTapGestures { onClose() } }
+            .semantics(mergeDescendants = true) {
+                onClick { onClose(); true }
             }
-        )
     } else {
         this
     }
-        .fillMaxSize()
-        .background(Color.Black.copy(alpha = backgroundAlpha))
 
 data class FABAnimationProperties(
     val rotation: Float,
@@ -205,23 +173,42 @@ data class FABAnimationProperties(
     val actionMenuScale: Float,
 )
 
+@Immutable
+sealed class FABButtonState {
+    @Immutable
+    object Opened : FABButtonState()
+
+    @Immutable
+    object Closed : FABButtonState()
+
+    @Immutable
+    object Hidden : FABButtonState()
+
+    fun act() = when (this) {
+        Closed -> Opened
+        Hidden -> Hidden
+        Opened -> Closed
+    }
+
+    fun opened() = this == Opened
+}
+
 @Preview
 @Composable
 fun Preview_FABMenu() {
-    var isOpen by remember {
-        mutableStateOf(false)
-    }
+    var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Opened) }
+
+    val transition = updateTransition(targetState = fabButtonState.opened(), label = "FABAddMenuTransition")
+    val fabAnimationProperties = fabAnimationProperties(transition)
 
     FABAddMenu(
-        isOpen = isOpen,
-        onToggle = { isOpen = !isOpen },
-        onClose = { state, _ ->
-            if (state) {
-                isOpen = !isOpen
-            }
-        })
+        fabButtonState = fabButtonState,
+        onToggle = { fabButtonState = fabButtonState.act() },
+        onClose = {},
+        properties = fabAnimationProperties,
+    )
 
-    BackHandler(enabled = isOpen, onBack = {
-        isOpen = !isOpen
+    BackHandler(enabled = fabButtonState.opened(), onBack = {
+        fabButtonState = fabButtonState.act()
     })
 }

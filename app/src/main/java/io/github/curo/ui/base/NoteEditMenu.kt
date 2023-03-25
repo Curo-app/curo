@@ -14,14 +14,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
-import io.github.curo.data.Note
+import io.github.curo.data.NotePatch
 import io.github.curo.ui.theme.CuroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditMenu(
-    note: Note,
-    onSaveNote: (Note) -> Unit,
+    note: NotePatch,
+    onSaveNote: (NotePatch) -> Unit,
     onDiscardNote: () -> Unit,
     onShareNote: () -> Unit,
     onDeleteNode: () -> Unit
@@ -36,12 +36,9 @@ fun NoteEditMenu(
     val isBodyUnmoved = firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
 
     Scaffold(
-        topBar = { TopBar(onDiscardNote, isBodyUnmoved) },
+        topBar = { NoteOptionsTopBar(onDiscardNote, isBodyUnmoved) },
         bottomBar = { BottomBar(note, onSaveNote, onShareNote, onDeleteNode) },
     ) {
-        var title by remember { mutableStateOf(note.title) }
-        var content by remember { mutableStateOf(note.content) }
-
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -51,9 +48,9 @@ fun NoteEditMenu(
         ) {
             item {
                 TransparentHintTextField(
-                    text = title,
+                    text = note.name,
                     hint = stringResource(R.string.title_textfield_hint),
-                    onValueChange = { text -> title = text },
+                    onValueChange = { text -> note.name = text },
                     textStyle = TextStyle(
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
                     )
@@ -63,9 +60,9 @@ fun NoteEditMenu(
             item {
                 TransparentHintTextField(
                     modifier = Modifier.fillMaxHeight(),
-                    text = content,
+                    text = note.content,
                     hint = stringResource(R.string.note_textfield_hint),
-                    onValueChange = { text -> content = text },
+                    onValueChange = { text -> note.content = text },
                     textStyle = TextStyle(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
                     )
@@ -109,7 +106,7 @@ private fun TransparentHintTextField(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
+private fun NoteOptionsTopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
     Surface(
         tonalElevation = if (isUnmoved) 0.dp else 4.dp,
         color = MaterialTheme.colorScheme.surface,
@@ -130,8 +127,8 @@ private fun TopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
 
 @Composable
 private fun BottomBar(
-    note: Note,
-    onSaveNote: (Note) -> Unit,
+    note: NotePatch,
+    onSaveNote: (NotePatch) -> Unit,
     onShareNote: () -> Unit,
     onDeleteNode: () -> Unit
 ) {
@@ -176,9 +173,8 @@ private fun BottomBar(
 fun EditNoteScreenPreview() {
     val note by remember {
         mutableStateOf(
-            Note(
-                id = 1,
-                title = "",
+            NotePatch(1).apply {
+                name = ""
                 content = """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Habitant morbi tristique senectus et netus. Maecenas pharetra convallis posuere morbi leo urna molestie at. Ac feugiat sed lectus vestibulum. In ornare quam viverra orci sagittis eu volutpat odio. Phasellus faucibus scelerisque eleifend donec pretium. Laoreet id donec ultrices tincidunt arcu non. Et tortor consequat id porta. Sit amet consectetur adipiscing elit ut aliquam purus sit. Amet justo donec enim diam vulputate ut pharetra. Elit at imperdiet dui accumsan sit amet nulla facilisi. Eu sem integer vitae justo. In tellus integer feugiat scelerisque varius morbi enim.
 
@@ -192,7 +188,7 @@ fun EditNoteScreenPreview() {
             
             Cursus vitae congue mauris rhoncus aenean vel elit scelerisque. At elementum eu facilisis sed. Leo integer malesuada nunc vel risus commodo viverra maecenas. Sit amet risus nullam eget felis eget nunc lobortis. Ipsum faucibus vitae aliquet nec ullamcorper sit. Dignissim diam quis enim lobortis scelerisque fermentum dui faucibus. Mattis enim ut tellus elementum sagittis. Augue ut lectus arcu bibendum. Amet consectetur adipiscing elit duis. Imperdiet nulla malesuada pellentesque elit eget gravida cum.
         """.trimIndent()
-            )
+            }
         )
     }
     CuroTheme(darkTheme = true) {

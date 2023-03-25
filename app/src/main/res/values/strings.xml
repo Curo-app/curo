@@ -1,14 +1,13 @@
 <resources>
     <string name="app_name">Curo</string>
 
-    <string name="home_route">home</string>
-    <string name="add_route">add</string>
-    <string name="settings_route">settings</string>
 
-    <string name="home_screen_name">Home</string>
-    <string name="add_screen_name">Add</string>
+
+    <string name="collections_screen_name">Collections</string>
+    <string name="feed_screen_name">Feed</string>
+    <string name="calendar_screen_name">Calendar</string>
+    <string name="about_us_screen_name">About us</string>
     <string name="settings_screen_name">Settings</string>
-    <string name="about_us">About us</string>
 
     <string name="search_hint">Search…</string>
 
