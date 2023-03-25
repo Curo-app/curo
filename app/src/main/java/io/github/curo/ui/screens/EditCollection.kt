@@ -1,32 +1,45 @@
 package io.github.curo.ui.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.*
+import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import io.github.curo.R
-import io.github.curo.data.CollectionPreviewModel
-import io.github.curo.data.CollectionViewModel
+import io.github.curo.data.EditListViewModel
 import io.github.curo.ui.base.*
 import io.github.curo.ui.theme.CuroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditCollectionScreen(modifier: Modifier = Modifier, viewModel: CollectionPreviewModel) {
+fun EditCollectionScreen(viewModel: EditListViewModel, listName: String, modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = viewModel.name) },
+                title = { Text(text = listName) },
                 navigationIcon = {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
@@ -76,57 +89,117 @@ fun EditCollectionScreen(modifier: Modifier = Modifier, viewModel: CollectionPre
             )
         },
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(padding)
-                .background(color = MaterialTheme.colorScheme.background)
-                .wrapContentSize()
-        ) {
-            itemsIndexed(viewModel.notes) { _, item ->
-                NoteCard(
-                    item = item,
-                    onNoteClick = {},
-                    onCollectionClick = null,
+        EditItems(viewModel = viewModel, modifier = modifier.padding(padding))
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+fun SwipeBackground(dismissState: DismissState) {
+    val direction = dismissState.dismissDirection ?: return
+    val color by animateColorAsState(
+        when (dismissState.targetValue) {
+            DismissValue.Default -> MaterialTheme.colorScheme.surface
+            DismissValue.DismissedToEnd -> MaterialTheme.colorScheme.primary
+            DismissValue.DismissedToStart -> MaterialTheme.colorScheme.error
+        }
+    )
+    val alignment = when (direction) {
+        DismissDirection.StartToEnd -> Alignment.CenterStart
+        DismissDirection.EndToStart -> Alignment.CenterEnd
+    }
+    val icon = when (direction) {
+        DismissDirection.StartToEnd -> Icons.Default.Done
+        DismissDirection.EndToStart -> Icons.Default.Delete
+    }
+    val iconDescription = when (direction) {
+        DismissDirection.StartToEnd -> stringResource(R.string.done)
+        DismissDirection.EndToStart -> stringResource(R.string.delete)
+    }
+    val scale by animateFloatAsState(
+        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+    )
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(horizontal = 20.dp),
+        contentAlignment = alignment
+    ) {
+        Icon(
+            icon,
+            contentDescription = iconDescription,
+            modifier = Modifier.scale(scale)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@Composable
+fun EditItems(viewModel: EditListViewModel, modifier: Modifier = Modifier) {
+    val lazyListState = rememberLazyListState()
+    val editListState = viewModel.editListFlow.collectAsState()
+    LazyColumn(
+        modifier = modifier.fillMaxHeight(),
+        state = lazyListState
+    ) {
+        items(
+            items = editListState.value,
+            key = { editItem -> editItem.id },
+            itemContent = { item ->
+                val currentItem by rememberUpdatedState(item)
+                val dismissState = rememberDismissState(
+                    confirmStateChange = {
+                        if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
+                            viewModel.removeRecord(currentItem)
+                            true
+                        } else false
+                    }
+                )
+
+                if (dismissState.isDismissed(DismissDirection.EndToStart) ||
+                    dismissState.isDismissed(DismissDirection.StartToEnd)
+                ) {
+                    viewModel.removeRecord(item)
+                }
+
+                SwipeToDismiss(
+                    state = dismissState,
+                    modifier = Modifier
+                        .padding(vertical = 1.dp)
+                        .animateItemPlacement(),
+                    directions = setOf(
+                        DismissDirection.StartToEnd,
+                        DismissDirection.EndToStart
+                    ),
+                    dismissThresholds = { direction ->
+                        FractionalThreshold(
+                            if (direction == DismissDirection.StartToEnd) 0.33f else 0.20f
+                        )
+                    },
+                    background = {
+                        SwipeBackground(dismissState)
+                    },
+                    dismissContent = {
+                        NoteCard(item, { /* TODO */ }, { /* TODO */ })
+                    }
                 )
             }
-        }
+        )
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun EditCollectionScreenPreview1() {
-    val viewModel by remember { mutableStateOf(CollectionViewModel()) }
+fun EditCollectionPreview() {
+    val viewModel by remember { mutableStateOf(EditListViewModel()) }
     CuroTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            val items by viewModel.items.collectAsState()
-            if (items.isNotEmpty()) {
-                EditCollectionScreen(viewModel = items[1])
-            } else {
-                Text(text = "Unable to preview")
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EditCollectionScreenPreview2() {
-    val viewModel by remember { mutableStateOf(CollectionViewModel()) }
-    CuroTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            val items by viewModel.items.collectAsState()
-            if (items.isNotEmpty()) {
-                EditCollectionScreen(viewModel = items[2])
-            } else {
-                Text(text = "Unable to preview")
-            }
+            EditCollectionScreen(viewModel = viewModel, "Collection 1")
         }
     }
 }

@@ -33,4 +33,7 @@
     <string name="delete_collection">Delete Collection</string>
     <string name="share_collection">Share Collection</string>
     <string name="add_note">Add Note</string>
+
+    <string name="done">done</string>
+    <string name="delete">delete</string>
 </resources>

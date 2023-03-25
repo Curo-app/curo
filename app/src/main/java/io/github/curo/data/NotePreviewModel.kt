@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class NotePreviewModel(
+    val id: Int = 0,
     val deadline: Deadline? = null,
     val emoji: Emoji = Emoji("\uD83D\uDCDD"),
     val name: String,
