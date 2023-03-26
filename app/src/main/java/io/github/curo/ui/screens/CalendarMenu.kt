@@ -2,14 +2,18 @@ package io.github.curo.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.core.CalendarMonth
@@ -25,11 +29,20 @@ fun CalendarMenu(
 ) {
     Box(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Calendar(calendarState)
-    }
+            .padding(top = 12.dp)
+            .background(Color.LightGray)
+    ) // draw dividers between cells
+
+    // TODO: make calendar move with borders
+    Calendar(
+        modifier = modifier
+            .background(Color.Transparent) // in case first box color will be visible
+            .padding(bottom = 50.dp) // to show last row of calendar
+            .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
+        calendarState
+    )
+
+    // LazyColumn of Tags Collection
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
