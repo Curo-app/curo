@@ -89,17 +89,13 @@ fun MainScreen(/* navController: NavHostController = rememberNavController() */)
                 onNavigationIconClick = { /* TODO */ },
                 onSearchIconClick = { /* TODO */ }
             )
-        },
-        bottomBar = {
-            // TODO: rewrite this using proper navigation
-            NavigationBottomBar(
-                onItemSelected = { /* TODO */ }
-            )
         }
     ) { innerPadding ->
         // use HomeScreen() hardcoded for now
         CalendarMenu(
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
             state,
         )
     }
