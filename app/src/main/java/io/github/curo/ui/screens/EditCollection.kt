@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
-import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
@@ -19,7 +19,6 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,12 +33,25 @@ import io.github.curo.ui.theme.CuroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditCollectionScreen(viewModel: EditListViewModel, listName: String, modifier: Modifier = Modifier) {
+fun EditCollectionScreen(
+    viewModel: EditListViewModel,
+    modifier: Modifier = Modifier
+) {
+    val collectionFlow = viewModel.collectionFlow.collectAsState()
+    var text by remember { mutableStateOf(collectionFlow.value.name) }
     Scaffold(
         modifier = modifier,
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = listName) },
+                title = {
+                    BasicTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        textStyle = androidx.compose.material3.LocalTextStyle.current.copy(
+                            color = androidx.compose.material3.LocalContentColor.current
+                        ), // workaround for https://stackoverflow.com/questions/73700656/why-is-mediumtopappbar-and-large-showing-two-textfield-in-compose
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
@@ -54,12 +66,6 @@ fun EditCollectionScreen(viewModel: EditListViewModel, listName: String, modifie
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Edit,
-                            contentDescription = stringResource(R.string.edit_collection)
-                        )
-                    }
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(
                             imageVector = Icons.Rounded.Delete,
@@ -139,13 +145,13 @@ fun SwipeBackground(dismissState: DismissState) {
 @Composable
 fun EditItems(viewModel: EditListViewModel, modifier: Modifier = Modifier) {
     val lazyListState = rememberLazyListState()
-    val editListState = viewModel.editListFlow.collectAsState()
+    val editListState = viewModel.collectionFlow.collectAsState()
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
         state = lazyListState
     ) {
         items(
-            items = editListState.value,
+            items = editListState.value.notes,
             key = { editItem -> editItem.id },
             itemContent = { item ->
                 val currentItem by rememberUpdatedState(item)
@@ -199,7 +205,7 @@ fun EditCollectionPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            EditCollectionScreen(viewModel = viewModel, "Collection 1")
+            EditCollectionScreen(viewModel = viewModel)
         }
     }
 }
