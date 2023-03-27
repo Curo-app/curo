@@ -3,11 +3,15 @@ package io.github.curo.data
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
+class Collection(
+    var name: String,
+    val notes: MutableList<NotePreviewModel>
+)
+
 class EditListViewModel : ViewModel() {
-    private var editList = mutableStateListOf(
+    private val collection = Collection("Jokes", mutableStateListOf(
         NotePreviewModel(
             id = 0,
             name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
@@ -39,14 +43,14 @@ class EditListViewModel : ViewModel() {
             name = "Отжаться 21 раз",
             done = true
         )
-    )
+    ))
 
-    private val _editListFlow = MutableStateFlow(editList)
+    private val _collectionFlow = MutableStateFlow(collection)
 
-    val editListFlow: StateFlow<List<NotePreviewModel>> get() = _editListFlow
+    val collectionFlow: MutableStateFlow<Collection> get() = _collectionFlow
 
     fun removeRecord(editItemPreviewModel: NotePreviewModel) {
-        val index = editList.indexOf(editItemPreviewModel)
-        editList.remove(editList[index])
+        val index = collection.notes.indexOf(editItemPreviewModel)
+        collection.notes.remove(collection.notes[index])
     }
 }
