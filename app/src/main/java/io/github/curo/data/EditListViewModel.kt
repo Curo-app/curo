@@ -1,10 +1,12 @@
 package io.github.curo.data
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
+@Stable
 class Collection(
     var name: String,
     val notes: MutableList<NotePreviewModel>
