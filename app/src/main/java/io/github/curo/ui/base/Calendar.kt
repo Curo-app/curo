@@ -28,36 +28,34 @@ import java.time.LocalDateTime
 
 private val notes = generateNotes().groupBy { it.time.toLocalDate() }
 
-private val pageBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.background
+private val cellsBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.background
 
 @Composable
 fun Calendar(
     modifier: Modifier = Modifier,
     state: CalendarState,
 ) {
-    Box(modifier = modifier) {
-        HorizontalCalendar(
-            modifier = Modifier
-                .wrapContentWidth()
-                .background(Color.Transparent), // in case first box color will be visible
-            state = state,
-            dayContent = { day ->
-                val notes = if (day.position == DayPosition.MonthDate) {
-                    notes[day.date].orEmpty()
-                } else {
-                    emptyList()
-                }
-                Day(day, notes.sortedBy { it.time })
-            },
-            contentHeightMode = ContentHeightMode.Fill,
-            monthHeader = { month ->
-                val daysOfWeek = remember {
-                    month.weekDays.first().map { it.date.dayOfWeek }
-                }
-                DaysOfWeekTitle(daysOfWeek = daysOfWeek, calendarState = state)
+    HorizontalCalendar(
+        modifier = modifier
+            .wrapContentWidth()
+            .background(Color.Transparent),
+        state = state,
+        dayContent = { day ->
+            val notes = if (day.position == DayPosition.MonthDate) {
+                notes[day.date].orEmpty()
+            } else {
+                emptyList()
             }
-        )
-    }
+            Day(day, notes.sortedBy { it.time })
+        },
+        contentHeightMode = ContentHeightMode.Fill,
+        monthHeader = { month ->
+            val daysOfWeek = remember {
+                month.weekDays.first().map { it.date.dayOfWeek }
+            }
+            DaysOfWeekTitle(daysOfWeek = daysOfWeek, calendarState = state)
+        },
+    )
 }
 
 @Composable
@@ -68,18 +66,18 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
             .fillMaxHeight(1f)
             .fillMaxWidth(1f)
             .padding(0.2.dp)
-            .background(pageBackgroundColor),
+            .background(cellsBackgroundColor),
     ) {
-        val backGroundColor = if (
-            day.date == LocalDateTime.now().toLocalDate()
+        val backGroundColorForToday = if (
+            isCurrentDay(day)
         ) {
             MaterialTheme.colorScheme.primaryContainer
         } else {
             Color.Transparent
         }
 
-        val textColor = if (
-            day.date == LocalDateTime.now().toLocalDate()
+        val textColorForToday = if (
+            isCurrentDay(day)
         ) {
             MaterialTheme.colorScheme.primary
         } else {
@@ -94,7 +92,7 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
                     .padding(4.dp)
                     .align(Alignment.CenterHorizontally)
                     .clip(CircleShape)
-                    .background(backGroundColor)
+                    .background(backGroundColorForToday)
             ) {
                 Text(
                     modifier = Modifier
@@ -102,7 +100,7 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
                     text = "${day.date.dayOfMonth}",
                     fontWeight = FontWeight.Light,
                     fontSize = 12.sp,
-                    color = textColor,
+                    color = textColorForToday,
                 )
             }
 
@@ -136,16 +134,18 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
 }
 
 @Composable
+private fun isCurrentDay(day: CalendarDay) =
+    day.date == LocalDateTime.now().toLocalDate()
+
+@Composable
 fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>, calendarState: CalendarState) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
         for (dayOfWeek in daysOfWeek) {
-            val textColor = if (
-                dayOfWeek == LocalDateTime.now().dayOfWeek &&
-                calendarState.firstVisibleMonth.yearMonth.month == LocalDateTime.now().month &&
-                calendarState.firstVisibleMonth.yearMonth.year == LocalDateTime.now().year
+            val textColorForCurrentDayOfWeek = if (
+                isCurrentDayOfWeek(dayOfWeek, calendarState)
             ) {
                 MaterialTheme.colorScheme.primary
             } else {
@@ -157,13 +157,21 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>, calendarState: CalendarState) {
                     .padding(0.2.dp)
                     .weight(1f)
                     .height(20.dp)
-                    .background(pageBackgroundColor),
+                    .background(cellsBackgroundColor),
                 textAlign = TextAlign.Center,
                 text = dayOfWeek.name.lowercase().capitalizeFirstLetter().take(3),
                 fontWeight = FontWeight.Normal,
                 fontSize = 12.sp,
-                color = textColor,
+                color = textColorForCurrentDayOfWeek,
             )
         }
     }
 }
+
+@Composable
+private fun isCurrentDayOfWeek(
+    dayOfWeek: DayOfWeek,
+    calendarState: CalendarState
+) = dayOfWeek == LocalDateTime.now().dayOfWeek &&
+        calendarState.firstVisibleMonth.yearMonth.month == LocalDateTime.now().month &&
+        calendarState.firstVisibleMonth.yearMonth.year == LocalDateTime.now().year
