@@ -91,7 +91,6 @@ fun MainScreen(/* navController: NavHostController = rememberNavController() */)
             )
         }
     ) { innerPadding ->
-        // use HomeScreen() hardcoded for now
         CalendarMenu(
             modifier = Modifier
                 .padding(innerPadding)

@@ -3,12 +3,14 @@ package io.github.curo.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -27,22 +29,39 @@ fun CalendarMenu(
     modifier: Modifier = Modifier,
     calendarState: CalendarState,
 ) {
+    // Background theme color
     Box(
         modifier = modifier
             .padding(top = 12.dp)
             .background(Color.LightGray)
-    ) // draw dividers between cells
+    )
 
     // TODO: make calendar move with borders
     Calendar(
         modifier = modifier
-            .background(Color.Transparent) // in case first box color will be visible
-            .padding(bottom = 50.dp) // to show last row of calendar
+            .background(Color.Transparent)  // in case first box color will be visible
+            .padding(bottom = 50.dp)        // to show tags collection
             .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
         calendarState
     )
 
     // LazyColumn of Tags Collection
+    LazyRow(
+        modifier = modifier
+            .padding(bottom = 12.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        items(10) {
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(4.dp),
+                text = "Tag $it"
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
