@@ -100,13 +100,14 @@ fun FeedForced(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteCard(
+    modifier: Modifier = Modifier,
     item: NotePreviewModel,
     onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionClick: ((CollectionName) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
-        modifier = Modifier.cardModifier(interactionSource) { onNoteClick(item) },
+        modifier = modifier.cardModifier(interactionSource) { onNoteClick(item) },
         headlineText = { FeedItemHeader(item) },
         supportingText = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
         leadingContent = { EmojiContainer(item.emoji) },

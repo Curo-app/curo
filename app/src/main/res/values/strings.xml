@@ -36,4 +36,6 @@
 
     <string name="done">done</string>
     <string name="delete">delete</string>
+
+    <string name="clear_search_text">Clear search input</string>
 </resources>
