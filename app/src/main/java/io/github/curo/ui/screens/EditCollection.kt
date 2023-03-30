@@ -180,7 +180,7 @@ fun EditItems(viewModel: EditListViewModel, modifier: Modifier = Modifier) {
                         DismissDirection.EndToStart
                     ),
                     dismissThresholds = { direction ->
-                        FractionalThreshold(
+                        androidx.compose.material.FractionalThreshold(
                             if (direction == DismissDirection.StartToEnd) 0.33f else 0.20f
                         )
                     },
