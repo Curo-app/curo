@@ -108,7 +108,7 @@ fun AppScreen() {
                     /* TODO: EDIT COLLECTION SCREEN */
                 }
                 noteEditScreen(noteViewModel, mainNavController)
-                noteOptionsScreen(noteViewModel, collectionViewModel, mainNavController)
+                noteOptionsScreen(noteViewModel, mainNavController, collectionViewModel)
                 composable(Screen.SearchResult.route + "/{query}") {
                     /* TODO: SEARCH RESULT SCREEN */
                 }
@@ -152,8 +152,8 @@ private fun NavGraphBuilder.noteEditScreen(
 
 private fun NavGraphBuilder.noteOptionsScreen(
     noteViewModel: NoteViewModel,
+    mainNavController: NavHostController,
     collectionViewModel: CollectionViewModel,
-    mainNavController: NavHostController
 ) {
     composable(
         route = Screen.NoteOptions.route + "/{noteId}",
