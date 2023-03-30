@@ -5,31 +5,22 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import io.github.curo.data.BottomMenu
+import io.github.curo.data.BottomNavigationScreen
 import io.github.curo.ui.bottomMenu
 
 @Composable
-fun NavigationBottomBar(visible: Boolean, onItemSelected: (BottomMenu) -> Unit = {}) {
-    if (!visible) {
-        return
-    }
-    
-    var selectedItem: BottomMenu by remember { mutableStateOf(BottomMenu.Feed) }
+fun NavigationBottomBar(
+    selected: String?,
+    onItemSelected: (BottomNavigationScreen) -> Unit = {}
+) {
     NavigationBar {
         bottomMenu.forEach { item ->
             NavigationBarItem(
-                selected = selectedItem == item,
-                icon = { Icon(item.icon, contentDescription = stringResource(item.name)) },
-                label = { Text(stringResource(item.name)) },
-                onClick = {
-                    selectedItem = item
-                    onItemSelected(item)
-                }
+                selected = selected == item.route,
+                icon = { Icon(item.menuIcon, contentDescription = stringResource(item.menuName)) },
+                label = { Text(stringResource(item.menuName)) },
+                onClick = { onItemSelected(item) },
             )
         }
     }

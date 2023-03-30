@@ -24,7 +24,8 @@ fun NoteEditMenu(
     onSaveNote: (NotePatch) -> Unit,
     onDiscardNote: () -> Unit,
     onShareNote: () -> Unit,
-    onDeleteNode: () -> Unit
+    onDeleteNode: () -> Unit,
+    onPropertiesClick: () -> Unit,
 ) {
     val listState = rememberLazyListState()
     val firstVisibleItemIndex by remember {
@@ -37,7 +38,7 @@ fun NoteEditMenu(
 
     Scaffold(
         topBar = { NoteOptionsTopBar(onDiscardNote, isBodyUnmoved) },
-        bottomBar = { BottomBar(note, onSaveNote, onShareNote, onDeleteNode) },
+        bottomBar = { BottomBar(note, onSaveNote, onShareNote, onDeleteNode, onPropertiesClick) },
     ) {
         LazyColumn(
             state = listState,
@@ -130,7 +131,8 @@ private fun BottomBar(
     note: NotePatch,
     onSaveNote: (NotePatch) -> Unit,
     onShareNote: () -> Unit,
-    onDeleteNode: () -> Unit
+    onDeleteNode: () -> Unit,
+    onPropertiesClick: () -> Unit,
 ) {
     BottomAppBar(
         modifier = Modifier
@@ -150,6 +152,13 @@ private fun BottomBar(
             )
         },
         actions = {
+            IconButton(onClick = onPropertiesClick) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    contentDescription = stringResource(R.string.on_properties_description)
+                )
+            }
             IconButton(onClick = onShareNote) {
                 Icon(
                     imageVector = Icons.Default.Share,
@@ -198,7 +207,9 @@ fun EditNoteScreenPreview() {
                 onSaveNote = {},
                 onDiscardNote = {},
                 onShareNote = {},
-                onDeleteNode = {})
+                onDeleteNode = {},
+                onPropertiesClick = {},
+            )
         }
     }
 }

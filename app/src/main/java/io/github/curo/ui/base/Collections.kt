@@ -15,9 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import io.github.curo.R
 import io.github.curo.data.*
 import kotlin.random.Random
 
@@ -174,7 +176,8 @@ private fun CollectionTrailing(
         }
         Icon(
             modifier = Modifier.rotate(arrowRotation),
-            imageVector = Icons.Rounded.ArrowDropDown, contentDescription = "aboba"
+            imageVector = Icons.Rounded.ArrowDropDown,
+            contentDescription = stringResource(R.string.expand_collection_notes),
         )
     }
 }

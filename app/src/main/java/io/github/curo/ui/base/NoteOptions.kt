@@ -3,7 +3,6 @@ package io.github.curo.ui.base
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -23,9 +21,9 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +55,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import io.github.curo.R
@@ -290,6 +288,7 @@ private fun EmptyChip(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionAdder(
     collectionViewModel: CollectionViewModel,
@@ -305,8 +304,16 @@ private fun CollectionAdder(
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Box {
+        val expanded = suggestionState == Suggestion.Shown
+                && collectionViewModel.searchResult.isNotEmpty()
+                && textFieldValue.text.isNotBlank()
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { suggestionState = Suggestion.Hidden }
+        ) {
             CollectionNameTextField(
+                modifier = Modifier.menuAnchor(),
                 isError = collections.size == MAX_NOTE_COLLECTIONS_AMOUNT,
                 value = textFieldValue,
                 onValueChange = {
@@ -326,17 +333,24 @@ private fun CollectionAdder(
                 },
             )
 
-            CollectionSuggestMenu(
-                suggestions = collectionViewModel.searchResult,
-                expanded = suggestionState == Suggestion.Shown
-                        && collectionViewModel.searchResult.isNotEmpty()
-                        && textFieldValue.text.isNotBlank(),
+            ExposedDropdownMenu(
+                expanded = expanded,
                 onDismissRequest = { suggestionState = Suggestion.Hidden },
-                onClick = {
-                    suggestionState = Suggestion.Suggested
-                    textFieldValue = TextFieldValue(it, selection = TextRange(it.length))
-                },
-            )
+                modifier = Modifier.width(300.dp),
+            ) {
+                collectionViewModel.searchResult.forEach { label ->
+                    DropdownMenuItem(
+                        onClick = {
+                            suggestionState = Suggestion.Suggested
+                            textFieldValue = TextFieldValue(
+                                text = label,
+                                selection = TextRange(label.length)
+                            )
+                        },
+                        text = { Text(text = label) }
+                    )
+                }
+            }
         }
 
         AddCollectionButton(
@@ -369,31 +383,10 @@ private fun AddCollectionButton(
     ) { Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.add)) }
 }
 
-@Composable
-private fun CollectionSuggestMenu(
-    suggestions: List<String>,
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    onClick: (String) -> Unit,
-) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        modifier = Modifier.width(300.dp),
-        properties = PopupProperties(focusable = false)
-    ) {
-        suggestions.forEach { label ->
-            DropdownMenuItem(
-                onClick = { onClick(label) },
-                text = { Text(text = label) }
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionNameTextField(
+    modifier: Modifier,
     isError: Boolean,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -403,7 +396,7 @@ private fun CollectionNameTextField(
 
     OutlinedTextField(
         isError = isError,
-        modifier = Modifier
+        modifier = modifier
             .width(300.dp)
             .focusRequester(focusRequester),
         value = value,

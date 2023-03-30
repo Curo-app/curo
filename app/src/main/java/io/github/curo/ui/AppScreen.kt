@@ -7,13 +7,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.DrawerState
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.ModalDrawer
 import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberDrawerState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,17 +30,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import io.github.curo.data.BottomMenu
+import io.github.curo.data.BottomNavigationScreen
 import io.github.curo.data.CollectionName
 import io.github.curo.data.CollectionViewModel
-import io.github.curo.data.FABMenu
-import io.github.curo.data.MainScreen
-import io.github.curo.data.NoteOptionsScreen
+import io.github.curo.data.FABMenuItem
 import io.github.curo.data.NoteViewModel
-import io.github.curo.data.SideMenu
-import io.github.curo.ui.base.AboutUsContent
+import io.github.curo.data.Route
+import io.github.curo.data.Screen
+import io.github.curo.ui.base.AboutUs
 import io.github.curo.ui.base.Collections
 import io.github.curo.ui.base.FABAddMenu
 import io.github.curo.ui.base.FABButtonState
@@ -49,36 +49,81 @@ import io.github.curo.ui.base.NavigationBottomBar
 import io.github.curo.ui.base.NoteEditMenu
 import io.github.curo.ui.base.NoteOptionsScreen
 import io.github.curo.ui.base.SearchTopAppBar
-import io.github.curo.ui.base.SettingsContent
+import io.github.curo.ui.base.Settings
 import io.github.curo.ui.base.SideMenu
 import io.github.curo.ui.base.fabAnimationProperties
 import io.github.curo.ui.base.fabBackgroundModifier
+import io.github.curo.utils.NEW_ENTITY_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
-val bottomMenu = listOf(BottomMenu.Collections, BottomMenu.Feed, BottomMenu.Calendar)
+val bottomMenu = listOf(
+    BottomNavigationScreen.Collections,
+    BottomNavigationScreen.Feed,
+    BottomNavigationScreen.Calendar,
+)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppScreen(navController: NavHostController = rememberNavController()) {
+fun AppScreen() {
+    val mainNavController = rememberNavController()
+    val bottomNavigationNavController = rememberNavController()
+    val currentSideMenuItem by mainNavController.currentBackStackEntryAsState()
+
     val scope = rememberCoroutineScope()
     val noteViewModel = remember { NoteViewModel() }
     val collectionViewModel = remember { CollectionViewModel() }
 
-    NavHost(navController = navController, startDestination = MainScreen.route) {
-        navMainScreen(navController, scope, noteViewModel, collectionViewModel)
-        navEditNote(noteViewModel, collectionViewModel, navController)
-        navEditNoteSettings(noteViewModel, navController)
-    }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    SideMenu(
+        drawerState = drawerState,
+        onItemClick = { screen ->
+            scope.launch { drawerState.close() }
+            navigateSameScreen(mainNavController, screen)
+        },
+        content = {
+            NavHost(
+                navController = mainNavController,
+                startDestination = BottomNavigationScreen.route
+            ) {
+                composable(BottomNavigationScreen.route) {
+                    FABScreen(
+                        drawerState = drawerState,
+                        outerNavHost = mainNavController,
+                        innerNavHost = bottomNavigationNavController,
+                        scope = scope,
+                        noteViewModel = noteViewModel,
+                        collectionViewModel = collectionViewModel,
+                    )
+                }
 
+                composable(Screen.AboutUs.route) {
+                    AboutUs(drawerState, scope)
+                }
+                composable(Screen.Settings.route) {
+                    Settings(drawerState, scope)
+                }
+
+                composable(Screen.EditCollection.route + "/{collectionName}") {
+                    /* TODO: EDIT COLLECTION SCREEN */
+                }
+                noteEditScreen(noteViewModel, mainNavController)
+                noteOptionsScreen(noteViewModel, collectionViewModel, mainNavController)
+                composable(Screen.SearchResult.route + "/{query}") {
+                    /* TODO: SEARCH RESULT SCREEN */
+                }
+            }
+        },
+        selected = currentSideMenuItem?.destination?.route
+    )
 }
 
-private fun NavGraphBuilder.navEditNoteSettings(
+private fun NavGraphBuilder.noteEditScreen(
     noteViewModel: NoteViewModel,
-    navController: NavHostController
+    mainNavController: NavHostController
 ) {
     composable(
-        "${FABMenu.Note.route}/{noteId}",
+        route = Screen.EditNote.route + "/{noteId}",
         arguments = listOf(navArgument("noteId", builder = { type = NavType.IntType }))
     ) {
         val note by noteViewModel.patchItem.collectAsState(null)
@@ -87,24 +132,31 @@ private fun NavGraphBuilder.navEditNoteSettings(
                 note = it,
                 onSaveNote = {
                     /* TODO: Call view model save */
-                    navController.popBackStack()
+                    mainNavController.popBackStack()
                 },
                 onDiscardNote = {
-                    navController.popBackStack()
+                    mainNavController.popBackStack()
                 },
-                onShareNote = { /* TODO: sharing screen */ }) {
-            }
+                onShareNote = { /* TODO: sharing screen */ },
+                onPropertiesClick = {
+                    mainNavController.navigate(Screen.NoteOptions.route + '/' + it.id)
+                },
+                onDeleteNode = {
+                    /* TODO: delete node */
+                    mainNavController.popBackStack()
+                },
+            )
         }
     }
 }
 
-private fun NavGraphBuilder.navEditNote(
+private fun NavGraphBuilder.noteOptionsScreen(
     noteViewModel: NoteViewModel,
     collectionViewModel: CollectionViewModel,
-    navController: NavHostController
+    mainNavController: NavHostController
 ) {
     composable(
-        "${NoteOptionsScreen.route}/{noteId}",
+        route = Screen.NoteOptions.route + "/{noteId}",
         arguments = listOf(navArgument("noteId", builder = { type = NavType.IntType }))
     ) {
         val note by noteViewModel.patchItem.collectAsState(null)
@@ -114,91 +166,59 @@ private fun NavGraphBuilder.navEditNote(
                 collectionViewModel = collectionViewModel,
                 onReturn = {
                     /* TODO: Call view model save */
-                    navController.popBackStack()
+                    mainNavController.popBackStack()
                 },
             )
         }
     }
 }
 
-private fun NavGraphBuilder.navMainScreen(
-    navController: NavHostController,
-    scope: CoroutineScope,
-    noteViewModel: NoteViewModel,
-    collectionViewModel: CollectionViewModel
-) {
-    composable(MainScreen.route) {
-        MainScreen(
-            outerNavHost = navController,
-            scope = scope,
-            noteViewModel = noteViewModel,
-            collectionViewModel = collectionViewModel
-        )
-    }
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainScreen(
+private fun FABScreen(
+    drawerState: DrawerState,
     outerNavHost: NavHostController,
+    innerNavHost: NavHostController,
     scope: CoroutineScope,
     noteViewModel: NoteViewModel,
     collectionViewModel: CollectionViewModel
 ) {
-    val innerNavController = rememberNavController()
-    var isBottomBarVisible by remember { mutableStateOf(true) }
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
     var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Closed) }
 
-    ModalDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            SideMenu(onItemClick = { screen ->
-                scope.launch { drawerState.close() }
-                isBottomBarVisible = screen == SideMenu.HomeScreen || screen is BottomMenu
-                fabButtonState = if (isBottomBarVisible) {
-                    FABButtonState.Closed
-                } else {
-                    FABButtonState.Hidden
-                }
-                navigateSameScreen(innerNavController, screen)
-            })
+    FloatingActionButtonMenu(
+        onSearchClick = { query ->
+            outerNavHost.navigate(Screen.SearchResult.route + "/$query")
         },
-        content = {
-            FloatingActionButtonMenu(
-                onSearchClick = { /* TODO: search screen */ },
-                onFABMenuSelect = { menu ->
-                    outerNavHost.navigate("${menu.route}/${Random.nextInt()}") {
-                        popUpTo(innerNavController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                    }
-                },
-                onCollectionClick = { /* TODO: collection screen */ },
-                drawerState = drawerState,
-                scope = scope,
-                innerNavController = innerNavController,
-                isBottomBarVisible = isBottomBarVisible,
-                outerNavHost = outerNavHost,
-                noteViewModel = noteViewModel,
-                collectionViewModel = collectionViewModel,
-                onFABMenuAct = { fabButtonState = fabButtonState.act() },
-                fabButtonState = fabButtonState,
-            )
-        }
+        onFABMenuSelect = { menu ->
+            // Чтобы не делать два разных экрана для создания и изменения заметки будем считать,
+            // что изменение заметки с id = -1 это ее создание
+            outerNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
+        },
+        onCollectionClick = { collectionName ->
+            outerNavHost.navigate(Screen.EditCollection.route + "/$collectionName")
+        },
+        drawerState = drawerState,
+        scope = scope,
+        innerNavController = innerNavHost,
+        outerNavHost = outerNavHost,
+        noteViewModel = noteViewModel,
+        collectionViewModel = collectionViewModel,
+        onFABMenuAct = { fabButtonState = fabButtonState.act() },
+        fabButtonState = fabButtonState,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FloatingActionButtonMenu(
     onSearchClick: (String) -> Unit,
     onCollectionClick: (CollectionName) -> Unit,
-    onFABMenuSelect: (FABMenu) -> Unit,
+    onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
     fabButtonState: FABButtonState,
     drawerState: DrawerState,
     scope: CoroutineScope,
     innerNavController: NavHostController,
-    isBottomBarVisible: Boolean,
     outerNavHost: NavHostController,
     noteViewModel: NoteViewModel,
     collectionViewModel: CollectionViewModel,
@@ -214,12 +234,11 @@ private fun FloatingActionButtonMenu(
     BackHandler(enabled = fabButtonState.opened(), onBack = onFABMenuAct)
 
     Box(contentAlignment = Alignment.BottomEnd) {
-        MainScreen(
+        BottomNavBarScreen(
             onSearchClick,
             scope,
             drawerState,
             innerNavController,
-            isBottomBarVisible,
             outerNavHost,
             onCollectionClick,
             noteViewModel,
@@ -243,19 +262,20 @@ private fun FloatingActionButtonMenu(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainScreen(
+private fun BottomNavBarScreen(
     onSearchClick: (String) -> Unit,
     scope: CoroutineScope,
     drawerState: DrawerState,
     innerNavController: NavHostController,
-    isBottomBarVisible: Boolean,
     outerNavHost: NavHostController,
     onCollectionClick: (CollectionName) -> Unit,
     noteViewModel: NoteViewModel,
     collectionViewModel: CollectionViewModel
 ) {
     var searchText by remember { mutableStateOf("") }
+    val currentBottomMenuItem by innerNavController.currentBackStackEntryAsState()
     Scaffold(
         topBar = {
             SearchTopAppBar(
@@ -269,38 +289,24 @@ private fun MainScreen(
                 onItemSelected = { screen ->
                     navigateSameScreen(innerNavController, screen)
                 },
-                visible = isBottomBarVisible,
+                selected = currentBottomMenuItem?.destination?.route,
             )
         },
     ) { innerPadding ->
         NavHost(
             modifier = Modifier.padding(innerPadding),
             navController = innerNavController,
-            startDestination = BottomMenu.Feed.route
+            startDestination = BottomNavigationScreen.Feed.route
         ) {
-            navFeedScreen(outerNavHost, innerNavController, onCollectionClick, noteViewModel)
+            navFeedScreen(outerNavHost, onCollectionClick, noteViewModel)
             navCollectionsScreen(collectionViewModel, onCollectionClick)
             navCalendarScreen()
-            navAboutUsScreen()
-            navSettingsScreen()
         }
     }
 }
 
-private fun NavGraphBuilder.navSettingsScreen() =
-    composable(SideMenu.SettingsScreen.route) {
-        SettingsContent()
-    }
-
-
-private fun NavGraphBuilder.navAboutUsScreen() =
-    composable(SideMenu.AboutUsScreen.route) {
-        AboutUsContent()
-    }
-
-
 private fun NavGraphBuilder.navCalendarScreen() =
-    composable(BottomMenu.Calendar.route) {
+    composable(BottomNavigationScreen.Calendar.route) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -317,7 +323,7 @@ private fun NavGraphBuilder.navCalendarScreen() =
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,
     onCollectionClick: (CollectionName) -> Unit
-) = composable(BottomMenu.Collections.route) {
+) = composable(BottomNavigationScreen.Collections.route) {
     Collections(
         viewModel = collectionViewModel,
         onCollectionClick = onCollectionClick,
@@ -326,17 +332,12 @@ private fun NavGraphBuilder.navCollectionsScreen(
 
 private fun NavGraphBuilder.navFeedScreen(
     outerNavHost: NavHostController,
-    innerNavController: NavHostController,
     onCollectionClick: (CollectionName) -> Unit,
     noteViewModel: NoteViewModel
-) = composable(BottomMenu.Feed.route) {
+) = composable(BottomNavigationScreen.Feed.route) {
     Feed(
-        onNoteClick = {
-            outerNavHost.navigate("${FABMenu.Note.route}/${Random.nextInt()}") {
-                popUpTo(innerNavController.graph.findStartDestination().id) {
-                    saveState = true
-                }
-            }
+        onNoteClick = { note ->
+            outerNavHost.navigate(Screen.EditNote.route + '/' + note.id)
         },
         onCollectionClick = onCollectionClick,
         viewModel = noteViewModel
@@ -345,7 +346,7 @@ private fun NavGraphBuilder.navFeedScreen(
 
 private fun navigateSameScreen(
     innerNavController: NavHostController,
-    realScreen: MainScreen
+    realScreen: Route
 ) {
     innerNavController.navigate(realScreen.route) {
         // Pop up to the start destination of the graph to

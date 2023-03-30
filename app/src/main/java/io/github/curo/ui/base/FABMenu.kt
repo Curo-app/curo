@@ -33,12 +33,13 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.curo.data.FABMenu
+import io.github.curo.data.FABMenuItem
+import io.github.curo.data.Screen
 
 @Composable
 fun FABAddMenu(
     fabButtonState: FABButtonState,
-    onClose: (selected: FABMenu) -> Unit,
+    onClose: (selected: FABMenuItem) -> Unit,
     onToggle: () -> Unit,
     properties: FABAnimationProperties,
 ) {
@@ -93,12 +94,12 @@ fun fabAnimationProperties(transition: Transition<Boolean>) = FABAnimationProper
     ),
 )
 
-val fabMenu = listOf(FABMenu.Note, FABMenu.ShoppingList, FABMenu.TODOList)
+val fabMenu: List<FABMenuItem> = listOf(Screen.EditNote, Screen.EditCollection)
 
 @Composable
 private fun ActiveFABMenu(
     actionMenuScale: Float,
-    onClose: (selected: FABMenu) -> Unit,
+    onClose: (selected: FABMenuItem) -> Unit,
 ) {
     fabMenu.forEach {
         ActiveFABMenuItem(
@@ -112,20 +113,19 @@ private fun ActiveFABMenu(
 @Composable
 private fun ActiveFABMenuItem(
     actionMenuScale: Float,
-    onClose: (selected: FABMenu) -> Unit,
-    item: FABMenu,
+    onClose: (selected: FABMenuItem) -> Unit,
+    item: FABMenuItem,
 ) {
     ExtendedFloatingActionButton(
         modifier = Modifier
             .scale(actionMenuScale)
-            .padding(end = 16.dp)
             .height(40.dp),
         onClick = {
             onClose(item)
         },
     ) {
-        val name = stringResource(item.name)
-        Icon(item.icon, name)
+        val name = stringResource(item.menuName)
+        Icon(item.menuIcon, name)
         Spacer(modifier = Modifier.padding(start = 6.dp))
         Text(text = name)
     }
@@ -198,7 +198,8 @@ sealed class FABButtonState {
 fun Preview_FABMenu() {
     var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Opened) }
 
-    val transition = updateTransition(targetState = fabButtonState.opened(), label = "FABAddMenuTransition")
+    val transition =
+        updateTransition(targetState = fabButtonState.opened(), label = "FABAddMenuTransition")
     val fabAnimationProperties = fabAnimationProperties(transition)
 
     FABAddMenu(
