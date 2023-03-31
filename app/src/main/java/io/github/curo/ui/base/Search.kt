@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +18,33 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
+
+@Composable
+fun SearchTopAppBar(
+    modifier: Modifier = Modifier,
+    onSearchClick: (String) -> Unit = {},
+    onMenuClick: () -> Unit = {},
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onMenuClick) {
+            Icon(
+                imageVector = Icons.Rounded.Menu,
+                contentDescription = stringResource(R.string.topappbar_menu_icon_description),
+            )
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        SearchBar(
+            modifier = Modifier
+                .weight(1f),
+            onSearch = onSearchClick
+        )
+    }
+}
 
 @Composable
 fun SearchBar(

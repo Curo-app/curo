@@ -1,54 +1,46 @@
 package io.github.curo.ui.base
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.*
-import androidx.compose.material.DropdownMenu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toSize
 import io.github.curo.R
 import io.github.curo.data.Emoji
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(modifier: Modifier = Modifier) {
-    NavigationMenu(
-        modifier = modifier,
-        topBar = { scope, scaffoldState ->
+fun Settings(drawerState: DrawerState, scope: CoroutineScope) {
+    Scaffold(
+        topBar = {
             TextTopAppBar(
                 text = stringResource(id = R.string.settings_screen_name),
-                onMenuClick = {
-                    scope.launch {
-                        scaffoldState.drawerState.open()
-                    }
-                }
+                onMenuClick = { scope.launch { drawerState.open() } }
             )
         },
-        content = { contentModifier, innerPadding ->
-            SettingsContent(modifier = contentModifier.padding(innerPadding))
-        })
+        content = { padding ->
+            SettingsContent(Modifier.padding(padding))
+        }
+    )
 }
 
 @Composable
-fun SettingsContent(modifier: Modifier = Modifier) {
+private fun SettingsContent(modifier: Modifier = Modifier) {
     Surface(modifier = modifier.padding(horizontal = 30.dp, vertical = 5.dp)) {
-        Column(modifier.padding(5.dp)) {
+        Column(Modifier.padding(5.dp)) {
             SelectSettingItem(
-                modifier = modifier,
                 suggestions = listOf(
                     stringResource(id = R.string.russian_lang),
                     stringResource(id = R.string.english_lang)
@@ -76,20 +68,26 @@ fun SelectSettingItem(
         else Icons.Rounded.KeyboardArrowDown
 
 
-    Box {
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
         OutlinedTextField(
             value = selectedText,
             onValueChange = { selectedText = it },
-            modifier = modifier.width(330.dp),
+            modifier = modifier
+                .width(330.dp)
+                .menuAnchor(),
             label = { Text(label) },
             trailingIcon = {
-                Icon(icon, contentDescription, modifier.clickable { expanded = !expanded })
-            }
+                Icon(icon, contentDescription)
+            },
+            singleLine = true,
+            readOnly = true,
         )
-        DropdownMenu(
+        ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = modifier.width(330.dp)
         ) {
             suggestions.forEach { label ->
                 DropdownMenuItem(
@@ -97,51 +95,55 @@ fun SelectSettingItem(
                     onClick = {
                         selectedText = label
                         expanded = false
-                    })
+                    }
+                )
             }
         }
     }
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutUs(modifier: Modifier = Modifier) {
-    NavigationMenu(
-        modifier = modifier,
-        topBar = { scope, scaffoldState ->
+fun AboutUs(drawerState: DrawerState, scope: CoroutineScope) {
+    Scaffold(
+        topBar = {
             TextTopAppBar(
-                text = stringResource(id = R.string.about_us),
-                onMenuClick = {
-                    scope.launch {
-                        scaffoldState.drawerState.open()
-                    }
-                }
+                text = stringResource(id = R.string.about_us_screen_name),
+                onMenuClick = { scope.launch { drawerState.open() } }
             )
         },
-        content = { contentModifier, innerPadding ->
-            AboutUsContent(contentModifier.padding(innerPadding))
-        })
+        content = { padding ->
+            AboutUsContent(
+                Modifier.padding(padding)
+            )
+        }
+    )
 }
 
 @Composable
-fun AboutUsContent(modifier: Modifier = Modifier) {
-    Column(
+private fun AboutUsContent(modifier: Modifier = Modifier) {
+    LazyColumn(
         modifier = modifier
             .padding(horizontal = 30.dp, vertical = 5.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        EmojiContainer(Emoji(stringResource(id = R.string.main_emoji)), size = 200F)
-        Text(
-            text = stringResource(id = R.string.app_name),
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            modifier = modifier.padding(horizontal = 1.dp, vertical = 20.dp),
-            text = stringResource(id = R.string.about_us_text),
-            fontSize = 18.sp
-        )
+        item { EmojiContainer(Emoji(stringResource(id = R.string.main_emoji)), size = 200F) }
+        item {
+            Text(
+                text = stringResource(id = R.string.app_name),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        item {
+            Text(
+                modifier = modifier.padding(horizontal = 1.dp, vertical = 20.dp),
+                text = stringResource(id = R.string.about_us_text),
+                fontSize = 18.sp
+            )
+        }
     }
 }
 
@@ -167,11 +169,11 @@ fun TextTopAppBar(modifier: Modifier = Modifier, text: String, onMenuClick: () -
 @Preview(showBackground = true)
 @Composable
 fun AboutUsPreview() {
-    AboutUs()
+    AboutUsContent()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun SettingsPreview() {
-    Settings()
+    SettingsContent()
 }

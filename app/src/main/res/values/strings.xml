@@ -1,14 +1,13 @@
 <resources>
     <string name="app_name">Curo</string>
 
-    <string name="home_route">home</string>
-    <string name="add_route">add</string>
-    <string name="settings_route">settings</string>
 
-    <string name="home_screen_name">Home</string>
-    <string name="add_screen_name">Add</string>
+
+    <string name="collections_screen_name">Collections</string>
+    <string name="feed_screen_name">Feed</string>
+    <string name="calendar_screen_name">Calendar</string>
+    <string name="about_us_screen_name">About us</string>
     <string name="settings_screen_name">Settings</string>
-    <string name="about_us">About us</string>
 
     <string name="search_hint">Search…</string>
 
@@ -26,14 +25,13 @@
 
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
-    <string name="shopping_list">Shopping list</string>
-    <string name="todolist">TODOList</string>
+    <string name="collection">Collection</string>
     <string name="note">Note</string>
 
     <string name="home_content_description">Go to home screen</string>
     <string name="settings_content_description">App settings</string>
     <string name="about_us_content_description">Info about app</string>
-    <string name="about_us_text">Donec efficitur mi nulla, maximus tincidunt massa pellentesque a. Vivamus blandit, erat a rutrum mollis, tortor mauris luctus elit, eget lobortis quam tortor non lacus. In luctus auctor scelerisque. Vivamus pellentesque nisl sed ligula imperdiet vehicula. Aliquam auctor non sem vitae dictum. In non ipsum faucibus, vulputate nisl quis, accumsan augue. Aliquam non aliquam lacus.</string>
+    <string name="about_us_text">Donec efficitur mi nulla, maximus tincidunt massa pellentesque a. Vivamus blandit, erat a rutrum mollis, tortor mauris luctus elit, eget lobortis quam tortor non lacus. In luctus auctor scelerisque. Vivamus pellentesque nisl sed ligula imperdiet vehicula. Aliquam auctor non sem vitae dictum. In non ipsum faucibus, vulputate nisl quis, accumsan augue. Aliquam non aliquam lacus.Donec efficitur mi nulla, maximus tincidunt massa pellentesque a. Vivamus blandit, erat a rutrum mollis, tortor mauris luctus elit, eget lobortis quam tortor non lacus. In luctus auctor scelerisque. Vivamus pellentesque nisl sed ligula imperdiet vehicula. Aliquam auctor non sem vitae dictum. In non ipsum faucibus, vulputate nisl quis, accumsan augue. Aliquam non aliquam lacus.</string>
 
     <string name="russian_lang">Russian</string>
     <string name="english_lang">English</string>
@@ -51,4 +49,6 @@
     <string name="with_checkbox">With checkbox</string>
     <string name="clear_collection">Clear collection</string>
     <string name="done">Done</string>
+    <string name="expand_collection_notes">Expand collection notes</string>
+    <string name="on_properties_description">on properties description</string>
 </resources>
