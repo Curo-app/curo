@@ -11,8 +11,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -20,14 +18,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
+import io.github.curo.data.CollectionName
 import io.github.curo.data.EditListViewModel
+import io.github.curo.data.Note
+import io.github.curo.data.SwipeProperties
 import io.github.curo.ui.base.*
 import io.github.curo.ui.theme.CuroTheme
 
@@ -35,7 +35,13 @@ import io.github.curo.ui.theme.CuroTheme
 @Composable
 fun EditCollectionScreen(
     viewModel: EditListViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNoteClick: (Note) -> Unit,
+    onCollectionClick: (CollectionName) -> Unit,
+    onAddNoteClick: () -> Unit,
+    onDeleteCollectionClick: () -> Unit,
+    onShareCollectionClick: () -> Unit,
+    onBackToMenuClick: () -> Unit
 ) {
     val collectionFlow = viewModel.collectionFlow.collectAsState()
     var text by remember { mutableStateOf(collectionFlow.value.name) }
@@ -53,7 +59,7 @@ fun EditCollectionScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = onBackToMenuClick) {
                         Icon(
                             imageVector = Icons.Rounded.ArrowBack,
                             contentDescription = stringResource(R.string.back_to_collections)
@@ -66,13 +72,13 @@ fun EditCollectionScreen(
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
+                    IconButton(onClick = onDeleteCollectionClick) {
                         Icon(
                             imageVector = Icons.Rounded.Delete,
                             contentDescription = stringResource(R.string.delete_collection)
                         )
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
+                    IconButton(onClick = onShareCollectionClick) {
                         Icon(
                             imageVector = Icons.Rounded.Share,
                             contentDescription = stringResource(R.string.share_collection)
@@ -82,7 +88,7 @@ fun EditCollectionScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { /* do something */ },
+                        onClick = onAddNoteClick,
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {
@@ -95,7 +101,12 @@ fun EditCollectionScreen(
             )
         },
     ) { padding ->
-        EditItems(viewModel = viewModel, modifier = modifier.padding(padding))
+        EditItems(
+            viewModel = viewModel,
+            modifier = modifier.padding(padding),
+            onNoteClick = onNoteClick,
+            onCollectionClick = onCollectionClick
+        )
     }
 }
 
@@ -110,18 +121,9 @@ fun SwipeBackground(dismissState: DismissState) {
             DismissValue.DismissedToStart -> MaterialTheme.colorScheme.error
         }
     )
-    val alignment = when (direction) {
-        DismissDirection.StartToEnd -> Alignment.CenterStart
-        DismissDirection.EndToStart -> Alignment.CenterEnd
-    }
-    val icon = when (direction) {
-        DismissDirection.StartToEnd -> Icons.Default.Done
-        DismissDirection.EndToStart -> Icons.Default.Delete
-    }
-    val iconDescription = when (direction) {
-        DismissDirection.StartToEnd -> stringResource(R.string.done)
-        DismissDirection.EndToStart -> stringResource(R.string.delete)
-    }
+
+    val swipeProperties = SwipeProperties.of(direction)
+
     val scale by animateFloatAsState(
         if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
     )
@@ -131,11 +133,11 @@ fun SwipeBackground(dismissState: DismissState) {
             .fillMaxSize()
             .background(color)
             .padding(horizontal = 20.dp),
-        contentAlignment = alignment
+        contentAlignment = swipeProperties.alignment
     ) {
         Icon(
-            icon,
-            contentDescription = iconDescription,
+            imageVector = swipeProperties.icon,
+            contentDescription = stringResource(swipeProperties.contentDescriptionId),
             modifier = Modifier.scale(scale)
         )
     }
@@ -143,7 +145,12 @@ fun SwipeBackground(dismissState: DismissState) {
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun EditItems(viewModel: EditListViewModel, modifier: Modifier = Modifier) {
+fun EditItems(
+    viewModel: EditListViewModel,
+    modifier: Modifier = Modifier,
+    onNoteClick: (Note) -> Unit,
+    onCollectionClick: ((CollectionName) -> Unit)?
+) {
     val lazyListState = rememberLazyListState()
     val editListState = viewModel.collectionFlow.collectAsState()
     LazyColumn(
@@ -152,47 +159,46 @@ fun EditItems(viewModel: EditListViewModel, modifier: Modifier = Modifier) {
     ) {
         items(
             items = editListState.value.notes,
-            key = { editItem -> editItem.id },
-            itemContent = { item ->
-                val currentItem by rememberUpdatedState(item)
-                val dismissState = rememberDismissState(
-                    confirmStateChange = {
-                        if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
-                            viewModel.removeRecord(currentItem)
-                            true
-                        } else false
-                    }
-                )
-
-                if (dismissState.isDismissed(DismissDirection.EndToStart) ||
-                    dismissState.isDismissed(DismissDirection.StartToEnd)
-                ) {
-                    viewModel.removeRecord(item)
+            key = { editItem -> editItem.id }
+        ) { item ->
+            val currentItem by rememberUpdatedState(item)
+            val dismissState = rememberDismissState(
+                confirmStateChange = {
+                    if (it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd) {
+                        viewModel.removeRecord(currentItem)
+                        true
+                    } else false
                 }
+            )
 
-                SwipeToDismiss(
-                    state = dismissState,
-                    modifier = Modifier
-                        .padding(vertical = 1.dp)
-                        .animateItemPlacement(),
-                    directions = setOf(
-                        DismissDirection.StartToEnd,
-                        DismissDirection.EndToStart
-                    ),
-                    dismissThresholds = { direction ->
-                        androidx.compose.material.FractionalThreshold(
-                            if (direction == DismissDirection.StartToEnd) 0.33f else 0.20f
-                        )
-                    },
-                    background = {
-                        SwipeBackground(dismissState)
-                    },
-                    dismissContent = {
-                        NoteCard(item, { /* TODO */ }, { /* TODO */ })
-                    }
-                )
+            if (dismissState.isDismissed(DismissDirection.EndToStart) ||
+                dismissState.isDismissed(DismissDirection.StartToEnd)
+            ) {
+                viewModel.removeRecord(item)
             }
-        )
+
+            SwipeToDismiss(
+                state = dismissState,
+                modifier = Modifier
+                    .padding(vertical = 1.dp)
+                    .animateItemPlacement(),
+                directions = setOf(
+                    DismissDirection.StartToEnd,
+                    DismissDirection.EndToStart
+                ),
+                dismissThresholds = { direction ->
+                    androidx.compose.material.FractionalThreshold(
+                        if (direction == DismissDirection.StartToEnd) 0.33f else 0.20f
+                    )
+                },
+                background = {
+                    SwipeBackground(dismissState)
+                },
+                dismissContent = {
+                    NoteCard(item, onNoteClick, onCollectionClick)
+                }
+            )
+        }
     }
 }
 
@@ -205,7 +211,15 @@ fun EditCollectionPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            EditCollectionScreen(viewModel = viewModel)
+            EditCollectionScreen(
+                viewModel = viewModel,
+                onNoteClick = { /* TODO */ },
+                onCollectionClick = { /* TODO */ },
+                onAddNoteClick = { /* do something */ },
+                onDeleteCollectionClick = { /* do something */ },
+                onShareCollectionClick = { /* do something */ },
+                onBackToMenuClick = { /* do something */ }
+            )
         }
     }
 }
