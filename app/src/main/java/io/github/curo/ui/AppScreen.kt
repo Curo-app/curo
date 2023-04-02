@@ -3,7 +3,6 @@ package io.github.curo.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,7 +11,6 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,6 +32,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.github.curo.data.BottomNavigationScreen
+import io.github.curo.data.CalendarViewModel
 import io.github.curo.data.CollectionName
 import io.github.curo.data.CollectionViewModel
 import io.github.curo.data.FABMenuItem
@@ -53,6 +52,7 @@ import io.github.curo.ui.base.Settings
 import io.github.curo.ui.base.SideMenu
 import io.github.curo.ui.base.fabAnimationProperties
 import io.github.curo.ui.base.fabBackgroundModifier
+import io.github.curo.ui.screens.CalendarScreen
 import io.github.curo.utils.NEW_ENTITY_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -73,6 +73,7 @@ fun AppScreen() {
     val scope = rememberCoroutineScope()
     val noteViewModel = remember { NoteViewModel() }
     val collectionViewModel = remember { CollectionViewModel() }
+    val calendarViewModel = remember { CalendarViewModel() }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     SideMenu(
@@ -94,6 +95,7 @@ fun AppScreen() {
                         scope = scope,
                         noteViewModel = noteViewModel,
                         collectionViewModel = collectionViewModel,
+                        calendarViewModel = calendarViewModel,
                     )
                 }
 
@@ -181,7 +183,8 @@ private fun FABScreen(
     innerNavHost: NavHostController,
     scope: CoroutineScope,
     noteViewModel: NoteViewModel,
-    collectionViewModel: CollectionViewModel
+    collectionViewModel: CollectionViewModel,
+    calendarViewModel: CalendarViewModel
 ) {
     var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Closed) }
 
@@ -203,6 +206,7 @@ private fun FABScreen(
         outerNavHost = outerNavHost,
         noteViewModel = noteViewModel,
         collectionViewModel = collectionViewModel,
+        calendarViewModel = calendarViewModel,
         onFABMenuAct = { fabButtonState = fabButtonState.act() },
         fabButtonState = fabButtonState,
     )
@@ -222,6 +226,7 @@ private fun FloatingActionButtonMenu(
     outerNavHost: NavHostController,
     noteViewModel: NoteViewModel,
     collectionViewModel: CollectionViewModel,
+    calendarViewModel: CalendarViewModel
 ) {
 
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -242,7 +247,8 @@ private fun FloatingActionButtonMenu(
             outerNavHost,
             onCollectionClick,
             noteViewModel,
-            collectionViewModel
+            collectionViewModel,
+            calendarViewModel
         )
         Canvas(
             modifier = Modifier
@@ -272,7 +278,8 @@ private fun BottomNavBarScreen(
     outerNavHost: NavHostController,
     onCollectionClick: (CollectionName) -> Unit,
     noteViewModel: NoteViewModel,
-    collectionViewModel: CollectionViewModel
+    collectionViewModel: CollectionViewModel,
+    calendarViewModel: CalendarViewModel
 ) {
     var searchText by remember { mutableStateOf("") }
     val currentBottomMenuItem by innerNavController.currentBackStackEntryAsState()
@@ -300,25 +307,18 @@ private fun BottomNavBarScreen(
         ) {
             navFeedScreen(outerNavHost, onCollectionClick, noteViewModel)
             navCollectionsScreen(collectionViewModel, onCollectionClick)
-            navCalendarScreen()
+            navCalendarScreen(calendarViewModel)
         }
     }
 }
 
-private fun NavGraphBuilder.navCalendarScreen() =
+private fun NavGraphBuilder.navCalendarScreen(
+    calendarViewModel: CalendarViewModel
+) {
     composable(BottomNavigationScreen.Calendar.route) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            Text(
-                text = "Calendar",
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
+        CalendarScreen(calendarViewModel)
     }
+}
 
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,

@@ -22,11 +22,11 @@ import com.kizitonwose.calendar.compose.ContentHeightMode
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
+import io.github.curo.data.Deadline
+import io.github.curo.data.Note
 import io.github.curo.ui.screens.capitalizeFirstLetter
 import java.time.DayOfWeek
-import java.time.LocalDateTime
-
-private val notes = generateNotes().groupBy { it.time.toLocalDate() }
+import java.time.LocalDate
 
 private val cellsBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.background
 
@@ -34,6 +34,7 @@ private val cellsBackgroundColor: Color @Composable get() = MaterialTheme.colorS
 fun Calendar(
     modifier: Modifier = Modifier,
     state: CalendarState,
+    notesState: List<Note>
 ) {
     HorizontalCalendar(
         modifier = modifier
@@ -41,12 +42,8 @@ fun Calendar(
             .background(Color.Transparent),
         state = state,
         dayContent = { day ->
-            val notes = if (day.position == DayPosition.MonthDate) {
-                notes[day.date].orEmpty()
-            } else {
-                emptyList()
-            }
-            Day(day, notes.sortedBy { it.time })
+            val todayNotes = getNotesForToday(notesState, day)
+            Day(day, todayNotes)
         },
         contentHeightMode = ContentHeightMode.Fill,
         monthHeader = { month ->
@@ -59,7 +56,27 @@ fun Calendar(
 }
 
 @Composable
-fun Day(day: CalendarDay, notes: List<CalendarNote>) {
+private fun getNotesForToday(
+    notesState: List<Note>,
+    day: CalendarDay
+): List<Note> {
+    val notesWithDeadline =
+        notesState
+            .filterNot { it.deadline == null }
+            .groupBy { it.deadline }
+
+    val todayNotes =
+        if (day.position == DayPosition.MonthDate) {
+            notesWithDeadline[Deadline.of(day.date)].orEmpty()
+        } else {
+            emptyList()
+        }
+
+    return todayNotes
+}
+
+@Composable
+fun Day(day: CalendarDay, notes: List<Note>) {
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
@@ -68,31 +85,22 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
             .padding(0.2.dp)
             .background(cellsBackgroundColor),
     ) {
-        val backGroundColorForToday = if (
-            isCurrentDay(day)
-        ) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            Color.Transparent
-        }
-
-        val textColorForToday = if (
-            isCurrentDay(day)
-        ) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onBackground
-        }
+        val (backGroundColorForToday, textColorForToday) =
+            if (isCurrentDay(day)) {
+                MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.primary
+            } else {
+                Color.Transparent to MaterialTheme.colorScheme.onBackground
+            }
 
         Column(
             modifier = Modifier.align(Alignment.TopCenter)
         ) {
+            // TODO: fix background clipping for large dates
             Box(
                 modifier = Modifier
                     .padding(4.dp)
                     .align(Alignment.CenterHorizontally)
-                    .clip(CircleShape)
-                    .background(backGroundColorForToday)
+                    .background(backGroundColorForToday, CircleShape)
             ) {
                 Text(
                     modifier = Modifier
@@ -103,7 +111,6 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
                     color = textColorForToday,
                 )
             }
-
             Column(
                 verticalArrangement = Arrangement.spacedBy(1.dp),
             ) {
@@ -111,6 +118,7 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(horizontal = 2.dp)
                             .clip(RoundedCornerShape(4.dp))
                             .background(note.color)
                     ) {
@@ -135,7 +143,7 @@ fun Day(day: CalendarDay, notes: List<CalendarNote>) {
 
 @Composable
 private fun isCurrentDay(day: CalendarDay) =
-    day.date == LocalDateTime.now().toLocalDate()
+    day.date == LocalDate.now()
 
 @Composable
 fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>, calendarState: CalendarState) {
@@ -172,6 +180,6 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>, calendarState: CalendarState) {
 private fun isCurrentDayOfWeek(
     dayOfWeek: DayOfWeek,
     calendarState: CalendarState
-) = dayOfWeek == LocalDateTime.now().dayOfWeek &&
-        calendarState.firstVisibleMonth.yearMonth.month == LocalDateTime.now().month &&
-        calendarState.firstVisibleMonth.yearMonth.year == LocalDateTime.now().year
+) = dayOfWeek == LocalDate.now().dayOfWeek &&
+        calendarState.firstVisibleMonth.yearMonth.month == LocalDate.now().month &&
+        calendarState.firstVisibleMonth.yearMonth.year == LocalDate.now().year
