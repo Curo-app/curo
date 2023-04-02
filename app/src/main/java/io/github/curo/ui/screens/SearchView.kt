@@ -23,16 +23,18 @@ import io.github.curo.R
 import io.github.curo.data.CollectionName
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
-import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.Note
 import io.github.curo.ui.base.NoteCard
-import java.util.*
+import java.time.LocalDate
 
 @Composable
 fun SearchView(
     onSearchTextChanged: (String) -> Unit,
     onSearchKeyboardClick: () -> Unit,
     onLeadingIconClick: () -> Unit,
-    searchResults: List<NotePreviewModel>
+    searchResults: List<Note>,
+    onNoteClick: (Note) -> Unit,
+    onCollectionClick: (CollectionName) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Surface(
@@ -105,8 +107,12 @@ fun SearchView(
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(searchResults) { item ->
-                val modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)
-                NoteCard(modifier = modifier, item, { /* TODO */ }, { /* TODO */ })
+                NoteCard(
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                    item = item,
+                    onNoteClick,
+                    onCollectionClick
+                )
             }
         }
     }
@@ -116,33 +122,33 @@ fun SearchView(
 @Composable
 fun SearchViewPreview() {
     val items = listOf(
-        NotePreviewModel(
+        Note(
             id = 0,
             name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
             description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
         ),
-        NotePreviewModel(
+        Note(
             id = 1,
             emoji = Emoji("\uD83D\uDE3F"),
             name = "Забыть матан",
             done = false,
-            deadline = Deadline.of(Date())
+            deadline = Deadline.of(LocalDate.now().plusDays(1))
         ),
-        NotePreviewModel(
+        Note(
             id = 2,
             emoji = Emoji("\uD83D\uDE13"),
             name = "Something",
             description = "Buy milk",
             done = false
         ),
-        NotePreviewModel(
+        Note(
             id = 3,
             emoji = Emoji("\uD83D\uDE02"),
             name = "Там еще какой-то прикол был...",
             description = "Что-то про еврея, американца и русского",
             collections = listOf("Приколы").map { CollectionName(it) }
         ),
-        NotePreviewModel(
+        Note(
             id = 4,
             name = "Отжаться 21 раз",
             done = true
@@ -151,9 +157,11 @@ fun SearchViewPreview() {
     MaterialTheme {
         SearchView(
             onSearchTextChanged = { /* Updated each time the text changes */ },
-            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
             onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
-            searchResults = items
+            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
+            searchResults = items,
+            onNoteClick = { /* TODO */ },
+            onCollectionClick = { /* TODO */ }
         )
     }
 }

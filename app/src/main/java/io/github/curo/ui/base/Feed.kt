@@ -107,6 +107,7 @@ fun FeedForced(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteCard(
+    modifier: Modifier = Modifier,
     item: Note,
     onNoteClick: (Note) -> Unit,
     onCollectionClick: ((CollectionName) -> Unit)?,
