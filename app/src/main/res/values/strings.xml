@@ -52,6 +52,10 @@
     <string name="expand_collection_notes">Expand collection notes</string>
     <string name="on_properties_description">on properties description</string>
 
+
+    <string name="calendar_menu">Calendar Menu</string>
+    <string name="calendar_search">Calendar search</string>
+
     <string name="add_note">Add note</string>
     <string name="share_collection">Share collection</string>
     <string name="delete_collection">Delete collection</string>
