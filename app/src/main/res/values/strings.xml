@@ -51,4 +51,10 @@
     <string name="done">Done</string>
     <string name="expand_collection_notes">Expand collection notes</string>
     <string name="on_properties_description">on properties description</string>
+
+    <string name="add_note">Add note</string>
+    <string name="share_collection">Share collection</string>
+    <string name="delete_collection">Delete collection</string>
+    <string name="back_to_collections">Back to collections</string>
+    <string name="delete">Delete</string>
 </resources>

@@ -4,43 +4,43 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.*
+import java.time.LocalDate
 
 @Stable
 class Collection(
     var name: String,
-    val notes: MutableList<NotePreviewModel>
+    val notes: MutableList<Note>
 )
 
 class EditListViewModel : ViewModel() {
     private val collection = Collection("Jokes", mutableStateListOf(
-        NotePreviewModel(
+        Note(
             id = 0,
             name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
             description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
         ),
-        NotePreviewModel(
+        Note(
             id = 1,
             emoji = Emoji("\uD83D\uDE3F"),
             name = "Забыть матан",
             done = false,
-            deadline = Deadline.of(Date())
+            deadline = Deadline.of(LocalDate.now())
         ),
-        NotePreviewModel(
+        Note(
             id = 2,
             emoji = Emoji("\uD83D\uDE13"),
             name = "Something",
             description = "Buy milk",
             done = false
         ),
-        NotePreviewModel(
+        Note(
             id = 3,
             emoji = Emoji("\uD83D\uDE02"),
             name = "Там еще какой-то прикол был...",
             description = "Что-то про еврея, американца и русского",
             collections = listOf("Приколы").map { CollectionName(it) }
         ),
-        NotePreviewModel(
+        Note(
             id = 4,
             name = "Отжаться 21 раз",
             done = true
@@ -51,7 +51,7 @@ class EditListViewModel : ViewModel() {
 
     val collectionFlow: MutableStateFlow<Collection> get() = _collectionFlow
 
-    fun removeRecord(editItemPreviewModel: NotePreviewModel) {
+    fun removeRecord(editItemPreviewModel: Note) {
         val index = collection.notes.indexOf(editItemPreviewModel)
         collection.notes.remove(collection.notes[index])
     }
