@@ -1,0 +1,128 @@
+package io.github.curo.data
+
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
+
+@Stable
+open class FeedViewModel : ViewModel() {
+    private val _items = mutableStateListOf<Note>()
+    open val items: List<Note> get() = _items
+
+    fun update(note: Note) {
+        val index = _items.indexOfFirst { it.id == note.id }
+        if (index == -1) {
+            _items.add(note)
+        } else {
+            _items[index] = note
+        }
+    }
+
+    fun delete(id: Int) {
+        _items.removeIf { it.id == id }
+    }
+
+    fun addCollection(collection: CollectionPreviewModel) {
+        val name = CollectionName(collection.name)
+        collection.notes.forEach { note ->
+            val newNote = Note(
+                id = note.id,
+                deadline = note.deadline,
+                emoji = note.emoji,
+                color = note.color,
+                name = note.name,
+                description = note.description,
+                collections = note.collections + name,
+                done = note.done,
+            )
+            update(newNote)
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                _items.addAll(loadItems())
+            }
+        }
+
+    }
+
+    protected fun loadItems(): List<Note> {
+        val today = LocalDate.now()
+        return listOf(
+            Note(
+                id = 1,
+                name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
+                description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
+            ),
+            Note(
+                id = 2,
+                emoji = Emoji("\uD83D\uDE3F"),
+                name = "Забыть матан",
+                done = false
+            ),
+            Note(
+                id = 3,
+                emoji = Emoji("\uD83D\uDE13"),
+                name = "Something",
+                description = "Buy milk",
+                done = false
+            ),
+            Note(
+                id = 4,
+                deadline = Deadline.of(today),
+                emoji = Emoji("\uD83D\uDE02"),
+                name = "Не забыть про нюанс",
+                collections = listOf("Приколы").map { CollectionName(it) },
+                done = true
+            ),
+            Note(
+                id = 5,
+                emoji = Emoji("\uD83D\uDE02"),
+                name = "Там еще какой-то прикол был...",
+                description = "Что-то про еврея, американца и русского",
+                collections = listOf("Приколы").map { CollectionName(it) }
+            ),
+            Note(
+                id = 6,
+                deadline = Deadline.of(today.plusDays(1)),
+                emoji = Emoji("\uD83D\uDC7D"),
+                name = "FP HW 3",
+                description = "Надо быстрее сделать",
+                collections = listOf(
+                    "Домашка",
+                    "Важное",
+                    "Haskell",
+                    "Ненавижу ФП"
+                ).map { CollectionName(it) },
+                done = true
+            ),
+            Note(
+                id = 7,
+                name = "Отжаться 21 раз",
+                done = true
+            ),
+            Note(
+                id = 8,
+                name = "Отжаться 22 раз",
+                done = true
+            ),
+            Note(
+                id = 9,
+                name = "Отжаться 23 раз",
+                done = true
+            ),
+            Note(
+                id = 10,
+                name = "Отжаться 24 раз",
+                done = true
+            )
+        )
+    }
+}

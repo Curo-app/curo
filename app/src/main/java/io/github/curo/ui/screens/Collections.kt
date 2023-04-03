@@ -1,4 +1,4 @@
-package io.github.curo.ui.base
+package io.github.curo.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.*
@@ -21,17 +20,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import io.github.curo.R
 import io.github.curo.data.*
+import io.github.curo.ui.base.EmojiContainer
+import io.github.curo.ui.base.FeedForced
+import io.github.curo.ui.base.cardModifier
+import io.github.curo.ui.base.listItemColors
 import kotlin.random.Random
+import androidx.compose.foundation.lazy.items
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
     onCollectionClick: (CollectionName) -> Unit,
+    onNoteClick: (Note) -> Unit,
     viewModel: CollectionViewModel,
 ) {
-    val itemIds by viewModel.itemIds.collectAsState()
-
     Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
@@ -39,13 +42,13 @@ fun Collections(
                 .background(color = MaterialTheme.colorScheme.background)
                 .wrapContentSize()
         ) {
-            itemsIndexed(viewModel.items.value) { index, item ->
+            items(viewModel.collections) { item ->
                 ExpandableCollectionView(
                     collection = item,
-                    onNoteClick = {},
+                    onNoteClick = onNoteClick,
                     onCollectionClick = onCollectionClick,
-                    isExpanded = itemIds.contains(index),
-                    onCollectionExpand = { viewModel.onItemClicked(index) },
+                    isExpanded = item.name in viewModel.expanded,
+                    onCollectionExpand = { viewModel.expand(item.name) },
                 )
             }
         }
@@ -186,7 +189,7 @@ private fun CollectionTrailing(
 @Composable
 fun CollectionsScreenPreview() {
     val viewModel = remember { CollectionViewModel() }
-    Collections(viewModel = viewModel, onCollectionClick = {})
+    Collections(viewModel = viewModel, onCollectionClick = {}, onNoteClick = {})
 }
 
 @Preview(showBackground = true)
@@ -194,7 +197,6 @@ fun CollectionsScreenPreview() {
 fun ClosedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
-            id = Random.nextInt(),
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
@@ -236,7 +238,6 @@ fun ClosedCollectionPreview() {
 fun OpenedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
-            id = Random.nextInt(),
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
@@ -278,7 +279,6 @@ fun OpenedCollectionPreview() {
 fun FinishedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
-            id = Random.nextInt(),
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(

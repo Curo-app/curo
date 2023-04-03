@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 
 @Stable
 class CollectionPreviewModel(
-    val id: Int,
     val emoji: Emoji = Emoji("\uD83D\uDDC2"),
     val name: String,
     val notes: List<Note>

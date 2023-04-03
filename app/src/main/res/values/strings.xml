@@ -61,4 +61,5 @@
     <string name="delete_collection">Delete collection</string>
     <string name="back_to_collections">Back to collections</string>
     <string name="delete">Delete</string>
+    <string name="save_collection">save collection</string>
 </resources>
