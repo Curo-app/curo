@@ -81,9 +81,21 @@ open class CollectionViewModel : FeedViewModel() {
         // updating existing collections
         _collections.replaceAll { collection ->
             if (collection.name in noteCollectionNames) {
+                val notExists = collection.notes.none { it.id == note.id }
+
                 CollectionPreviewModel(
                     name = collection.name,
-                    notes = collection.notes + note
+                    notes = if (notExists) {
+                        collection.notes + note
+                    } else {
+                        collection.notes.map {
+                            if (it.id == note.id) {
+                                note
+                            } else {
+                                it
+                            }
+                        }
+                    }
                 )
             } else {
                 collection

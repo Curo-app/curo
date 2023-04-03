@@ -45,6 +45,7 @@ import io.github.curo.data.NotePatchViewModel
 import io.github.curo.data.Route
 import io.github.curo.data.Screen
 import io.github.curo.data.SearchViewModel
+import io.github.curo.data.ShareScreenViewModel
 import io.github.curo.ui.base.AboutUs
 import io.github.curo.ui.base.FABAddMenu
 import io.github.curo.ui.base.FABButtonState
@@ -54,6 +55,7 @@ import io.github.curo.ui.base.NoteEditMenu
 import io.github.curo.ui.base.NoteOptionsScreen
 import io.github.curo.ui.base.SearchTopAppBar
 import io.github.curo.ui.base.Settings
+import io.github.curo.ui.base.ShareNote
 import io.github.curo.ui.base.SideMenu
 import io.github.curo.ui.base.fabAnimationProperties
 import io.github.curo.ui.base.fabBackgroundModifier
@@ -89,6 +91,7 @@ fun AppScreen() {
     val notePatchViewModel = remember { NotePatchViewModel() }
     val collectionPatchViewModel = remember { CollectionPatchViewModel() }
     val searchViewModel = remember { SearchViewModel() }
+    val shareScreenViewModel = remember { ShareScreenViewModel() }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
@@ -99,6 +102,13 @@ fun AppScreen() {
             navigateSameScreen(mainNavController, screen)
         },
         content = {
+            shareScreenViewModel.link?.let {
+                ShareNote(
+                    viewModel = shareScreenViewModel,
+                    onDone = { shareScreenViewModel.link = null },
+                    onDismiss = { shareScreenViewModel.link = null },
+                )
+            }
             NavHost(
                 navController = mainNavController,
                 startDestination = BottomNavigationScreen.route
@@ -122,6 +132,7 @@ fun AppScreen() {
                 }
                 collectionEditScreen(
                     feedViewModel,
+                    shareScreenViewModel,
                     collectionPatchViewModel,
                     notePatchViewModel,
                     collectionViewModel,
@@ -129,6 +140,7 @@ fun AppScreen() {
                 )
                 noteEditScreen(
                     feedViewModel,
+                    shareScreenViewModel,
                     collectionPatchViewModel,
                     collectionViewModel,
                     notePatchViewModel,
@@ -184,6 +196,7 @@ private fun NavGraphBuilder.searchScreen(
 
 private fun NavGraphBuilder.collectionEditScreen(
     feedViewModel: FeedViewModel,
+    shareScreenViewModel: ShareScreenViewModel,
     collectionPatchViewModel: CollectionPatchViewModel,
     notePatchViewModel: NotePatchViewModel,
     collectionViewModel: CollectionViewModel,
@@ -218,7 +231,9 @@ private fun NavGraphBuilder.collectionEditScreen(
                 collectionViewModel.delete(collection)
                 mainNavController.popBackStack()
             },
-            onShareCollectionClick = { /* TODO: sharing screen */ },
+            onShareCollectionClick = {
+                shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            },
             onBackToMenuClick = { mainNavController.popBackStack() },
             onSaveClick = { collection ->
                 collectionViewModel.update(collection)
@@ -231,6 +246,7 @@ private fun NavGraphBuilder.collectionEditScreen(
 
 private fun NavGraphBuilder.noteEditScreen(
     feedViewModel: FeedViewModel,
+    shareScreenViewModel: ShareScreenViewModel,
     collectionPatchViewModel: CollectionPatchViewModel,
     collectionViewModel: CollectionViewModel,
     notePatchViewModel: NotePatchViewModel,
@@ -261,10 +277,11 @@ private fun NavGraphBuilder.noteEditScreen(
                 mainNavController.popBackStack()
             },
             onDiscardNote = {
-                notePatchViewModel.empty(-1)
                 mainNavController.popBackStack()
             },
-            onShareNote = { /* TODO: sharing screen */ },
+            onShareNote = {
+                shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            },
             onPropertiesClick = { id ->
                 mainNavController.navigate(Screen.NoteOptions.route + '/' + id)
             },
