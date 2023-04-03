@@ -1,5 +1,6 @@
 package io.github.curo.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +44,11 @@ fun SearchView(
     onNoteClick: (Note) -> Unit,
     onCollectionClick: (CollectionName) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 4.dp
@@ -91,7 +96,7 @@ fun SearchView(
                 }
 
                 if (searchViewModel.query.isNotEmpty()) {
-                        IconButton(onClick = { searchViewModel.query = "" }) {
+                    IconButton(onClick = { searchViewModel.query = "" }) {
                         Icon(
                             Icons.Rounded.Clear,
                             contentDescription = stringResource(R.string.clear_input)
@@ -112,16 +117,6 @@ fun SearchView(
             onCollectionClick = onCollectionClick,
             viewModel = searchViewModel
         )
-//        LazyColumn(modifier = Modifier.fillMaxSize()) {
-//            items(searchViewModel.items) { item ->
-//                NoteCard(
-//                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
-//                    item = item,
-//                    onNoteClick,
-//                    onCollectionClick
-//                )
-//            }
-//        }
     }
 }
 
