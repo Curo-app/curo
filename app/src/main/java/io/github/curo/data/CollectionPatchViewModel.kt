@@ -5,23 +5,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.github.curo.data.CollectionName.Companion.extractNames
+import io.github.curo.utils.setAll
 
 @Stable
 class CollectionPatchViewModel : FeedViewModel() {
     var name: String by mutableStateOf("")
-    override val items: MutableList<Note> = mutableStateListOf()
+    override val notes: MutableList<Note> = mutableStateListOf()
 
-    fun set(value: CollectionName) {
-        if (value.name == this.name) return
-        this.name = value.name
-        this.items.clear()
-        this.items.addAll(
-            super.items.filter { item -> value.name in item.collections.map { it.name } }
+    fun set(name: CollectionName) {
+        if (name.value == this.name) return
+        this.name = name.value
+        this.notes.setAll(
+            super.notes.filter { item -> name.value in item.collections.extractNames() }
         )
     }
 
     fun toCollection() = CollectionPreviewModel(
-        name = name,
-        notes = items,
+        name = CollectionName(name),
+        notes = notes,
     )
 }

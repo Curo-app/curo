@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import io.github.curo.utils.setAll
 
 @Stable
 class NotePatchViewModel : ViewModel() {
@@ -27,22 +28,11 @@ class NotePatchViewModel : ViewModel() {
         _id = note.id
         name = note.name
         description = note.description ?: ""
-        collections.clear()
-        collections.addAll(note.collections)
+        collections.setAll(note.collections)
         deadline = note.deadline
         hasCheckbox = note.done != null
     }
 
-    fun empty(id: Int) {
-        if (id == _id) {
-            return
-        }
-        _id = id
-        name = "My Note"
-        collections.clear()
-        deadline = null
-        hasCheckbox = false
-    }
 
     fun toNote() = Note(
         id = id,

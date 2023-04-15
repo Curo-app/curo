@@ -12,12 +12,12 @@ class SearchViewModel : FeedViewModel() {
     var query
         get() = _query
         set(value) {
-            items.clear()
+            notes.clear()
             if (value == _query) return
             _query = value
-            items.addAll(
-                super.items.filter { item -> item.name.contains(value, true) }
+            notes.addAll(
+                super.notes.filter { item -> item.name.contains(value, ignoreCase = true) }
             )
         }
-    override val items: MutableList<Note> = mutableStateListOf()
+    override val notes: MutableList<Note> = mutableStateListOf()
 }

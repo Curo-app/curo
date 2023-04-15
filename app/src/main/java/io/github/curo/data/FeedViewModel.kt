@@ -11,24 +11,30 @@ import java.time.LocalDate
 
 @Stable
 open class FeedViewModel : ViewModel() {
-    private val _items = mutableStateListOf<Note>()
-    open val items: List<Note> get() = _items
+    private val _notes = mutableStateListOf<Note>()
+    open val notes: List<Note> get() = _notes
 
     fun update(note: Note) {
-        val index = _items.indexOfFirst { it.id == note.id }
+        val index = _notes.indexOfFirst { it.id == note.id }
         if (index == -1) {
-            _items.add(note)
+            _notes.add(note)
         } else {
-            _items[index] = note
+            _notes[index] = note
         }
     }
 
+    fun findOrCreate(id: Int): Note = notes.find { note ->
+        note.id == id
+    } ?: Note(
+        id = notes.maxOf(Note::id).inc(),
+        name = "",
+    )
+
     fun delete(id: Int) {
-        _items.removeIf { it.id == id }
+        _notes.removeIf { it.id == id }
     }
 
     fun addCollection(collection: CollectionPreviewModel) {
-        val name = CollectionName(collection.name)
         collection.notes.forEach { note ->
             val newNote = Note(
                 id = note.id,
@@ -37,7 +43,7 @@ open class FeedViewModel : ViewModel() {
                 color = note.color,
                 name = note.name,
                 description = note.description,
-                collections = note.collections + name,
+                collections = note.collections + collection.name,
                 done = note.done,
             )
             update(newNote)
@@ -47,7 +53,7 @@ open class FeedViewModel : ViewModel() {
     init {
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
-                _items.addAll(loadItems())
+                _notes.addAll(loadItems())
             }
         }
 

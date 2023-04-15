@@ -42,13 +42,13 @@ fun Collections(
                 .background(color = MaterialTheme.colorScheme.background)
                 .wrapContentSize()
         ) {
-            items(viewModel.collections) { item ->
+            items(viewModel.collections) { collection ->
                 ExpandableCollectionView(
-                    collection = item,
+                    collection = collection,
                     onNoteClick = onNoteClick,
                     onCollectionClick = onCollectionClick,
-                    isExpanded = item.name in viewModel.expanded,
-                    onCollectionExpand = { viewModel.expand(item.name) },
+                    isExpanded = collection.name in viewModel.expanded,
+                    onCollectionExpand = { viewModel.expand(collection.name) },
                 )
             }
         }
@@ -82,9 +82,7 @@ private fun CollectionCard(
 ) {
     ListItem(
         modifier = Modifier.cardModifier(interactionSource) {
-            onCollectionClick(
-                CollectionName(collection.name)
-            )
+            onCollectionClick(collection.name)
         },
         headlineText = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },
@@ -137,7 +135,7 @@ fun CollectionNotes(
 @Composable
 private fun CollectionsItemHeader(item: CollectionPreviewModel) {
     Text(
-        text = item.name,
+        text = item.name.value,
         maxLines = 1,
         style = MaterialTheme.typography.titleMedium,
         overflow = TextOverflow.Ellipsis,
@@ -198,7 +196,7 @@ fun ClosedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = "My super list",
+            name = CollectionName("My super list"),
             notes = listOf(
                 Note(
                     id = Random.nextInt(),
@@ -239,7 +237,7 @@ fun OpenedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = "My super list",
+            name = CollectionName("My super list"),
             notes = listOf(
                 Note(
                     id = Random.nextInt(),
@@ -280,7 +278,7 @@ fun FinishedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = "My super list",
+            name = CollectionName("My super list"),
             notes = listOf(
                 Note(
                     id = Random.nextInt(),

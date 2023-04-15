@@ -482,7 +482,7 @@ private fun CurrentCollections(
                 SuggestionChip(onClick = { /* DO NOTHING */ },
                     modifier = Modifier.padding(vertical = 0.dp),
                     interactionSource = remember { MutableInteractionSource() },
-                    label = { Text(text = collection.name) },
+                    label = { Text(text = collection.value) },
                 )
             }
         }
@@ -501,7 +501,7 @@ private fun CollectionChip(
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current.name) },
+        label = { Text(text = current.value) },
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Clear,

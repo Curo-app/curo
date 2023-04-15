@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
+import io.github.curo.data.Note.Companion.extractCollections
+import io.github.curo.utils.setAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,22 +19,21 @@ class CalendarViewModel : FeedViewModel() {
     private val _collectionsNames = mutableStateMapOf<CollectionName, CollectionFilter>()
     val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
-    private val _items = mutableStateListOf<Note>()
-    override val items: List<Note>
-        get() = _items
+    private val _notes = mutableStateListOf<Note>()
+    override val notes: List<Note>
+        get() = _notes
 
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val items = loadItems()
-                val data = items
-                    .flatMap { it.collections }
-                    .distinct()
+                val collections = items
+                    .extractCollections()
                     .associateWith { CollectionFilter(it) }
 
                 withContext(Dispatchers.Main) {
-                    _items.addAll(items)
-                    _collectionsNames.putAll(data)
+                    _notes.addAll(items)
+                    _collectionsNames.putAll(collections)
                 }
             }
         }
@@ -43,8 +44,7 @@ class CalendarViewModel : FeedViewModel() {
             withContext(Dispatchers.IO) {
                 val items = loadItems()
                 withContext(Dispatchers.Main) {
-                    _items.clear()
-                    _items.addAll(items)
+                    _notes.setAll(items)
                 }
             }
         }
@@ -63,11 +63,10 @@ class CalendarViewModel : FeedViewModel() {
             return
         }
 
-        val filteredNotes = super.items.filter { note ->
+        val filteredNotes = super.notes.filter { note ->
             note.collections.any { it in showedCollections }
         }
-        _items.clear()
-        _items.addAll(filteredNotes)
+        _notes.setAll(filteredNotes)
     }
 
     // TODO: change colors

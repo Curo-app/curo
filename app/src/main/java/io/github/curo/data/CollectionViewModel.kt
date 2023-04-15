@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import io.github.curo.data.CollectionName.Companion.extractNames
+import io.github.curo.data.Note.Companion.extractCollections
+import io.github.curo.utils.NOT_FOUND_INDEX
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,13 +24,12 @@ open class CollectionViewModel : FeedViewModel() {
             withContext(Dispatchers.IO) {
                 val items = loadItems()
                 val data = items
-                    .flatMap { it.collections }
-                    .distinct()
+                    .extractCollections()
                     .map { name ->
                         val notes = items.filter { note ->
                             name in note.collections
                         }
-                        CollectionPreviewModel(name = name.name, notes = notes)
+                        CollectionPreviewModel(name = name, notes = notes)
                     }
 
                 withContext(Dispatchers.Main) {
@@ -37,8 +39,8 @@ open class CollectionViewModel : FeedViewModel() {
         }
     }
 
-    private val _expanded = mutableStateListOf<String>()
-    val expanded: List<String> get() = _expanded
+    private val _expanded = mutableStateListOf<CollectionName>()
+    val expanded: List<CollectionName> get() = _expanded
 
     private val _suggestions = mutableStateListOf<String>()
     val suggestions: List<String> get() = _suggestions
@@ -50,17 +52,16 @@ open class CollectionViewModel : FeedViewModel() {
             _suggestions.clear()
             if (value == _query) return
             _query = value
-            val collectionsNames = items
-                .flatMap { it.collections }
-                .distinct()
-                .map { it.name }
+            val collectionsNames = notes
+                .extractCollections()
+                .extractNames()
             _suggestions.addAll(collectionsNames)
         }
 
 
-    fun expand(name: String) {
+    fun expand(name: CollectionName) {
         val existing = _expanded.indexOfFirst { it == name }
-        if (existing == -1) {
+        if (existing == NOT_FOUND_INDEX) {
             _expanded.add(name)
         } else {
             _expanded.removeAt(existing)
@@ -69,7 +70,7 @@ open class CollectionViewModel : FeedViewModel() {
 
     fun update(collection: CollectionPreviewModel) {
         val index = _collections.indexOfFirst { it.name == collection.name }
-        if (index == -1) {
+        if (index == NOT_FOUND_INDEX) {
             _collections.add(collection)
         } else {
             _collections[index] = collection
@@ -77,7 +78,7 @@ open class CollectionViewModel : FeedViewModel() {
     }
 
     fun addNote(note: Note) {
-        val noteCollectionNames = note.collections.map { it.name }
+        val noteCollectionNames = note.collections
         // updating existing collections
         _collections.replaceAll { collection ->
             if (collection.name in noteCollectionNames) {
@@ -115,7 +116,7 @@ open class CollectionViewModel : FeedViewModel() {
         }
     }
 
-    fun delete(collection: CollectionName) {
-        _collections.removeIf { it.name == collection.name }
+    fun delete(name: CollectionName) {
+        _collections.removeIf { it.name == name }
     }
 }

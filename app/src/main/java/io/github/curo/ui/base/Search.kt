@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
+import io.github.curo.utils.MIN_SEARCH_QUERY_LENGTH
 
 @Composable
 fun SearchTopAppBar(
@@ -135,7 +136,7 @@ fun SearchBar(
                     ),
                     keyboardActions = KeyboardActions(
                         onSearch = {
-                            if (text.length >= 2) {
+                            if (text.length >= MIN_SEARCH_QUERY_LENGTH) {
                                 onSearch(text)
                             }
                         }

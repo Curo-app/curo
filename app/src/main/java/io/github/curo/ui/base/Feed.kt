@@ -83,7 +83,7 @@ fun Feed(
             .background(color = MaterialTheme.colorScheme.background)
             .wrapContentSize()
     ) {
-        items(viewModel.items, { it.id }) { item ->
+        items(viewModel.notes, { it.id }) { item ->
             val currentItem by rememberUpdatedState(item)
             val dismissState = rememberDismissState(
                 confirmStateChange = {
@@ -304,7 +304,7 @@ private fun CollectionChip(
             .height(30.dp),
         onClick = { onClick(name) },
         label = {
-            Text(text = name.name)
+            Text(text = name.value)
         })
 }
 

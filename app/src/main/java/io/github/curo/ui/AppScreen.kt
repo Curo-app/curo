@@ -116,8 +116,8 @@ fun AppScreen() {
                 composable(BottomNavigationScreen.route) {
                     FABScreen(
                         drawerState = drawerState,
-                        outerNavHost = mainNavController,
-                        innerNavHost = bottomNavigationNavController,
+                        mainNavHost = mainNavController,
+                        bottomBarNavHost = bottomNavigationNavController,
                         scope = scope,
                         feedViewModel = feedViewModel,
                         collectionViewModel = collectionViewModel,
@@ -188,7 +188,7 @@ private fun NavGraphBuilder.searchScreen(
                 mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
             },
             onCollectionClick = { collectionName ->
-                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName.name)
+                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName.value)
             }
         )
     }
@@ -220,7 +220,7 @@ private fun NavGraphBuilder.collectionEditScreen(
             },
             onCollectionClick = { collectionName ->
                 mainNavController
-                    .navigate(Screen.EditCollection.route + '/' + collectionName.name)
+                    .navigate(Screen.EditCollection.route + '/' + collectionName.value)
             },
             onAddNoteClick = {
                 mainNavController
@@ -258,19 +258,14 @@ private fun NavGraphBuilder.noteEditScreen(
     ) {
         it.arguments?.getInt("noteId")?.let { id ->
             LaunchedEffect(id) {
-                val note = feedViewModel.items.find { note ->
-                    note.id == id
-                }
-                note?.let { item ->
-                    notePatchViewModel.set(item)
-                } ?: notePatchViewModel.empty(feedViewModel.items.maxOf(Note::id).inc())
+                notePatchViewModel.set(feedViewModel.findOrCreate(id))
             }
         }
         NoteEditMenu(
             note = notePatchViewModel,
             onSaveNote = { note ->
                 if (notePatchViewModel.newCollection != null) {
-                    collectionPatchViewModel.items.add(note)
+                    collectionPatchViewModel.notes.add(note)
                 }
                 feedViewModel.update(note)
                 collectionViewModel.addNote(note)
@@ -314,8 +309,8 @@ private fun NavGraphBuilder.noteOptionsScreen(
 @Composable
 private fun FABScreen(
     drawerState: DrawerState,
-    outerNavHost: NavHostController,
-    innerNavHost: NavHostController,
+    mainNavHost: NavHostController,
+    bottomBarNavHost: NavHostController,
     scope: CoroutineScope,
     feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
@@ -325,30 +320,30 @@ private fun FABScreen(
 
     FloatingActionButtonMenu(
         onSearchClick = { query ->
-            outerNavHost.navigate(Screen.SearchResult.route + "?query=$query")
+            mainNavHost.navigate(Screen.SearchResult.route + "?query=$query")
         },
         onFABMenuSelect = { menu ->
             // Чтобы не делать два разных экрана для создания и изменения заметки будем считать,
             // что изменение заметки с id = -1 это ее создание
             when (menu) {
-                Screen.EditCollection -> outerNavHost.navigate(menu.route + "/My collection")
-                Screen.EditNote -> outerNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
+                Screen.EditCollection -> mainNavHost.navigate(menu.route + "/")
+                Screen.EditNote -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
             }
         },
         onCollectionClick = { collectionName ->
-            outerNavHost.navigate(Screen.EditCollection.route + '/' + collectionName.name)
+            mainNavHost.navigate(Screen.EditCollection.route + '/' + collectionName.value)
         },
         drawerState = drawerState,
         scope = scope,
-        innerNavController = innerNavHost,
-        outerNavHost = outerNavHost,
+        bottomBarNavHost = bottomBarNavHost,
+        mainNavHost = mainNavHost,
         feedViewModel = feedViewModel,
         collectionViewModel = collectionViewModel,
         calendarViewModel = calendarViewModel,
         onFABMenuAct = { fabButtonState = fabButtonState.act() },
         fabButtonState = fabButtonState,
         onNoteClick = { note ->
-            outerNavHost.navigate(Screen.EditNote.route + '/' + note.id)
+            mainNavHost.navigate(Screen.EditNote.route + '/' + note.id)
         },
         onCollectionFilter = {
             calendarViewModel.updateOnFilters()
@@ -368,8 +363,8 @@ private fun FloatingActionButtonMenu(
     fabButtonState: FABButtonState,
     drawerState: DrawerState,
     scope: CoroutineScope,
-    innerNavController: NavHostController,
-    outerNavHost: NavHostController,
+    bottomBarNavHost: NavHostController,
+    mainNavHost: NavHostController,
     feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
     calendarViewModel: CalendarViewModel,
@@ -389,8 +384,8 @@ private fun FloatingActionButtonMenu(
             onSearchClick,
             scope,
             drawerState,
-            innerNavController,
-            outerNavHost,
+            bottomBarNavHost,
+            mainNavHost,
             onCollectionClick,
             onNoteClick,
             onCollectionFilter,
@@ -422,8 +417,8 @@ private fun BottomNavBarScreen(
     onSearchClick: (String) -> Unit,
     scope: CoroutineScope,
     drawerState: DrawerState,
-    innerNavController: NavHostController,
-    outerNavHost: NavHostController,
+    bottomBarNavHost: NavHostController,
+    mainNavHost: NavHostController,
     onCollectionClick: (CollectionName) -> Unit,
     onNoteClick: (Note) -> Unit,
     onCollectionFilter: (CollectionName) -> Unit,
@@ -434,7 +429,7 @@ private fun BottomNavBarScreen(
     var searchText by remember { mutableStateOf("") }
     val calendarState = rememberCuroCalendarState()
 
-    val currentBottomMenuItem by innerNavController.currentBackStackEntryAsState()
+    val currentBottomMenuItem by bottomBarNavHost.currentBackStackEntryAsState()
     val currentRoute = currentBottomMenuItem?.destination?.route
     Scaffold(
         topBar = {
@@ -463,7 +458,7 @@ private fun BottomNavBarScreen(
         bottomBar = {
             NavigationBottomBar(
                 onItemSelected = { screen ->
-                    navigateSameScreen(innerNavController, screen)
+                    navigateSameScreen(bottomBarNavHost, screen)
                 },
                 selected = currentRoute,
             )
@@ -471,10 +466,10 @@ private fun BottomNavBarScreen(
     ) { innerPadding ->
         NavHost(
             modifier = Modifier.padding(innerPadding),
-            navController = innerNavController,
+            navController = bottomBarNavHost,
             startDestination = BottomNavigationScreen.Feed.route
         ) {
-            navFeedScreen(outerNavHost, onCollectionClick, feedViewModel)
+            navFeedScreen(mainNavHost, onCollectionClick, feedViewModel)
             navCollectionsScreen(collectionViewModel, onCollectionClick, onNoteClick)
             navCalendarScreen(calendarViewModel, calendarState, onCollectionFilter)
         }
@@ -504,13 +499,13 @@ private fun NavGraphBuilder.navCollectionsScreen(
 }
 
 private fun NavGraphBuilder.navFeedScreen(
-    outerNavHost: NavHostController,
+    mainNavHost: NavHostController,
     onCollectionClick: (CollectionName) -> Unit,
     feedViewModel: FeedViewModel,
 ) = composable(BottomNavigationScreen.Feed.route) {
     Feed(
         onNoteClick = { note ->
-            outerNavHost.navigate(Screen.EditNote.route + '/' + note.id)
+            mainNavHost.navigate(Screen.EditNote.route + '/' + note.id)
         },
         onCollectionClick = onCollectionClick,
         viewModel = feedViewModel
@@ -518,14 +513,14 @@ private fun NavGraphBuilder.navFeedScreen(
 }
 
 private fun navigateSameScreen(
-    innerNavController: NavHostController,
+    navHostController: NavHostController,
     realScreen: Route
 ) {
-    innerNavController.navigate(realScreen.route) {
+    navHostController.navigate(realScreen.route) {
         // Pop up to the start destination of the graph to
         // avoid building up a large stack of destinations
         // on the back stack as users select items
-        popUpTo(innerNavController.graph.findStartDestination().id) {
+        popUpTo(navHostController.graph.findStartDestination().id) {
             saveState = true
         }
         // Avoid multiple copies of the same destination when

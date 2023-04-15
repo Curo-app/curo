@@ -57,7 +57,7 @@ fun CalendarMenu(
         Calendar(
             modifier = Modifier.padding(bottom = 50.dp),
             state = calendarState,
-            notesState = calendarViewModel.items,
+            notesState = calendarViewModel.notes,
         )
     }
 }
@@ -93,7 +93,7 @@ private fun CollectionChip(
         },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current.name.name) },
+        label = { Text(text = current.name.value) },
         selected = current.enabled,
     )
 }
