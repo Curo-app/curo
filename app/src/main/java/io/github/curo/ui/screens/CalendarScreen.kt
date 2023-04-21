@@ -215,7 +215,7 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
 
             Text(
                 modifier = Modifier
-                    .padding(start = 15.dp)
+                    .padding(start = 12.dp)
                     .weight(1f)
                     .height(20.dp)
                     .background(cellsBackgroundColor),

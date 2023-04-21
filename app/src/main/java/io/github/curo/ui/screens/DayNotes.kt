@@ -25,6 +25,7 @@ import io.github.curo.data.CollectionName
 import io.github.curo.data.Note
 import io.github.curo.ui.base.Feed
 import io.github.curo.ui.theme.CuroTheme
+import io.github.curo.utils.DateTimeUtils.dateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +41,9 @@ fun DayNotes(
         modifier = modifier,
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = viewModel.currentDay.toString()) },
+                title = {
+                    Text(text = viewModel.currentDay.format(dateFormatter))
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackToMenuClick) {
                         Icon(
