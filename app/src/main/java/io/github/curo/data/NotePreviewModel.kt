@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
 @Stable
-class Note(
+class NotePreviewModel(
     val id: Int,
     val deadline: Deadline? = null,
     val emoji: Emoji = Emoji("\uD83D\uDCDD"),
@@ -21,7 +21,7 @@ class Note(
     var done by mutableStateOf(done)
 
     companion object {
-        fun Collection<Note>.extractCollections(): List<String> =
+        fun Collection<NotePreviewModel>.extractCollections(): List<String> =
             this.flatMap { it.collections }.distinct()
     }
 }

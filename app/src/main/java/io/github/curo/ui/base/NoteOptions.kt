@@ -58,9 +58,9 @@ import androidx.compose.ui.unit.dp
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import io.github.curo.R
-import io.github.curo.data.CollectionViewModel
+import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.Deadline
-import io.github.curo.data.NotePatchViewModel
+import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.SimpleDeadline
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter

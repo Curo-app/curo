@@ -29,7 +29,7 @@ import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
-import io.github.curo.data.CalendarViewModel
+import io.github.curo.viewmodels.CalendarViewModel
 import io.github.curo.ui.base.LandscapeCalendar
 import io.github.curo.ui.base.PortraitCalendar
 import java.time.DayOfWeek

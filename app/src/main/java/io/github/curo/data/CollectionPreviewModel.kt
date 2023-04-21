@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 class CollectionPreviewModel(
     val emoji: Emoji = Emoji("\uD83D\uDDC2"),
     val name: String,
-    val notes: List<Note>
+    val notes: List<NotePreviewModel>
 ) {
     val progress: CollectionProgress? by derivedStateOf {
         notes.let { notes ->

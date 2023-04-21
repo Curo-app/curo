@@ -34,17 +34,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kizitonwose.calendar.compose.CalendarState
 import io.github.curo.data.BottomNavigationScreen
-import io.github.curo.data.CalendarViewModel
-import io.github.curo.data.CollectionPatchViewModel
-import io.github.curo.data.CollectionViewModel
+import io.github.curo.viewmodels.CalendarViewModel
+import io.github.curo.viewmodels.CollectionPatchViewModel
+import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.FABMenuItem
-import io.github.curo.data.FeedViewModel
-import io.github.curo.data.Note
-import io.github.curo.data.NotePatchViewModel
+import io.github.curo.viewmodels.FeedViewModel
+import io.github.curo.data.NotePreviewModel
+import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.Route
 import io.github.curo.data.Screen
-import io.github.curo.data.SearchViewModel
-import io.github.curo.data.ShareScreenViewModel
+import io.github.curo.viewmodels.SearchViewModel
+import io.github.curo.viewmodels.ShareScreenViewModel
 import io.github.curo.ui.base.AboutUs
 import io.github.curo.ui.base.FABAddMenu
 import io.github.curo.ui.base.FABButtonState
@@ -402,7 +402,7 @@ private fun FABScreen(
 private fun FloatingActionButtonMenu(
     onSearchClick: (String) -> Unit,
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (NotePreviewModel) -> Unit,
     onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
     onCollectionFilter: (String) -> Unit,
@@ -468,7 +468,7 @@ private fun BottomNavBarScreen(
     bottomBarNavHost: NavHostController,
     mainNavHost: NavHostController,
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionFilter: (String) -> Unit,
     onDayClick: (LocalDate) -> Unit,
     feedViewModel: FeedViewModel,
@@ -543,7 +543,7 @@ private fun NavGraphBuilder.navCalendarScreen(
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (NotePreviewModel) -> Unit,
 ) = composable(BottomNavigationScreen.Collections.route) {
     Collections(
         viewModel = collectionViewModel,

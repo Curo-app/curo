@@ -1,9 +1,13 @@
-package io.github.curo.data
+package io.github.curo.viewmodels
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.curo.data.CollectionPreviewModel
+import io.github.curo.data.Deadline
+import io.github.curo.data.Emoji
+import io.github.curo.data.NotePreviewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -11,10 +15,10 @@ import java.time.LocalDate
 
 @Stable
 open class FeedViewModel : ViewModel() {
-    private val _notes = mutableStateListOf<Note>()
-    open val notes: List<Note> get() = _notes
+    private val _notes = mutableStateListOf<NotePreviewModel>()
+    open val notes: List<NotePreviewModel> get() = _notes
 
-    fun update(note: Note) {
+    fun update(note: NotePreviewModel) {
         val index = _notes.indexOfFirst { it.id == note.id }
         if (index == -1) {
             _notes.add(note)
@@ -23,10 +27,10 @@ open class FeedViewModel : ViewModel() {
         }
     }
 
-    fun findOrCreate(id: Int): Note = notes.find { note ->
+    fun findOrCreate(id: Int): NotePreviewModel = notes.find { note ->
         note.id == id
-    } ?: Note(
-        id = notes.maxOf(Note::id).inc(),
+    } ?: NotePreviewModel(
+        id = notes.maxOf(NotePreviewModel::id).inc(),
         name = "",
     )
 
@@ -36,7 +40,7 @@ open class FeedViewModel : ViewModel() {
 
     fun addCollection(collection: CollectionPreviewModel) {
         collection.notes.forEach { note ->
-            val newNote = Note(
+            val newNote = NotePreviewModel(
                 id = note.id,
                 deadline = note.deadline,
                 emoji = note.emoji,
@@ -59,28 +63,28 @@ open class FeedViewModel : ViewModel() {
 
     }
 
-    protected fun loadItems(): List<Note> {
+    protected fun loadItems(): List<NotePreviewModel> {
         val today = LocalDate.now()
         return listOf(
-            Note(
+            NotePreviewModel(
                 id = 1,
                 name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                 description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
             ),
-            Note(
+            NotePreviewModel(
                 id = 2,
                 emoji = Emoji("\uD83D\uDE3F"),
                 name = "Забыть матан",
                 done = false
             ),
-            Note(
+            NotePreviewModel(
                 id = 3,
                 emoji = Emoji("\uD83D\uDE13"),
                 name = "Something",
                 description = "Buy milk",
                 done = false
             ),
-            Note(
+            NotePreviewModel(
                 id = 4,
                 deadline = Deadline.of(today),
                 emoji = Emoji("\uD83D\uDE02"),
@@ -88,14 +92,14 @@ open class FeedViewModel : ViewModel() {
                 collections = listOf("Приколы"),
                 done = false
             ),
-            Note(
+            NotePreviewModel(
                 id = 5,
                 emoji = Emoji("\uD83D\uDE02"),
                 name = "Там еще какой-то прикол был...",
                 description = "Что-то про еврея, американца и русского",
                 collections = listOf("Приколы")
             ),
-            Note(
+            NotePreviewModel(
                 id = 6,
                 deadline = Deadline.of(today.plusDays(1)),
                 emoji = Emoji("\uD83D\uDC7D"),
@@ -109,22 +113,22 @@ open class FeedViewModel : ViewModel() {
                 ),
                 done = false
             ),
-            Note(
+            NotePreviewModel(
                 id = 7,
                 name = "Отжаться 21 раз",
                 done = true
             ),
-            Note(
+            NotePreviewModel(
                 id = 8,
                 name = "Отжаться 22 раз",
                 done = true
             ),
-            Note(
+            NotePreviewModel(
                 id = 9,
                 name = "Отжаться 23 раз",
                 done = true
             ),
-            Note(
+            NotePreviewModel(
                 id = 10,
                 name = "Отжаться 24 раз",
                 done = true

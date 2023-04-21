@@ -62,8 +62,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import io.github.curo.R
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
-import io.github.curo.data.FeedViewModel
-import io.github.curo.data.Note
+import io.github.curo.viewmodels.FeedViewModel
+import io.github.curo.data.NotePreviewModel
 import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
@@ -75,7 +75,7 @@ import java.time.LocalDate
 @Composable
 fun Feed(
     modifier: Modifier = Modifier,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionClick: (String) -> Unit,
     viewModel: FeedViewModel,
 ) {
@@ -150,8 +150,8 @@ fun SwipeBackground(dismissState: DismissState) {
 @Composable
 fun FeedForced(
     modifier: Modifier = Modifier,
-    onNoteClick: (Note) -> Unit,
-    content: List<Note>,
+    onNoteClick: (NotePreviewModel) -> Unit,
+    content: List<NotePreviewModel>,
 ) {
     Column(
         modifier = modifier
@@ -172,8 +172,8 @@ fun FeedForced(
 @Composable
 fun NoteCard(
     modifier: Modifier = Modifier,
-    item: Note,
-    onNoteClick: (Note) -> Unit,
+    item: NotePreviewModel,
+    onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionClick: ((String) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
@@ -200,7 +200,7 @@ fun listItemColors(enabled: Boolean): ListItemColors =
         )
     }
 
-fun feedItemCheckboxFactory(item: Note): @Composable (() -> Unit)? =
+fun feedItemCheckboxFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
     item.done?.let {
         {
             FilledIconToggleButton(
@@ -219,7 +219,7 @@ fun feedItemCheckboxFactory(item: Note): @Composable (() -> Unit)? =
         }
     }
 
-fun feedItemDeadlineFactory(item: Note): @Composable (() -> Unit)? =
+fun feedItemDeadlineFactory(item: NotePreviewModel): @Composable (() -> Unit)? =
     item.deadline?.let { deadline ->
         {
             val header = formatHeader(deadline)
@@ -252,7 +252,7 @@ fun feedItemDeadlineFactory(item: Note): @Composable (() -> Unit)? =
     }
 
 @Composable
-private fun FeedItemHeader(item: Note) {
+private fun FeedItemHeader(item: NotePreviewModel) {
     Text(
         text = item.name,
         maxLines = 1,
@@ -307,7 +307,7 @@ private fun formatHeader(deadline: Deadline): String {
 }
 
 private fun feedItemSupportingTextFactory(
-    item: Note,
+    item: NotePreviewModel,
     onCollectionClick: (String) -> Unit,
 ): @Composable (() -> Unit)? = if (item.description != null || item.collections.isNotEmpty()) {
     {

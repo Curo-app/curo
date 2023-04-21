@@ -14,15 +14,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
-import io.github.curo.data.Note
-import io.github.curo.data.NotePatchViewModel
+import io.github.curo.data.NotePreviewModel
+import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.ui.theme.CuroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditMenu(
     note: NotePatchViewModel,
-    onSaveNote: (Note) -> Unit,
+    onSaveNote: (NotePreviewModel) -> Unit,
     onDiscardNote: () -> Unit,
     onShareNote: (id: Int) -> Unit,
     onDeleteNote: (id: Int) -> Unit,
@@ -130,7 +130,7 @@ private fun NoteOptionsTopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
 @Composable
 private fun BottomBar(
     note: NotePatchViewModel,
-    onSaveNote: (Note) -> Unit,
+    onSaveNote: (NotePreviewModel) -> Unit,
     onShareNote: (id: Int) -> Unit,
     onDeleteNode: (id: Int) -> Unit,
     onPropertiesClick: (id: Int) -> Unit,

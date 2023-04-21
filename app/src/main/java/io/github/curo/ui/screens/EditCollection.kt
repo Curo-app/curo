@@ -11,9 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.curo.R
-import io.github.curo.data.CollectionPatchViewModel
+import io.github.curo.viewmodels.CollectionPatchViewModel
 import io.github.curo.data.CollectionPreviewModel
-import io.github.curo.data.Note
+import io.github.curo.data.NotePreviewModel
 import io.github.curo.ui.base.*
 import io.github.curo.ui.theme.CuroTheme
 
@@ -22,7 +22,7 @@ import io.github.curo.ui.theme.CuroTheme
 fun EditCollectionScreen(
     viewModel: CollectionPatchViewModel,
     modifier: Modifier = Modifier,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionClick: (String) -> Unit,
     onAddNoteClick: () -> Unit,
     onDeleteCollectionClick: (String) -> Unit,

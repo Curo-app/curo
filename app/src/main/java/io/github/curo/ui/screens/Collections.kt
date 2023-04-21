@@ -26,13 +26,14 @@ import io.github.curo.ui.base.cardModifier
 import io.github.curo.ui.base.listItemColors
 import kotlin.random.Random
 import androidx.compose.foundation.lazy.items
+import io.github.curo.viewmodels.CollectionViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (NotePreviewModel) -> Unit,
     viewModel: CollectionViewModel,
 ) {
     Scaffold { padding ->
@@ -58,7 +59,7 @@ fun Collections(
 @Composable
 fun ExpandableCollectionView(
     collection: CollectionPreviewModel,
-    onNoteClick: (Note) -> Unit,
+    onNoteClick: (NotePreviewModel) -> Unit,
     onCollectionClick: (String) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
@@ -93,8 +94,8 @@ private fun CollectionCard(
 
 @Composable
 fun CollectionNotes(
-    notes: List<Note>,
-    onNoteClick: (Note) -> Unit,
+    notes: List<NotePreviewModel>,
+    onNoteClick: (NotePreviewModel) -> Unit,
     isExpanded: Boolean
 ) {
     // Opening Animation
@@ -198,18 +199,18 @@ fun ClosedCollectionPreview() {
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                Note(
+                NotePreviewModel(
                     id = Random.nextInt(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                Note(
+                NotePreviewModel(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                Note(
+                NotePreviewModel(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
@@ -239,18 +240,18 @@ fun OpenedCollectionPreview() {
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                Note(
+                NotePreviewModel(
                     id = Random.nextInt(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                Note(
+                NotePreviewModel(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                Note(
+                NotePreviewModel(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
@@ -280,7 +281,7 @@ fun FinishedCollectionPreview() {
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                Note(
+                NotePreviewModel(
                     id = Random.nextInt(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
