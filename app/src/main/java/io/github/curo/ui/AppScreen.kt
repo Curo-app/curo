@@ -6,11 +6,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -61,14 +61,15 @@ import io.github.curo.ui.base.fabAnimationProperties
 import io.github.curo.ui.base.fabBackgroundModifier
 import io.github.curo.ui.screens.CalendarScreen
 import io.github.curo.ui.screens.Collections
+import io.github.curo.ui.screens.DayNotes
 import io.github.curo.ui.screens.EditCollectionScreen
 import io.github.curo.ui.screens.SearchView
 import io.github.curo.ui.screens.capitalizeFirstLetter
 import io.github.curo.ui.screens.rememberCuroCalendarState
-import io.github.curo.ui.screens.rememberFirstMostVisibleMonth
 import io.github.curo.utils.NEW_ENTITY_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 val bottomMenu = listOf(
     BottomNavigationScreen.Collections,
@@ -130,26 +131,35 @@ fun AppScreen() {
                 composable(Screen.Settings.route) {
                     Settings(drawerState, scope)
                 }
+                dayNotesScreen(
+                    viewModel = calendarViewModel,
+                    shareScreenViewModel = shareScreenViewModel,
+                    mainNavController = mainNavController,
+                )
                 collectionEditScreen(
-                    feedViewModel,
-                    shareScreenViewModel,
-                    collectionPatchViewModel,
-                    notePatchViewModel,
-                    collectionViewModel,
-                    mainNavController,
+                    feedViewModel = feedViewModel,
+                    shareScreenViewModel = shareScreenViewModel,
+                    collectionPatchViewModel = collectionPatchViewModel,
+                    notePatchViewModel = notePatchViewModel,
+                    collectionViewModel = collectionViewModel,
+                    mainNavController = mainNavController,
                 )
                 noteEditScreen(
-                    feedViewModel,
-                    shareScreenViewModel,
-                    collectionPatchViewModel,
-                    collectionViewModel,
-                    notePatchViewModel,
-                    mainNavController
+                    feedViewModel = feedViewModel,
+                    shareScreenViewModel = shareScreenViewModel,
+                    collectionPatchViewModel = collectionPatchViewModel,
+                    collectionViewModel = collectionViewModel,
+                    notePatchViewModel = notePatchViewModel,
+                    mainNavController = mainNavController
                 )
-                noteOptionsScreen(notePatchViewModel, mainNavController, collectionViewModel)
+                noteOptionsScreen(
+                    notePatchViewModel = notePatchViewModel,
+                    mainNavController = mainNavController,
+                    collectionViewModel = collectionViewModel
+                )
                 searchScreen(
-                    mainNavController,
-                    searchViewModel,
+                    mainNavController = mainNavController,
+                    searchViewModel = searchViewModel,
                 )
             }
         },
@@ -240,6 +250,39 @@ private fun NavGraphBuilder.collectionEditScreen(
                 feedViewModel.addCollection(collection)
                 mainNavController.popBackStack()
             }
+        )
+    }
+}
+
+private fun NavGraphBuilder.dayNotesScreen(
+    viewModel: CalendarViewModel,
+    shareScreenViewModel: ShareScreenViewModel,
+    mainNavController: NavHostController,
+) {
+    composable(
+        route = Screen.DayNotes.route + "/{day}",
+        arguments = listOf(navArgument("day", builder = { type = NavType.StringType }))
+    ) {
+        it.arguments?.getString("day")?.let { day ->
+            LaunchedEffect(day) {
+                viewModel.setDay(LocalDate.parse(day))
+            }
+        }
+
+        DayNotes(
+            viewModel = viewModel,
+            onNoteClick = { note ->
+                mainNavController
+                    .navigate(Screen.EditNote.route + '/' + note.id)
+            },
+            onCollectionClick = { collectionName ->
+                mainNavController
+                    .navigate(Screen.EditCollection.route + '/' + collectionName.value)
+            },
+            onShareClick = {
+                shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            },
+            onBackToMenuClick = { mainNavController.popBackStack() },
         )
     }
 }
@@ -347,6 +390,10 @@ private fun FABScreen(
         },
         onCollectionFilter = {
             calendarViewModel.updateOnFilters()
+        },
+        onDayClick = {
+            calendarViewModel.setDay(it)
+            mainNavHost.navigate(Screen.DayNotes.route + '/' + it)
         }
     )
 }
@@ -360,6 +407,7 @@ private fun FloatingActionButtonMenu(
     onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
     onCollectionFilter: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
     fabButtonState: FABButtonState,
     drawerState: DrawerState,
     scope: CoroutineScope,
@@ -381,17 +429,18 @@ private fun FloatingActionButtonMenu(
 
     Box(contentAlignment = Alignment.BottomEnd) {
         BottomNavBarScreen(
-            onSearchClick,
-            scope,
-            drawerState,
-            bottomBarNavHost,
-            mainNavHost,
-            onCollectionClick,
-            onNoteClick,
-            onCollectionFilter,
-            feedViewModel,
-            collectionViewModel,
-            calendarViewModel,
+            onSearchClick = onSearchClick,
+            scope = scope,
+            drawerState = drawerState,
+            bottomBarNavHost = bottomBarNavHost,
+            mainNavHost = mainNavHost,
+            onCollectionClick = onCollectionClick,
+            onNoteClick = onNoteClick,
+            onCollectionFilter = onCollectionFilter,
+            onDayClick = onDayClick,
+            feedViewModel = feedViewModel,
+            collectionViewModel = collectionViewModel,
+            calendarViewModel = calendarViewModel,
         )
         Canvas(
             modifier = Modifier
@@ -422,6 +471,7 @@ private fun BottomNavBarScreen(
     onCollectionClick: (CollectionName) -> Unit,
     onNoteClick: (Note) -> Unit,
     onCollectionFilter: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
     feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
     calendarViewModel: CalendarViewModel,
@@ -442,11 +492,10 @@ private fun BottomNavBarScreen(
                 onMenuClick = { scope.launch { drawerState.open() } },
                 content = if (currentRoute == BottomNavigationScreen.Calendar.route) {
                     {
-                        val visibleMonth =
-                            rememberFirstMostVisibleMonth(calendarState, viewportPercent = 90f)
+                        val visibleMonth = calendarState.firstVisibleMonth.yearMonth
                         val monthName =
-                            visibleMonth.yearMonth.month.name.lowercase().capitalizeFirstLetter()
-                        val year = visibleMonth.yearMonth.year
+                            visibleMonth.month.name.lowercase().capitalizeFirstLetter()
+                        val year = visibleMonth.year
                         Text("$monthName $year")
                     }
                 } else {
@@ -471,7 +520,7 @@ private fun BottomNavBarScreen(
         ) {
             navFeedScreen(mainNavHost, onCollectionClick, feedViewModel)
             navCollectionsScreen(collectionViewModel, onCollectionClick, onNoteClick)
-            navCalendarScreen(calendarViewModel, calendarState, onCollectionFilter)
+            navCalendarScreen(calendarViewModel, calendarState, onCollectionFilter, onDayClick)
         }
     }
 }
@@ -480,9 +529,15 @@ private fun NavGraphBuilder.navCalendarScreen(
     calendarViewModel: CalendarViewModel,
     calendarState: CalendarState,
     onCollectionClick: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
 ) {
     composable(BottomNavigationScreen.Calendar.route) {
-        CalendarScreen(calendarViewModel, calendarState, onCollectionClick)
+        CalendarScreen(
+            calendarViewModel = calendarViewModel,
+            calendarState = calendarState,
+            onCollectionClick = onCollectionClick,
+            onDayClick = onDayClick,
+        )
     }
 }
 

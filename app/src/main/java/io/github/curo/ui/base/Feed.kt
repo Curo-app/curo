@@ -1,16 +1,18 @@
 package io.github.curo.ui.base
 
 import android.view.View
-import androidx.activity.compose.BackHandler
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,35 +21,35 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -61,10 +63,10 @@ import io.github.curo.R
 import io.github.curo.data.CollectionName
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
-import io.github.curo.data.Note
 import io.github.curo.data.FeedViewModel
+import io.github.curo.data.Note
+import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.data.TimedDeadline
-import io.github.curo.ui.screens.SwipeBackground
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
 import java.time.LocalDate
@@ -112,6 +114,37 @@ fun Feed(
                 }
             )
         }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+fun SwipeBackground(dismissState: DismissState) {
+    val color by animateColorAsState(
+        if (dismissState.targetValue == DismissValue.DismissedToStart) {
+            MaterialTheme.colorScheme.error
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
+    )
+
+    val scale by animateFloatAsState(
+        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+    )
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(horizontal = 20.dp),
+        contentAlignment = SwipeDeleteProperties.alignment
+    ) {
+        Icon(
+            imageVector = SwipeDeleteProperties.icon,
+            contentDescription = stringResource(SwipeDeleteProperties.contentDescriptionId),
+            modifier = Modifier.scale(scale),
+            tint = MaterialTheme.colorScheme.background
+        )
     }
 }
 
@@ -171,11 +204,19 @@ fun listItemColors(enabled: Boolean): ListItemColors =
 fun feedItemCheckboxFactory(item: Note): @Composable (() -> Unit)? =
     item.done?.let {
         {
-            Checkbox(
-                modifier = Modifier.size(20.dp),
+            FilledIconToggleButton(
+                modifier = Modifier.size(25.dp),
+                onCheckedChange = { item.done = it },
+                shape = MaterialTheme.shapes.small,
                 checked = it,
-                onCheckedChange = { item.done = it }
-            )
+            ) {
+                if (it) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "aboba",
+                    )
+                }
+            }
         }
     }
 
@@ -322,35 +363,13 @@ fun EmojiContainer(item: Emoji, size: Float = 30F) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun NoteCardPreview() {
     val viewModel = remember { FeedViewModel() }
-    var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Opened) }
-    val transition =
-        updateTransition(targetState = fabButtonState.opened(), label = "FABAddMenuTransition")
-    val fabAnimationProperties = fabAnimationProperties(transition)
-
-    Scaffold(
-        content = { padding ->
-            Feed(
-                modifier = Modifier.padding(padding),
-                viewModel = viewModel,
-                onCollectionClick = {},
-                onNoteClick = {},
-            )
-
-            FABAddMenu(
-                fabButtonState = fabButtonState,
-                onToggle = { fabButtonState = fabButtonState.act() },
-                onClose = { fabButtonState = fabButtonState.act() },
-                properties = fabAnimationProperties,
-            )
-
-            BackHandler(enabled = fabButtonState.opened(), onBack = {
-                fabButtonState = fabButtonState.act()
-            })
-        }
+    Feed(
+        viewModel = viewModel,
+        onCollectionClick = {},
+        onNoteClick = {},
     )
 }

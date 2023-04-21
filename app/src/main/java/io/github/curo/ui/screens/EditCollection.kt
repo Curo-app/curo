@@ -1,28 +1,20 @@
 package io.github.curo.ui.screens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.DismissState
-import androidx.compose.material.DismissValue
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import io.github.curo.R
 import io.github.curo.data.CollectionName
 import io.github.curo.data.CollectionPatchViewModel
 import io.github.curo.data.CollectionPreviewModel
 import io.github.curo.data.Note
-import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.ui.base.*
 import io.github.curo.ui.theme.CuroTheme
 
@@ -110,36 +102,6 @@ fun EditCollectionScreen(
             modifier = modifier.padding(padding),
             onNoteClick = onNoteClick,
             onCollectionClick = onCollectionClick
-        )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalMaterialApi::class)
-fun SwipeBackground(dismissState: DismissState) {
-    val color by animateColorAsState(
-        if (dismissState.targetValue == DismissValue.DismissedToStart) {
-            MaterialTheme.colorScheme.error
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
-    )
-
-    val scale by animateFloatAsState(
-        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
-    )
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(color)
-            .padding(horizontal = 20.dp),
-        contentAlignment = SwipeDeleteProperties.alignment
-    ) {
-        Icon(
-            imageVector = SwipeDeleteProperties.icon,
-            contentDescription = stringResource(SwipeDeleteProperties.contentDescriptionId),
-            modifier = Modifier.scale(scale)
         )
     }
 }

@@ -1,6 +1,7 @@
 package io.github.curo.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,12 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -112,11 +115,28 @@ fun SearchView(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
         )
 
-        Feed(
-            onNoteClick = onNoteClick,
-            onCollectionClick = onCollectionClick,
-            viewModel = searchViewModel
-        )
+        if (searchViewModel.notes.isEmpty()) {
+
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    modifier = Modifier.size(128.dp),
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.inversePrimary,
+                )
+                Text(text = "Nothing found")
+            }
+        } else {
+            Feed(
+                onNoteClick = onNoteClick,
+                onCollectionClick = onCollectionClick,
+                viewModel = searchViewModel
+            )
+        }
     }
 }
 
@@ -129,6 +149,21 @@ fun SearchViewPreview() {
             onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
             onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
             searchViewModel = remember { SearchViewModel() },
+            onNoteClick = { /* TODO */ },
+            onCollectionClick = { /* TODO */ }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SearchViewPreviewResults() {
+    MaterialTheme {
+        SearchView(
+            onSearchTextChanged = { /* Updated each time the text changes */ },
+            onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
+            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
+            searchViewModel = remember { SearchViewModel().apply { query = "ddd" } },
             onNoteClick = { /* TODO */ },
             onCollectionClick = { /* TODO */ }
         )
