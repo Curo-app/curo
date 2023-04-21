@@ -1,6 +1,5 @@
 package io.github.curo.data
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,22 +15,13 @@ class Note(
     val color: Color = Color.Gray,
     val name: String,
     val description: String? = null,
-    val collections: List<CollectionName> = emptyList(),
+    val collections: List<String> = emptyList(),
     done: Boolean? = null
 ) {
     var done by mutableStateOf(done)
 
     companion object {
-        fun Collection<Note>.extractCollections(): List<CollectionName> =
+        fun Collection<Note>.extractCollections(): List<String> =
             this.flatMap { it.collections }.distinct()
-    }
-}
-
-@JvmInline
-@Immutable
-value class CollectionName(val value: String) {
-    companion object {
-        fun Collection<CollectionName>.extractNames(): List<String> =
-            this.map { it.value }
     }
 }

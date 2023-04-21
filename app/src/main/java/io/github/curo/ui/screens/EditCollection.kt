@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.curo.R
-import io.github.curo.data.CollectionName
 import io.github.curo.data.CollectionPatchViewModel
 import io.github.curo.data.CollectionPreviewModel
 import io.github.curo.data.Note
@@ -24,9 +23,9 @@ fun EditCollectionScreen(
     viewModel: CollectionPatchViewModel,
     modifier: Modifier = Modifier,
     onNoteClick: (Note) -> Unit,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
     onAddNoteClick: () -> Unit,
-    onDeleteCollectionClick: (CollectionName) -> Unit,
+    onDeleteCollectionClick: (String) -> Unit,
     onShareCollectionClick: () -> Unit,
     onBackToMenuClick: () -> Unit,
     onSaveClick: (CollectionPreviewModel) -> Unit,
@@ -71,9 +70,7 @@ fun EditCollectionScreen(
                         )
                     }
                     IconButton(onClick = {
-                        onDeleteCollectionClick(
-                            CollectionName(viewModel.name)
-                        )
+                        onDeleteCollectionClick(viewModel.name)
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Delete,

@@ -31,7 +31,7 @@ import androidx.compose.foundation.lazy.items
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
     onNoteClick: (Note) -> Unit,
     viewModel: CollectionViewModel,
 ) {
@@ -59,7 +59,7 @@ fun Collections(
 fun ExpandableCollectionView(
     collection: CollectionPreviewModel,
     onNoteClick: (Note) -> Unit,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
 ) {
@@ -75,7 +75,7 @@ fun ExpandableCollectionView(
 @Composable
 private fun CollectionCard(
     collection: CollectionPreviewModel,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -135,7 +135,7 @@ fun CollectionNotes(
 @Composable
 private fun CollectionsItemHeader(item: CollectionPreviewModel) {
     Text(
-        text = item.name.value,
+        text = item.name,
         maxLines = 1,
         style = MaterialTheme.typography.titleMedium,
         overflow = TextOverflow.Ellipsis,
@@ -196,7 +196,7 @@ fun ClosedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = CollectionName("My super list"),
+            name = "My super list",
             notes = listOf(
                 Note(
                     id = Random.nextInt(),
@@ -219,7 +219,7 @@ fun ClosedCollectionPreview() {
                         "Важное",
                         "Haskell",
                         "Ненавижу ФП"
-                    ).map { CollectionName(it) },
+                    ),
                     done = true
                 )
             )
@@ -237,7 +237,7 @@ fun OpenedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = CollectionName("My super list"),
+            name = "My super list",
             notes = listOf(
                 Note(
                     id = Random.nextInt(),
@@ -260,7 +260,7 @@ fun OpenedCollectionPreview() {
                         "Важное",
                         "Haskell",
                         "Ненавижу ФП"
-                    ).map { CollectionName(it) },
+                    ),
                     done = true
                 )
             )
@@ -278,7 +278,7 @@ fun FinishedCollectionPreview() {
     ExpandableCollectionView(
         collection = CollectionPreviewModel(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = CollectionName("My super list"),
+            name = "My super list",
             notes = listOf(
                 Note(
                     id = Random.nextInt(),
@@ -290,7 +290,7 @@ fun FinishedCollectionPreview() {
                         "Важное",
                         "Haskell",
                         "Ненавижу ФП"
-                    ).map { CollectionName(it) },
+                    ),
                     done = true
                 )
             )

@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import io.github.curo.data.CollectionName.Companion.extractNames
 import io.github.curo.data.Note.Companion.extractCollections
 import io.github.curo.utils.NOT_FOUND_INDEX
 import kotlinx.coroutines.Dispatchers
@@ -39,8 +38,8 @@ open class CollectionViewModel : FeedViewModel() {
         }
     }
 
-    private val _expanded = mutableStateListOf<CollectionName>()
-    val expanded: List<CollectionName> get() = _expanded
+    private val _expanded = mutableStateListOf<String>()
+    val expanded: List<String> get() = _expanded
 
     private val _suggestions = mutableStateListOf<String>()
     val suggestions: List<String> get() = _suggestions
@@ -54,12 +53,11 @@ open class CollectionViewModel : FeedViewModel() {
             _query = value
             val collectionsNames = notes
                 .extractCollections()
-                .extractNames()
             _suggestions.addAll(collectionsNames)
         }
 
 
-    fun expand(name: CollectionName) {
+    fun expand(name: String) {
         val existing = _expanded.indexOfFirst { it == name }
         if (existing == NOT_FOUND_INDEX) {
             _expanded.add(name)
@@ -116,7 +114,7 @@ open class CollectionViewModel : FeedViewModel() {
         }
     }
 
-    fun delete(name: CollectionName) {
+    fun delete(name: String) {
         _collections.removeIf { it.name == name }
     }
 }

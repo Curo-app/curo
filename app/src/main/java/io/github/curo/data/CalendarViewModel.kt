@@ -27,7 +27,7 @@ class CalendarViewModel : FeedViewModel() {
         })
     }
 
-    private val _collectionsNames = mutableStateMapOf<CollectionName, CollectionFilter>()
+    private val _collectionsNames = mutableStateMapOf<String, CollectionFilter>()
     val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
     private val _notes = mutableStateListOf<Note>()
@@ -128,7 +128,7 @@ class CalendarViewModel : FeedViewModel() {
 
     @Stable
     data class CollectionFilter(
-        val name: CollectionName,
+        val name: String,
     ) {
         var enabled: Boolean by mutableStateOf(false)
     }

@@ -60,7 +60,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.curo.R
-import io.github.curo.data.CollectionName
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
 import io.github.curo.data.FeedViewModel
@@ -77,7 +76,7 @@ import java.time.LocalDate
 fun Feed(
     modifier: Modifier = Modifier,
     onNoteClick: (Note) -> Unit,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
     viewModel: FeedViewModel,
 ) {
     LazyColumn(
@@ -175,7 +174,7 @@ fun NoteCard(
     modifier: Modifier = Modifier,
     item: Note,
     onNoteClick: (Note) -> Unit,
-    onCollectionClick: ((CollectionName) -> Unit)?,
+    onCollectionClick: ((String) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
@@ -309,7 +308,7 @@ private fun formatHeader(deadline: Deadline): String {
 
 private fun feedItemSupportingTextFactory(
     item: Note,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
 ): @Composable (() -> Unit)? = if (item.description != null || item.collections.isNotEmpty()) {
     {
         Column {
@@ -336,8 +335,8 @@ private fun feedItemSupportingTextFactory(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionChip(
-    name: CollectionName,
-    onClick: (CollectionName) -> Unit,
+    name: String,
+    onClick: (String) -> Unit,
 ) {
     SuggestionChip(
         modifier = Modifier
@@ -345,7 +344,7 @@ private fun CollectionChip(
             .height(30.dp),
         onClick = { onClick(name) },
         label = {
-            Text(text = name.value)
+            Text(text = name)
         })
 }
 

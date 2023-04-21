@@ -85,7 +85,7 @@ open class FeedViewModel : ViewModel() {
                 deadline = Deadline.of(today),
                 emoji = Emoji("\uD83D\uDE02"),
                 name = "Не забыть про нюанс",
-                collections = listOf("Приколы").map { CollectionName(it) },
+                collections = listOf("Приколы"),
                 done = false
             ),
             Note(
@@ -93,7 +93,7 @@ open class FeedViewModel : ViewModel() {
                 emoji = Emoji("\uD83D\uDE02"),
                 name = "Там еще какой-то прикол был...",
                 description = "Что-то про еврея, американца и русского",
-                collections = listOf("Приколы").map { CollectionName(it) }
+                collections = listOf("Приколы")
             ),
             Note(
                 id = 6,
@@ -106,7 +106,7 @@ open class FeedViewModel : ViewModel() {
                     "Важное",
                     "Haskell",
                     "Ненавижу ФП"
-                ).map { CollectionName(it) },
+                ),
                 done = false
             ),
             Note(

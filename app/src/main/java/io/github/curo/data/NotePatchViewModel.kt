@@ -16,8 +16,8 @@ class NotePatchViewModel : ViewModel() {
     var description: String by mutableStateOf("")
 
     var deadline: Deadline? by mutableStateOf(null)
-    var newCollection: CollectionName? by mutableStateOf(null)
-    var collections = mutableStateListOf<CollectionName>()
+    var newCollection: String? by mutableStateOf(null)
+    var collections = mutableStateListOf<String>()
 
     var hasCheckbox by mutableStateOf(false)
 
