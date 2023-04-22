@@ -11,6 +11,12 @@ sealed interface Deadline {
     companion object {
         fun of(date: LocalDate) = SimpleDeadline(date)
         fun of(date: LocalDate, time: LocalTime) = TimedDeadline(date, time)
+        fun of(dateOpt: LocalDate?, timeOpt: LocalTime?) =
+            dateOpt?.let { date ->
+                timeOpt?.let { time ->
+                    TimedDeadline(date, time)
+                } ?: SimpleDeadline(date)
+            }
     }
 }
 

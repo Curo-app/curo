@@ -298,7 +298,7 @@ private fun NavGraphBuilder.noteEditScreen(
         route = Screen.EditNote.route + "/{noteId}",
         arguments = listOf(navArgument("noteId", builder = { type = NavType.IntType }))
     ) {
-        it.arguments?.getInt("noteId")?.let { id ->
+        it.arguments?.getLong("noteId")?.let { id ->
             LaunchedEffect(id) {
                 notePatchViewModel.set(feedViewModel.findOrCreate(id))
             }

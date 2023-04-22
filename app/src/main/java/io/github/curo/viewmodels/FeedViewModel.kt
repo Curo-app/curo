@@ -27,14 +27,14 @@ open class FeedViewModel : ViewModel() {
         }
     }
 
-    fun findOrCreate(id: Int): NotePreviewModel = notes.find { note ->
+    fun findOrCreate(id: Long): NotePreviewModel = notes.find { note ->
         note.id == id
     } ?: NotePreviewModel(
         id = notes.maxOf(NotePreviewModel::id).inc(),
         name = "",
     )
 
-    fun delete(id: Int) {
+    fun delete(id: Long) {
         _notes.removeIf { it.id == id }
     }
 
@@ -44,7 +44,6 @@ open class FeedViewModel : ViewModel() {
                 id = note.id,
                 deadline = note.deadline,
                 emoji = note.emoji,
-                color = note.color,
                 name = note.name,
                 description = note.description,
                 collections = note.collections + collection.name,

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import io.github.curo.database.entities.CollectionWithNotes
 
 @Stable
 class CollectionPreviewModel(
@@ -22,6 +23,15 @@ class CollectionPreviewModel(
                 done = size - notes.count { it.done == false }
             )
         }
+    }
+
+    companion object {
+        fun of(collectionWithNotes: CollectionWithNotes): CollectionPreviewModel =
+            CollectionPreviewModel(
+                emoji = Emoji(collectionWithNotes.collection.emoji),
+                name = collectionWithNotes.collection.collectionName,
+                notes = collectionWithNotes.notes.map { NotePreviewModel.of(it) }
+            )
     }
 }
 

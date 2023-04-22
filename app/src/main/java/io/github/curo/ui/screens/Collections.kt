@@ -200,18 +200,18 @@ fun ClosedCollectionPreview() {
             name = "My super list",
             notes = listOf(
                 NotePreviewModel(
-                    id = Random.nextInt(),
+                    id = Random.nextLong(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
                 NotePreviewModel(
-                    id = Random.nextInt(),
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
                 NotePreviewModel(
-                    id = Random.nextInt(),
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
@@ -241,18 +241,18 @@ fun OpenedCollectionPreview() {
             name = "My super list",
             notes = listOf(
                 NotePreviewModel(
-                    id = Random.nextInt(),
+                    id = Random.nextLong(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
                 NotePreviewModel(
-                    id = Random.nextInt(),
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
                 NotePreviewModel(
-                    id = Random.nextInt(),
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
@@ -282,7 +282,7 @@ fun FinishedCollectionPreview() {
             name = "My super list",
             notes = listOf(
                 NotePreviewModel(
-                    id = Random.nextInt(),
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",

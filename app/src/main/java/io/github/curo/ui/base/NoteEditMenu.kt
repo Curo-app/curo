@@ -24,9 +24,9 @@ fun NoteEditMenu(
     note: NotePatchViewModel,
     onSaveNote: (NotePreviewModel) -> Unit,
     onDiscardNote: () -> Unit,
-    onShareNote: (id: Int) -> Unit,
-    onDeleteNote: (id: Int) -> Unit,
-    onPropertiesClick: (id: Int) -> Unit,
+    onShareNote: (id: Long) -> Unit,
+    onDeleteNote: (id: Long) -> Unit,
+    onPropertiesClick: (id: Long) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val firstVisibleItemIndex by remember {
@@ -131,9 +131,9 @@ private fun NoteOptionsTopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
 private fun BottomBar(
     note: NotePatchViewModel,
     onSaveNote: (NotePreviewModel) -> Unit,
-    onShareNote: (id: Int) -> Unit,
-    onDeleteNode: (id: Int) -> Unit,
-    onPropertiesClick: (id: Int) -> Unit,
+    onShareNote: (id: Long) -> Unit,
+    onDeleteNode: (id: Long) -> Unit,
+    onPropertiesClick: (id: Long) -> Unit,
 ) {
     BottomAppBar(
         modifier = Modifier

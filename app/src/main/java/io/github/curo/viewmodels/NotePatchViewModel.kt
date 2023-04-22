@@ -12,7 +12,7 @@ import io.github.curo.utils.setAll
 
 @Stable
 class NotePatchViewModel : ViewModel() {
-    private var _id: Int by mutableStateOf(-1)
+    private var _id: Long by mutableStateOf(-1)
     val id get() = _id
     var name: String by mutableStateOf("My Note")
     var description: String by mutableStateOf("")
