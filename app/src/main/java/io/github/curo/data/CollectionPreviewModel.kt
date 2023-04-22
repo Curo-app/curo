@@ -33,6 +33,10 @@ class CollectionPreviewModel(
                 notes = collectionWithNotes.notes.map { NotePreviewModel.of(it) }
             )
     }
+
+    override fun toString(): String {
+        return "CollectionPreviewModel(emoji=$emoji, name='$name', notes=$notes, progress=$progress)"
+    }
 }
 
 @Immutable

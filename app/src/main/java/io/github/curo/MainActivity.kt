@@ -9,6 +9,13 @@ import io.github.curo.ui.theme.CuroTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        val noteViewModel: NoteViewModel by viewModels {
+//            val database = (application as CuroApplication).database
+//            NoteViewModel.NoteViewModelFactory(
+//                database.noteDao(),
+//                database.noteCollectionCrossRefDao()
+//            )
+//        }
         setContent {
             CuroTheme {
                 AppScreen()

@@ -8,7 +8,7 @@ import java.time.LocalTime
 
 @Entity
 data class Note(
-    @PrimaryKey(autoGenerate = true) val noteId: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "note_id") val noteId: Long,
     val name: String,
     @ColumnInfo(name = "deadline_date") val deadlineDate: LocalDate?,
     @ColumnInfo(name = "deadline_time") val deadlineTime: LocalTime?,
@@ -36,11 +36,11 @@ data class Note(
 data class NoteWithCollectionNames(
     @Embedded val note: Note,
     @Relation(
-        parentColumn = "noteId",
-        entityColumn = "collectionName",
+        parentColumn = "note_id",
+        entityColumn = "collection_name",
         associateBy = Junction(NoteCollectionCrossRef::class),
         entity = Collection::class,
-        projection = ["collectionName"]
+        projection = ["collection_name"]
     )
     val collections: List<String>,
 )

@@ -296,7 +296,7 @@ private fun NavGraphBuilder.noteEditScreen(
 ) {
     composable(
         route = Screen.EditNote.route + "/{noteId}",
-        arguments = listOf(navArgument("noteId", builder = { type = NavType.IntType }))
+        arguments = listOf(navArgument("noteId", builder = { type = NavType.LongType }))
     ) {
         it.arguments?.getLong("noteId")?.let { id ->
             LaunchedEffect(id) {
