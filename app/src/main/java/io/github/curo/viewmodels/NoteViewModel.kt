@@ -25,6 +25,15 @@ class NoteViewModel(
 
     suspend fun delete(noteId: Long) = noteDao.delete(noteId)
 
+    @Transaction
+    suspend fun update(notePreview: NotePreviewModel) {
+        noteDao.update(Note.of(notePreview))
+        noteCollectionCrossRefDao.deleteAllByNoteId(notePreview.id)
+        val crossRefs = notePreview.collections
+            .map { NoteCollectionCrossRef(notePreview.id, it) }
+        noteCollectionCrossRefDao.insertAll(crossRefs)
+    }
+
 
     fun getAll(): Flow<List<NotePreviewModel>> =
         noteDao.getAll()

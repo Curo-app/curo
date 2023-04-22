@@ -13,6 +13,9 @@ interface CollectionDao {
     @Query("DELETE FROM Collection WHERE collection_name = :collectionName")
     suspend fun delete(collectionName: String)
 
+    @Update
+    suspend fun update(collection: Collection)
+
     @Transaction
     @Query("SELECT * FROM Collection")
     fun getAll(): Flow<List<CollectionWithNotes>>

@@ -12,6 +12,9 @@ interface NoteCollectionCrossRefDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(crossRefs: List<NoteCollectionCrossRef>)
 
+    @Query("DELETE FROM NoteCollectionCrossRef WHERE note_id = :noteId")
+    suspend fun deleteAllByNoteId(noteId: Long)
+
     @Query("SELECT * FROM NoteCollectionCrossRef WHERE collection_name = :collectionName")
     fun listByCollectionName(collectionName: String): Flow<List<NoteCollectionCrossRef>>
 }
