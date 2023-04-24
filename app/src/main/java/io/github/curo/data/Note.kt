@@ -20,8 +20,18 @@ class Note(
     done: Boolean? = null
 ) {
     var done by mutableStateOf(done)
+
+    companion object {
+        fun Collection<Note>.extractCollections(): List<CollectionName> =
+            this.flatMap { it.collections }.distinct()
+    }
 }
 
 @JvmInline
 @Immutable
-value class CollectionName(val name: String)
+value class CollectionName(val value: String) {
+    companion object {
+        fun Collection<CollectionName>.extractNames(): List<String> =
+            this.map { it.value }
+    }
+}

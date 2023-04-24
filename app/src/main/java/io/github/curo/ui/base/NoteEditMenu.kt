@@ -14,18 +14,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
-import io.github.curo.data.NotePatch
+import io.github.curo.data.Note
+import io.github.curo.data.NotePatchViewModel
 import io.github.curo.ui.theme.CuroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditMenu(
-    note: NotePatch,
-    onSaveNote: (NotePatch) -> Unit,
+    note: NotePatchViewModel,
+    onSaveNote: (Note) -> Unit,
     onDiscardNote: () -> Unit,
-    onShareNote: () -> Unit,
-    onDeleteNode: () -> Unit,
-    onPropertiesClick: () -> Unit,
+    onShareNote: (id: Int) -> Unit,
+    onDeleteNote: (id: Int) -> Unit,
+    onPropertiesClick: (id: Int) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val firstVisibleItemIndex by remember {
@@ -38,7 +39,7 @@ fun NoteEditMenu(
 
     Scaffold(
         topBar = { NoteOptionsTopBar(onDiscardNote, isBodyUnmoved) },
-        bottomBar = { BottomBar(note, onSaveNote, onShareNote, onDeleteNode, onPropertiesClick) },
+        bottomBar = { BottomBar(note, onSaveNote, onShareNote, onDeleteNote, onPropertiesClick) },
     ) {
         LazyColumn(
             state = listState,
@@ -61,9 +62,9 @@ fun NoteEditMenu(
             item {
                 TransparentHintTextField(
                     modifier = Modifier.fillMaxHeight(),
-                    text = note.content,
+                    text = note.description,
                     hint = stringResource(R.string.note_textfield_hint),
-                    onValueChange = { text -> note.content = text },
+                    onValueChange = { text -> note.description = text },
                     textStyle = TextStyle(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
                     )
@@ -128,11 +129,11 @@ private fun NoteOptionsTopBar(onDiscardNote: () -> Unit, isUnmoved: Boolean) {
 
 @Composable
 private fun BottomBar(
-    note: NotePatch,
-    onSaveNote: (NotePatch) -> Unit,
-    onShareNote: () -> Unit,
-    onDeleteNode: () -> Unit,
-    onPropertiesClick: () -> Unit,
+    note: NotePatchViewModel,
+    onSaveNote: (Note) -> Unit,
+    onShareNote: (id: Int) -> Unit,
+    onDeleteNode: (id: Int) -> Unit,
+    onPropertiesClick: (id: Int) -> Unit,
 ) {
     BottomAppBar(
         modifier = Modifier
@@ -140,7 +141,7 @@ private fun BottomBar(
             .navigationBarsPadding(),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onSaveNote(note) },
+                onClick = { onSaveNote(note.toNote()) },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 content = {
                     Icon(
@@ -152,21 +153,21 @@ private fun BottomBar(
             )
         },
         actions = {
-            IconButton(onClick = onPropertiesClick) {
+            IconButton(onClick = { onPropertiesClick(note.id) }) {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     contentDescription = stringResource(R.string.on_properties_description)
                 )
             }
-            IconButton(onClick = onShareNote) {
+            IconButton(onClick = { onShareNote(note.id) }) {
                 Icon(
                     imageVector = Icons.Default.Share,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     contentDescription = stringResource(R.string.share_note_content_description)
                 )
             }
-            IconButton(onClick = onDeleteNode) {
+            IconButton(onClick = { onDeleteNode(note.id) }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -182,9 +183,9 @@ private fun BottomBar(
 fun EditNoteScreenPreview() {
     val note by remember {
         mutableStateOf(
-            NotePatch(1).apply {
+            NotePatchViewModel().apply {
                 name = ""
-                content = """
+                description = """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Habitant morbi tristique senectus et netus. Maecenas pharetra convallis posuere morbi leo urna molestie at. Ac feugiat sed lectus vestibulum. In ornare quam viverra orci sagittis eu volutpat odio. Phasellus faucibus scelerisque eleifend donec pretium. Laoreet id donec ultrices tincidunt arcu non. Et tortor consequat id porta. Sit amet consectetur adipiscing elit ut aliquam purus sit. Amet justo donec enim diam vulputate ut pharetra. Elit at imperdiet dui accumsan sit amet nulla facilisi. Eu sem integer vitae justo. In tellus integer feugiat scelerisque varius morbi enim.
 
             In hac habitasse platea dictumst quisque sagittis purus. Urna cursus eget nunc scelerisque viverra mauris. Ut faucibus pulvinar elementum integer enim neque volutpat ac. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Dictumst quisque sagittis purus sit. Vulputate odio ut enim blandit. Turpis egestas integer eget aliquet nibh praesent tristique. Nunc vel risus commodo viverra maecenas accumsan lacus vel. Feugiat nisl pretium fusce id. Vitae justo eget magna fermentum iaculis eu non diam phasellus. Ac felis donec et odio. Lorem dolor sed viverra ipsum nunc aliquet. Massa massa ultricies mi quis hendrerit dolor magna eget. Sagittis vitae et leo duis ut diam. Ipsum faucibus vitae aliquet nec ullamcorper sit amet risus nullam.
@@ -207,7 +208,7 @@ fun EditNoteScreenPreview() {
                 onSaveNote = {},
                 onDiscardNote = {},
                 onShareNote = {},
-                onDeleteNode = {},
+                onDeleteNote = {},
                 onPropertiesClick = {},
             )
         }

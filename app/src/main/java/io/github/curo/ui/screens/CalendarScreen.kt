@@ -1,76 +1,58 @@
 package io.github.curo.ui.screens
 
-import androidx.compose.foundation.lazy.items
+import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.Search
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kizitonwose.calendar.compose.CalendarLayoutInfo
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.rememberCalendarState
-import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.OutDateStyle
-import com.kizitonwose.calendar.core.daysOfWeek
-import io.github.curo.R
+import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import io.github.curo.data.CalendarViewModel
-import io.github.curo.ui.base.Calendar
-import kotlinx.coroutines.flow.filterNotNull
+import io.github.curo.data.CollectionName
+import io.github.curo.ui.base.LandscapeCalendar
+import io.github.curo.ui.base.PortraitCalendar
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.YearMonth
 import java.util.*
 
+private val cellsBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.background
 
 @Composable
 fun CalendarScreen(
-    calendarViewModel: CalendarViewModel
+    calendarViewModel: CalendarViewModel,
+    calendarState: CalendarState,
+    onCollectionClick: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
 ) {
-    val currentMonth = remember { YearMonth.now() }
-    val startMonth = remember { currentMonth.minusMonths(100) }
-    val endMonth = remember { currentMonth.plusMonths(100) }
-    val daysOfWeek = remember { daysOfWeek() }
-    val state = rememberCalendarState(
-        startMonth = startMonth,
-        endMonth = endMonth,
-        firstVisibleMonth = currentMonth,
-        firstDayOfWeek = daysOfWeek.first(),
-        outDateStyle = OutDateStyle.EndOfGrid,
-    )
-
-    // TODO: move CalendarScreenTopAppBar
-    //    Scaffold(
-    //        topBar = {
-    //            CalendarScreenTopAppBar(
-    //                state,
-    //                onNavigationIconClick = {},
-    //                onSearchIconClick = {}
-    //            )
-    //        }
-    //    ) { innerPadding ->
-    //        CalendarMenu(
-    //            modifier = Modifier.padding(innerPadding),
-    //            state,
-    //        )
-    //    }
-
     CalendarMenu(
         modifier = Modifier.fillMaxSize(),
-        state,
+        calendarState,
         calendarViewModel,
+        onCollectionClick,
+        onDayClick,
     )
 }
 
@@ -79,82 +61,69 @@ fun CalendarMenu(
     modifier: Modifier = Modifier,
     calendarState: CalendarState,
     calendarViewModel: CalendarViewModel,
+    onCollectionClick: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
 ) {
-    // Background theme color
-    Box(
-        modifier = modifier
-            .padding(top = 12.dp)
-            .background(Color.LightGray)
-    )
+    Column(modifier = modifier) {
+        CurrentCollections(
+            onCollectionClick = onCollectionClick,
+            viewModel = calendarViewModel
+        )
 
-    val notesState by calendarViewModel.notes.collectAsState()
+        when (LocalConfiguration.current.orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> {
+                PortraitCalendar(
+                    state = calendarState,
+                    viewModel = calendarViewModel,
+                    onDayClick = onDayClick,
+                )
+            }
 
-    // TODO: make calendar move with borders
-    Calendar(
-        modifier = modifier
-            .background(Color.Transparent)  // in case first box color will be visible
-            .padding(bottom = 50.dp)        // to show tags collection
-            .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
-        calendarState,
-        notesState
-    )
+            else -> {
+                LandscapeCalendar(
+                    state = calendarState,
+                    viewModel = calendarViewModel,
+                    onDayClick = onDayClick,
+                )
+            }
+        }
 
-    // TODO: think about how to get the names of the collection
-    val collectionsNames =
-        notesState
-            .flatMap { it.collections }
-            .distinct()
-    // LazyColumn of Tags Collection
+    }
+}
+
+@Composable
+private fun CurrentCollections(
+    onCollectionClick: (CollectionName) -> Unit,
+    viewModel: CalendarViewModel,
+) {
     LazyRow(
-        verticalAlignment = Alignment.Bottom,
-        modifier = modifier
-            .padding(bottom = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 12.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        items(collectionsNames) {
-            Text(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(4.dp),
-                text = it.name
-            )
+        items(viewModel.collectionsNames) { collection ->
+            val currentItem by rememberUpdatedState(collection)
+            CollectionChip(currentItem, onCollectionClick)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarScreenTopAppBar(
-    calendarState: CalendarState,
-    onNavigationIconClick: () -> Unit,
-    onSearchIconClick: () -> Unit,
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CollectionChip(
+    current: CalendarViewModel.CollectionFilter,
+    onCollectionClick: (CollectionName) -> Unit,
 ) {
-    val visibleMonth = rememberFirstMostVisibleMonth(calendarState, viewportPercent = 90f)
-
-    val monthName = visibleMonth.yearMonth.month.name.lowercase().capitalizeFirstLetter()
-
-    val year = visibleMonth.yearMonth.year
-
-    TopAppBar(
-        title = { Text(text = "$monthName $year") },
-        navigationIcon = {
-            IconButton(onClick = onNavigationIconClick) {
-                Icon(
-                    imageVector = Icons.Rounded.Menu,
-                    contentDescription = stringResource(R.string.calendar_menu),
-                )
-            }
+    FilterChip(
+        onClick = {
+            current.enabled = !current.enabled
+            onCollectionClick(current.name)
         },
-        actions = {
-            IconButton(onClick = onSearchIconClick) {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = stringResource(R.string.calendar_search),
-                )
-            }
-        }
+        modifier = Modifier.padding(vertical = 0.dp),
+        interactionSource = remember { MutableInteractionSource() },
+        label = { Text(text = current.name.value) },
+        selected = current.enabled,
     )
 }
 
@@ -165,37 +134,107 @@ fun String.capitalizeFirstLetter(): String {
 }
 
 @Composable
-fun rememberFirstMostVisibleMonth(
-    state: CalendarState,
-    viewportPercent: Float = 50f,
-): CalendarMonth {
-    val visibleMonth = remember(state) { mutableStateOf(state.firstVisibleMonth) }
-    LaunchedEffect(state) {
-        snapshotFlow { state.layoutInfo.firstMostVisibleMonth(viewportPercent) }
-            .filterNotNull()
-            .collect { month -> visibleMonth.value = month }
-    }
-    return visibleMonth.value
+fun rememberCuroCalendarState(): CalendarState {
+    return rememberCalendarState(
+        startMonth = YearMonth.now().minusMonths(100),
+        endMonth = YearMonth.now().plusMonths(100),
+        firstVisibleMonth = YearMonth.now(),
+        firstDayOfWeek = firstDayOfWeekFromLocale(),
+        outDateStyle = OutDateStyle.EndOfRow,
+    )
 }
 
-private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50f): CalendarMonth? {
-    return if (visibleMonthsInfo.isEmpty()) {
-        null
-    } else {
-        val viewportSize = (viewportEndOffset + viewportStartOffset) * viewportPercent / 100f
-        visibleMonthsInfo.firstOrNull { itemInfo ->
-            if (itemInfo.offset < 0) {
-                itemInfo.offset + itemInfo.size >= viewportSize
-            } else {
-                itemInfo.size - itemInfo.offset >= viewportSize
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BoxScope.Day(
+    day: LocalDate,
+    dayState: CalendarViewModel.DayState,
+    onDayClick: (LocalDate) -> Unit
+) {
+    val (backGroundColorForToday, textColorForToday) =
+        if (isCurrentDay(day)) {
+            MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.primary
+        } else {
+            Color.Transparent to MaterialTheme.colorScheme.onBackground
+        }
+    BadgedBox(
+        modifier = Modifier
+            .clickable { onDayClick(day) }
+            .align(Alignment.BottomStart)
+            .padding(12.dp),
+        badge = {
+            when (dayState) {
+                CalendarViewModel.DayState.Empty -> {}
+                is CalendarViewModel.DayState.NoWarn -> {
+                    Badge(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                    ) {
+                        Text(text = dayState.amount.toString())
+                    }
+                }
+
+                is CalendarViewModel.DayState.Warn -> {
+                    Badge(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ) {
+                        Text(text = dayState.amount.toString())
+                    }
+                }
             }
-        }?.month
+        },
+    ) {
+        Text(
+            modifier = Modifier
+                .background(backGroundColorForToday, CircleShape),
+            text = "${day.dayOfMonth}",
+            fontWeight = FontWeight.Light,
+            color = textColorForToday,
+        )
     }
 }
+
+@Composable
+private fun isCurrentDay(day: LocalDate) =
+    day == LocalDate.now()
+
+@Composable
+fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start,
+    ) {
+        for (dayOfWeek in daysOfWeek) {
+            val textColorForCurrentDayOfWeek = if (
+                isCurrentDayOfWeek(dayOfWeek)
+            ) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onBackground
+            }
+
+            Text(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .weight(1f)
+                    .height(20.dp)
+                    .background(cellsBackgroundColor),
+                textAlign = TextAlign.Start,
+                text = dayOfWeek.name.lowercase().capitalizeFirstLetter().take(3),
+                fontWeight = FontWeight.Normal,
+                color = textColorForCurrentDayOfWeek,
+            )
+        }
+    }
+}
+
+private fun isCurrentDayOfWeek(
+    dayOfWeek: DayOfWeek,
+) = dayOfWeek == LocalDate.now().dayOfWeek
 
 @Preview(showBackground = true)
 @Composable
 fun CalendarPreview() {
     val viewModel = remember { CalendarViewModel() }
-    CalendarScreen(viewModel)
+    CalendarScreen(viewModel, rememberCuroCalendarState(), onCollectionClick = {}, onDayClick = {})
 }

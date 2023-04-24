@@ -1,19 +1,32 @@
 package io.github.curo.ui.screens
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -21,22 +34,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
 import io.github.curo.data.CollectionName
-import io.github.curo.data.Deadline
-import io.github.curo.data.Emoji
 import io.github.curo.data.Note
-import io.github.curo.ui.base.NoteCard
-import java.time.LocalDate
+import io.github.curo.data.SearchViewModel
+import io.github.curo.ui.base.Feed
 
 @Composable
 fun SearchView(
     onSearchTextChanged: (String) -> Unit,
     onSearchKeyboardClick: () -> Unit,
     onLeadingIconClick: () -> Unit,
-    searchResults: List<Note>,
+    searchViewModel: SearchViewModel,
     onNoteClick: (Note) -> Unit,
     onCollectionClick: (CollectionName) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Surface(
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 4.dp
@@ -47,10 +62,6 @@ fun SearchView(
                     .height(72.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val hint: String = stringResource(R.string.search_hint)
-                var searchText by remember { mutableStateOf("") }
-                var isHint by remember { mutableStateOf(hint.isNotEmpty()) }
-
                 IconButton(
                     onClick = { onLeadingIconClick() },
                 ) {
@@ -58,16 +69,15 @@ fun SearchView(
                 }
                 Box(modifier = Modifier.weight(1f)) {
                     BasicTextField(
-                        value = searchText,
+                        value = searchViewModel.query,
                         onValueChange = {
-                            searchText = it
+                            searchViewModel.query = it
                             onSearchTextChanged(it)
                         },
                         maxLines = 1,
                         singleLine = true,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .onFocusChanged { isHint = !it.isFocused },
+                            .padding(horizontal = 8.dp),
                         textStyle = TextStyle(
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
@@ -77,9 +87,9 @@ fun SearchView(
                             onSearch = { onSearchKeyboardClick() }
                         )
                     )
-                    if (isHint) {
+                    if (searchViewModel.query.isEmpty()) {
                         Text(
-                            text = hint,
+                            text = stringResource(R.string.search_hint),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier
                                 .padding(horizontal = 8.dp),
@@ -88,11 +98,11 @@ fun SearchView(
                     }
                 }
 
-                if (searchText.isNotEmpty()) {
-                    IconButton(onClick = { searchText = "" }) {
+                if (searchViewModel.query.isNotEmpty()) {
+                    IconButton(onClick = { searchViewModel.query = "" }) {
                         Icon(
                             Icons.Rounded.Clear,
-                            contentDescription = stringResource(R.string.clear_search_text)
+                            contentDescription = stringResource(R.string.clear_input)
                         )
                     }
                 }
@@ -105,15 +115,27 @@ fun SearchView(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
         )
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(searchResults) { item ->
-                NoteCard(
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
-                    item = item,
-                    onNoteClick,
-                    onCollectionClick
+        if (searchViewModel.notes.isEmpty()) {
+
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    modifier = Modifier.size(128.dp),
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.inversePrimary,
                 )
+                Text(text = "Nothing found")
             }
+        } else {
+            Feed(
+                onNoteClick = onNoteClick,
+                onCollectionClick = onCollectionClick,
+                viewModel = searchViewModel
+            )
         }
     }
 }
@@ -121,45 +143,27 @@ fun SearchView(
 @Preview(showBackground = true)
 @Composable
 fun SearchViewPreview() {
-    val items = listOf(
-        Note(
-            id = 0,
-            name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
-            description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
-        ),
-        Note(
-            id = 1,
-            emoji = Emoji("\uD83D\uDE3F"),
-            name = "Забыть матан",
-            done = false,
-            deadline = Deadline.of(LocalDate.now().plusDays(1))
-        ),
-        Note(
-            id = 2,
-            emoji = Emoji("\uD83D\uDE13"),
-            name = "Something",
-            description = "Buy milk",
-            done = false
-        ),
-        Note(
-            id = 3,
-            emoji = Emoji("\uD83D\uDE02"),
-            name = "Там еще какой-то прикол был...",
-            description = "Что-то про еврея, американца и русского",
-            collections = listOf("Приколы").map { CollectionName(it) }
-        ),
-        Note(
-            id = 4,
-            name = "Отжаться 21 раз",
-            done = true
-        )
-    )
     MaterialTheme {
         SearchView(
             onSearchTextChanged = { /* Updated each time the text changes */ },
             onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
             onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
-            searchResults = items,
+            searchViewModel = remember { SearchViewModel() },
+            onNoteClick = { /* TODO */ },
+            onCollectionClick = { /* TODO */ }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SearchViewPreviewResults() {
+    MaterialTheme {
+        SearchView(
+            onSearchTextChanged = { /* Updated each time the text changes */ },
+            onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
+            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
+            searchViewModel = remember { SearchViewModel().apply { query = "ddd" } },
             onNoteClick = { /* TODO */ },
             onCollectionClick = { /* TODO */ }
         )

@@ -61,7 +61,7 @@ import io.github.curo.R
 import io.github.curo.data.CollectionName
 import io.github.curo.data.CollectionViewModel
 import io.github.curo.data.Deadline
-import io.github.curo.data.NotePatch
+import io.github.curo.data.NotePatchViewModel
 import io.github.curo.data.SimpleDeadline
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
@@ -75,7 +75,7 @@ private val emptyTextFieldValue = TextFieldValue("", TextRange.Zero)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteOptionsScreen(
-    note: NotePatch,
+    note: NotePatchViewModel,
     collectionViewModel: CollectionViewModel,
     onReturn: () -> Unit,
 ) {
@@ -113,7 +113,7 @@ private fun SettingsDivider() = Divider(modifier = Modifier.padding(vertical = 1
 @Composable
 private fun NoteOptions(
     modifier: Modifier = Modifier,
-    note: NotePatch,
+    note: NotePatchViewModel,
     collectionViewModel: CollectionViewModel,
 ) {
     val today = remember { LocalDate.now() }
@@ -167,7 +167,7 @@ private fun NoteOptions(
         SettingsDivider()
 
         CollectionAdder(collectionViewModel, note.collections)
-        CurrentCollections(note.collections)
+        CurrentCollections(note.newCollection, note.collections)
     }
 }
 
@@ -305,7 +305,7 @@ private fun CollectionAdder(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         val expanded = suggestionState == Suggestion.Shown
-                && collectionViewModel.searchResult.isNotEmpty()
+                && collectionViewModel.query.isNotEmpty()
                 && textFieldValue.text.isNotBlank()
 
         ExposedDropdownMenuBox(
@@ -319,7 +319,7 @@ private fun CollectionAdder(
                 onValueChange = {
                     textFieldValue = it
                     if (textFieldValue.text.isNotBlank()) {
-                        collectionViewModel.searchQuery = textFieldValue.text
+                        collectionViewModel.query = textFieldValue.text
                     }
                     suggestionState = when (suggestionState) {
                         Suggestion.Hidden -> Suggestion.Shown
@@ -338,7 +338,7 @@ private fun CollectionAdder(
                 onDismissRequest = { suggestionState = Suggestion.Hidden },
                 modifier = Modifier.width(300.dp),
             ) {
-                collectionViewModel.searchResult.forEach { label ->
+                collectionViewModel.suggestions.forEach { label ->
                     DropdownMenuItem(
                         onClick = {
                             suggestionState = Suggestion.Suggested
@@ -467,12 +467,25 @@ private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? =
     }
 } else null
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CurrentCollections(collections: SnapshotStateList<CollectionName>) {
+private fun CurrentCollections(
+    patchCollection: CollectionName?,
+    collections: MutableList<CollectionName>
+) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
+        patchCollection?.let { collection ->
+            item {
+                SuggestionChip(onClick = { /* DO NOTHING */ },
+                    modifier = Modifier.padding(vertical = 0.dp),
+                    interactionSource = remember { MutableInteractionSource() },
+                    label = { Text(text = collection.value) },
+                )
+            }
+        }
         items(collections) { collection ->
             CollectionChip(collection, collections)
         }
@@ -483,12 +496,12 @@ private fun CurrentCollections(collections: SnapshotStateList<CollectionName>) {
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
     current: CollectionName,
-    collections: SnapshotStateList<CollectionName>
+    collections: MutableList<CollectionName>
 ) {
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current.name) },
+        label = { Text(text = current.value) },
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Clear,
@@ -508,7 +521,7 @@ sealed class Suggestion {
 @Preview
 @Composable
 fun NoteOptionsPreview() {
-    val noteModel = remember { NotePatch() }
+    val noteModel = remember { NotePatchViewModel() }
     val viewModel = remember { CollectionViewModel() }
     NoteOptionsScreen(noteModel, viewModel) {}
 }

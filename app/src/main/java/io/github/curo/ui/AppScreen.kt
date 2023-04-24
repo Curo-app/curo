@@ -6,14 +6,15 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,16 +32,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.kizitonwose.calendar.compose.CalendarState
 import io.github.curo.data.BottomNavigationScreen
 import io.github.curo.data.CalendarViewModel
 import io.github.curo.data.CollectionName
+import io.github.curo.data.CollectionPatchViewModel
 import io.github.curo.data.CollectionViewModel
 import io.github.curo.data.FABMenuItem
-import io.github.curo.data.NoteViewModel
+import io.github.curo.data.FeedViewModel
+import io.github.curo.data.Note
+import io.github.curo.data.NotePatchViewModel
 import io.github.curo.data.Route
 import io.github.curo.data.Screen
+import io.github.curo.data.SearchViewModel
+import io.github.curo.data.ShareScreenViewModel
 import io.github.curo.ui.base.AboutUs
-import io.github.curo.ui.base.Collections
 import io.github.curo.ui.base.FABAddMenu
 import io.github.curo.ui.base.FABButtonState
 import io.github.curo.ui.base.Feed
@@ -49,13 +55,21 @@ import io.github.curo.ui.base.NoteEditMenu
 import io.github.curo.ui.base.NoteOptionsScreen
 import io.github.curo.ui.base.SearchTopAppBar
 import io.github.curo.ui.base.Settings
+import io.github.curo.ui.base.ShareNote
 import io.github.curo.ui.base.SideMenu
 import io.github.curo.ui.base.fabAnimationProperties
 import io.github.curo.ui.base.fabBackgroundModifier
 import io.github.curo.ui.screens.CalendarScreen
+import io.github.curo.ui.screens.Collections
+import io.github.curo.ui.screens.DayNotes
+import io.github.curo.ui.screens.EditCollectionScreen
+import io.github.curo.ui.screens.SearchView
+import io.github.curo.ui.screens.capitalizeFirstLetter
+import io.github.curo.ui.screens.rememberCuroCalendarState
 import io.github.curo.utils.NEW_ENTITY_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 val bottomMenu = listOf(
     BottomNavigationScreen.Collections,
@@ -71,11 +85,17 @@ fun AppScreen() {
     val currentSideMenuItem by mainNavController.currentBackStackEntryAsState()
 
     val scope = rememberCoroutineScope()
-    val noteViewModel = remember { NoteViewModel() }
+    val feedViewModel = remember { FeedViewModel() }
+
     val collectionViewModel = remember { CollectionViewModel() }
     val calendarViewModel = remember { CalendarViewModel() }
+    val notePatchViewModel = remember { NotePatchViewModel() }
+    val collectionPatchViewModel = remember { CollectionPatchViewModel() }
+    val searchViewModel = remember { SearchViewModel() }
+    val shareScreenViewModel = remember { ShareScreenViewModel() }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+
     SideMenu(
         drawerState = drawerState,
         onItemClick = { screen ->
@@ -83,6 +103,13 @@ fun AppScreen() {
             navigateSameScreen(mainNavController, screen)
         },
         content = {
+            shareScreenViewModel.link?.let {
+                ShareNote(
+                    viewModel = shareScreenViewModel,
+                    onDone = { shareScreenViewModel.link = null },
+                    onDismiss = { shareScreenViewModel.link = null },
+                )
+            }
             NavHost(
                 navController = mainNavController,
                 startDestination = BottomNavigationScreen.route
@@ -90,70 +117,222 @@ fun AppScreen() {
                 composable(BottomNavigationScreen.route) {
                     FABScreen(
                         drawerState = drawerState,
-                        outerNavHost = mainNavController,
-                        innerNavHost = bottomNavigationNavController,
+                        mainNavHost = mainNavController,
+                        bottomBarNavHost = bottomNavigationNavController,
                         scope = scope,
-                        noteViewModel = noteViewModel,
+                        feedViewModel = feedViewModel,
                         collectionViewModel = collectionViewModel,
                         calendarViewModel = calendarViewModel,
                     )
                 }
-
                 composable(Screen.AboutUs.route) {
                     AboutUs(drawerState, scope)
                 }
                 composable(Screen.Settings.route) {
                     Settings(drawerState, scope)
                 }
-
-                composable(Screen.EditCollection.route + "/{collectionName}") {
-                    /* TODO: EDIT COLLECTION SCREEN */
-                }
-                noteEditScreen(noteViewModel, mainNavController)
-                noteOptionsScreen(noteViewModel, mainNavController, collectionViewModel)
-                composable(Screen.SearchResult.route + "/{query}") {
-                    /* TODO: SEARCH RESULT SCREEN */
-                }
+                dayNotesScreen(
+                    viewModel = calendarViewModel,
+                    shareScreenViewModel = shareScreenViewModel,
+                    mainNavController = mainNavController,
+                )
+                collectionEditScreen(
+                    feedViewModel = feedViewModel,
+                    shareScreenViewModel = shareScreenViewModel,
+                    collectionPatchViewModel = collectionPatchViewModel,
+                    notePatchViewModel = notePatchViewModel,
+                    collectionViewModel = collectionViewModel,
+                    mainNavController = mainNavController,
+                )
+                noteEditScreen(
+                    feedViewModel = feedViewModel,
+                    shareScreenViewModel = shareScreenViewModel,
+                    collectionPatchViewModel = collectionPatchViewModel,
+                    collectionViewModel = collectionViewModel,
+                    notePatchViewModel = notePatchViewModel,
+                    mainNavController = mainNavController
+                )
+                noteOptionsScreen(
+                    notePatchViewModel = notePatchViewModel,
+                    mainNavController = mainNavController,
+                    collectionViewModel = collectionViewModel
+                )
+                searchScreen(
+                    mainNavController = mainNavController,
+                    searchViewModel = searchViewModel,
+                )
             }
         },
         selected = currentSideMenuItem?.destination?.route
     )
 }
 
+private fun NavGraphBuilder.searchScreen(
+    mainNavController: NavHostController,
+    searchViewModel: SearchViewModel,
+) {
+    composable(
+        route = Screen.SearchResult.route + "?query={query}",
+        arguments = listOf(
+            navArgument("query",
+                builder = {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        )
+    ) {
+        val query = it.arguments?.getString("query").orEmpty()
+        LaunchedEffect(query) {
+            searchViewModel.query = query
+        }
+
+        SearchView(
+            onSearchTextChanged = { /* Query updated on SearchView, so do nothing */ },
+            onSearchKeyboardClick = { /* Query updated on SearchView, so do nothing */ },
+            onLeadingIconClick = {
+                mainNavController.popBackStack()
+            },
+            searchViewModel = searchViewModel,
+            onNoteClick = { note ->
+                mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
+            },
+            onCollectionClick = { collectionName ->
+                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName.value)
+            }
+        )
+    }
+}
+
+private fun NavGraphBuilder.collectionEditScreen(
+    feedViewModel: FeedViewModel,
+    shareScreenViewModel: ShareScreenViewModel,
+    collectionPatchViewModel: CollectionPatchViewModel,
+    notePatchViewModel: NotePatchViewModel,
+    collectionViewModel: CollectionViewModel,
+    mainNavController: NavHostController,
+) {
+    composable(
+        route = Screen.EditCollection.route + "/{collectionName}",
+        arguments = listOf(navArgument("collectionName", builder = { type = NavType.StringType }))
+    ) {
+        it.arguments?.getString("collectionName")?.let { name ->
+            LaunchedEffect(name) {
+                collectionPatchViewModel.set(CollectionName(name.ifEmpty { "New collection" }))
+            }
+        }
+
+        EditCollectionScreen(
+            viewModel = collectionPatchViewModel,
+            onNoteClick = { note ->
+                mainNavController
+                    .navigate(Screen.EditNote.route + '/' + note.id)
+            },
+            onCollectionClick = { collectionName ->
+                mainNavController
+                    .navigate(Screen.EditCollection.route + '/' + collectionName.value)
+            },
+            onAddNoteClick = {
+                mainNavController
+                    .navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
+                notePatchViewModel.newCollection = CollectionName(collectionPatchViewModel.name)
+            },
+            onDeleteCollectionClick = { collection ->
+                collectionViewModel.delete(collection)
+                mainNavController.popBackStack()
+            },
+            onShareCollectionClick = {
+                shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            },
+            onBackToMenuClick = { mainNavController.popBackStack() },
+            onSaveClick = { collection ->
+                collectionViewModel.update(collection)
+                feedViewModel.addCollection(collection)
+                mainNavController.popBackStack()
+            }
+        )
+    }
+}
+
+private fun NavGraphBuilder.dayNotesScreen(
+    viewModel: CalendarViewModel,
+    shareScreenViewModel: ShareScreenViewModel,
+    mainNavController: NavHostController,
+) {
+    composable(
+        route = Screen.DayNotes.route + "/{day}",
+        arguments = listOf(navArgument("day", builder = { type = NavType.StringType }))
+    ) {
+        it.arguments?.getString("day")?.let { day ->
+            LaunchedEffect(day) {
+                viewModel.setDay(LocalDate.parse(day))
+            }
+        }
+
+        DayNotes(
+            viewModel = viewModel,
+            onNoteClick = { note ->
+                mainNavController
+                    .navigate(Screen.EditNote.route + '/' + note.id)
+            },
+            onCollectionClick = { collectionName ->
+                mainNavController
+                    .navigate(Screen.EditCollection.route + '/' + collectionName.value)
+            },
+            onShareClick = {
+                shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            },
+            onBackToMenuClick = { mainNavController.popBackStack() },
+        )
+    }
+}
+
 private fun NavGraphBuilder.noteEditScreen(
-    noteViewModel: NoteViewModel,
+    feedViewModel: FeedViewModel,
+    shareScreenViewModel: ShareScreenViewModel,
+    collectionPatchViewModel: CollectionPatchViewModel,
+    collectionViewModel: CollectionViewModel,
+    notePatchViewModel: NotePatchViewModel,
     mainNavController: NavHostController
 ) {
     composable(
         route = Screen.EditNote.route + "/{noteId}",
         arguments = listOf(navArgument("noteId", builder = { type = NavType.IntType }))
     ) {
-        val note by noteViewModel.patchItem.collectAsState(null)
-        note?.let {
-            NoteEditMenu(
-                note = it,
-                onSaveNote = {
-                    /* TODO: Call view model save */
-                    mainNavController.popBackStack()
-                },
-                onDiscardNote = {
-                    mainNavController.popBackStack()
-                },
-                onShareNote = { /* TODO: sharing screen */ },
-                onPropertiesClick = {
-                    mainNavController.navigate(Screen.NoteOptions.route + '/' + it.id)
-                },
-                onDeleteNode = {
-                    /* TODO: delete node */
-                    mainNavController.popBackStack()
-                },
-            )
+        it.arguments?.getInt("noteId")?.let { id ->
+            LaunchedEffect(id) {
+                notePatchViewModel.set(feedViewModel.findOrCreate(id))
+            }
         }
+        NoteEditMenu(
+            note = notePatchViewModel,
+            onSaveNote = { note ->
+                if (notePatchViewModel.newCollection != null) {
+                    collectionPatchViewModel.notes.add(note)
+                }
+                feedViewModel.update(note)
+                collectionViewModel.addNote(note)
+                mainNavController.popBackStack()
+            },
+            onDiscardNote = {
+                mainNavController.popBackStack()
+            },
+            onShareNote = {
+                shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            },
+            onPropertiesClick = { id ->
+                mainNavController.navigate(Screen.NoteOptions.route + '/' + id)
+            },
+            onDeleteNote = { id ->
+                feedViewModel.delete(id)
+                mainNavController.popBackStack()
+            },
+        )
     }
 }
 
 private fun NavGraphBuilder.noteOptionsScreen(
-    noteViewModel: NoteViewModel,
+    notePatchViewModel: NotePatchViewModel,
     mainNavController: NavHostController,
     collectionViewModel: CollectionViewModel,
 ) {
@@ -161,17 +340,11 @@ private fun NavGraphBuilder.noteOptionsScreen(
         route = Screen.NoteOptions.route + "/{noteId}",
         arguments = listOf(navArgument("noteId", builder = { type = NavType.IntType }))
     ) {
-        val note by noteViewModel.patchItem.collectAsState(null)
-        note?.let {
-            NoteOptionsScreen(
-                note = it,
-                collectionViewModel = collectionViewModel,
-                onReturn = {
-                    /* TODO: Call view model save */
-                    mainNavController.popBackStack()
-                },
-            )
-        }
+        NoteOptionsScreen(
+            note = notePatchViewModel,
+            collectionViewModel = collectionViewModel,
+            onReturn = { mainNavController.popBackStack() },
+        )
     }
 }
 
@@ -179,36 +352,49 @@ private fun NavGraphBuilder.noteOptionsScreen(
 @Composable
 private fun FABScreen(
     drawerState: DrawerState,
-    outerNavHost: NavHostController,
-    innerNavHost: NavHostController,
+    mainNavHost: NavHostController,
+    bottomBarNavHost: NavHostController,
     scope: CoroutineScope,
-    noteViewModel: NoteViewModel,
+    feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
-    calendarViewModel: CalendarViewModel
+    calendarViewModel: CalendarViewModel,
 ) {
     var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Closed) }
 
     FloatingActionButtonMenu(
         onSearchClick = { query ->
-            outerNavHost.navigate(Screen.SearchResult.route + "/$query")
+            mainNavHost.navigate(Screen.SearchResult.route + "?query=$query")
         },
         onFABMenuSelect = { menu ->
             // Чтобы не делать два разных экрана для создания и изменения заметки будем считать,
             // что изменение заметки с id = -1 это ее создание
-            outerNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
+            when (menu) {
+                Screen.EditCollection -> mainNavHost.navigate(menu.route + "/")
+                Screen.EditNote -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
+            }
         },
         onCollectionClick = { collectionName ->
-            outerNavHost.navigate(Screen.EditCollection.route + "/$collectionName")
+            mainNavHost.navigate(Screen.EditCollection.route + '/' + collectionName.value)
         },
         drawerState = drawerState,
         scope = scope,
-        innerNavController = innerNavHost,
-        outerNavHost = outerNavHost,
-        noteViewModel = noteViewModel,
+        bottomBarNavHost = bottomBarNavHost,
+        mainNavHost = mainNavHost,
+        feedViewModel = feedViewModel,
         collectionViewModel = collectionViewModel,
         calendarViewModel = calendarViewModel,
         onFABMenuAct = { fabButtonState = fabButtonState.act() },
         fabButtonState = fabButtonState,
+        onNoteClick = { note ->
+            mainNavHost.navigate(Screen.EditNote.route + '/' + note.id)
+        },
+        onCollectionFilter = {
+            calendarViewModel.updateOnFilters()
+        },
+        onDayClick = {
+            calendarViewModel.setDay(it)
+            mainNavHost.navigate(Screen.DayNotes.route + '/' + it)
+        }
     )
 }
 
@@ -217,16 +403,19 @@ private fun FABScreen(
 private fun FloatingActionButtonMenu(
     onSearchClick: (String) -> Unit,
     onCollectionClick: (CollectionName) -> Unit,
+    onNoteClick: (Note) -> Unit,
     onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
+    onCollectionFilter: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
     fabButtonState: FABButtonState,
     drawerState: DrawerState,
     scope: CoroutineScope,
-    innerNavController: NavHostController,
-    outerNavHost: NavHostController,
-    noteViewModel: NoteViewModel,
+    bottomBarNavHost: NavHostController,
+    mainNavHost: NavHostController,
+    feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
-    calendarViewModel: CalendarViewModel
+    calendarViewModel: CalendarViewModel,
 ) {
 
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -240,15 +429,18 @@ private fun FloatingActionButtonMenu(
 
     Box(contentAlignment = Alignment.BottomEnd) {
         BottomNavBarScreen(
-            onSearchClick,
-            scope,
-            drawerState,
-            innerNavController,
-            outerNavHost,
-            onCollectionClick,
-            noteViewModel,
-            collectionViewModel,
-            calendarViewModel
+            onSearchClick = onSearchClick,
+            scope = scope,
+            drawerState = drawerState,
+            bottomBarNavHost = bottomBarNavHost,
+            mainNavHost = mainNavHost,
+            onCollectionClick = onCollectionClick,
+            onNoteClick = onNoteClick,
+            onCollectionFilter = onCollectionFilter,
+            onDayClick = onDayClick,
+            feedViewModel = feedViewModel,
+            collectionViewModel = collectionViewModel,
+            calendarViewModel = calendarViewModel,
         )
         Canvas(
             modifier = Modifier
@@ -274,85 +466,116 @@ private fun BottomNavBarScreen(
     onSearchClick: (String) -> Unit,
     scope: CoroutineScope,
     drawerState: DrawerState,
-    innerNavController: NavHostController,
-    outerNavHost: NavHostController,
+    bottomBarNavHost: NavHostController,
+    mainNavHost: NavHostController,
     onCollectionClick: (CollectionName) -> Unit,
-    noteViewModel: NoteViewModel,
+    onNoteClick: (Note) -> Unit,
+    onCollectionFilter: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
+    feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
-    calendarViewModel: CalendarViewModel
+    calendarViewModel: CalendarViewModel,
 ) {
     var searchText by remember { mutableStateOf("") }
-    val currentBottomMenuItem by innerNavController.currentBackStackEntryAsState()
+    val calendarState = rememberCuroCalendarState()
+
+    val currentBottomMenuItem by bottomBarNavHost.currentBackStackEntryAsState()
+    val currentRoute = currentBottomMenuItem?.destination?.route
     Scaffold(
         topBar = {
             SearchTopAppBar(
-                onSearchClick = { searchText = it; onSearchClick(it) },
-                onMenuClick = { scope.launch { drawerState.open() } }
+                onSearchClick = {
+                    val query = it.orEmpty()
+                    searchText = query
+                    onSearchClick(query)
+                },
+                onMenuClick = { scope.launch { drawerState.open() } },
+                content = if (currentRoute == BottomNavigationScreen.Calendar.route) {
+                    {
+                        val visibleMonth = calendarState.firstVisibleMonth.yearMonth
+                        val monthName =
+                            visibleMonth.month.name.lowercase().capitalizeFirstLetter()
+                        val year = visibleMonth.year
+                        Text("$monthName $year")
+                    }
+                } else {
+                    null
+                }
             )
         },
 
         bottomBar = {
             NavigationBottomBar(
                 onItemSelected = { screen ->
-                    navigateSameScreen(innerNavController, screen)
+                    navigateSameScreen(bottomBarNavHost, screen)
                 },
-                selected = currentBottomMenuItem?.destination?.route,
+                selected = currentRoute,
             )
         },
     ) { innerPadding ->
         NavHost(
             modifier = Modifier.padding(innerPadding),
-            navController = innerNavController,
+            navController = bottomBarNavHost,
             startDestination = BottomNavigationScreen.Feed.route
         ) {
-            navFeedScreen(outerNavHost, onCollectionClick, noteViewModel)
-            navCollectionsScreen(collectionViewModel, onCollectionClick)
-            navCalendarScreen(calendarViewModel)
+            navFeedScreen(mainNavHost, onCollectionClick, feedViewModel)
+            navCollectionsScreen(collectionViewModel, onCollectionClick, onNoteClick)
+            navCalendarScreen(calendarViewModel, calendarState, onCollectionFilter, onDayClick)
         }
     }
 }
 
 private fun NavGraphBuilder.navCalendarScreen(
-    calendarViewModel: CalendarViewModel
+    calendarViewModel: CalendarViewModel,
+    calendarState: CalendarState,
+    onCollectionClick: (CollectionName) -> Unit,
+    onDayClick: (LocalDate) -> Unit,
 ) {
     composable(BottomNavigationScreen.Calendar.route) {
-        CalendarScreen(calendarViewModel)
+        CalendarScreen(
+            calendarViewModel = calendarViewModel,
+            calendarState = calendarState,
+            onCollectionClick = onCollectionClick,
+            onDayClick = onDayClick,
+        )
     }
 }
 
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,
-    onCollectionClick: (CollectionName) -> Unit
+    onCollectionClick: (CollectionName) -> Unit,
+    onNoteClick: (Note) -> Unit,
 ) = composable(BottomNavigationScreen.Collections.route) {
     Collections(
         viewModel = collectionViewModel,
         onCollectionClick = onCollectionClick,
+        onNoteClick = onNoteClick,
     )
 }
 
 private fun NavGraphBuilder.navFeedScreen(
-    outerNavHost: NavHostController,
+    mainNavHost: NavHostController,
     onCollectionClick: (CollectionName) -> Unit,
-    noteViewModel: NoteViewModel
+    feedViewModel: FeedViewModel,
 ) = composable(BottomNavigationScreen.Feed.route) {
     Feed(
         onNoteClick = { note ->
-            outerNavHost.navigate(Screen.EditNote.route + '/' + note.id)
+            mainNavHost.navigate(Screen.EditNote.route + '/' + note.id)
         },
         onCollectionClick = onCollectionClick,
-        viewModel = noteViewModel
+        viewModel = feedViewModel
     )
 }
 
 private fun navigateSameScreen(
-    innerNavController: NavHostController,
+    navHostController: NavHostController,
     realScreen: Route
 ) {
-    innerNavController.navigate(realScreen.route) {
+    navHostController.navigate(realScreen.route) {
         // Pop up to the start destination of the graph to
         // avoid building up a large stack of destinations
         // on the back stack as users select items
-        popUpTo(innerNavController.graph.findStartDestination().id) {
+        popUpTo(navHostController.graph.findStartDestination().id) {
             saveState = true
         }
         // Avoid multiple copies of the same destination when

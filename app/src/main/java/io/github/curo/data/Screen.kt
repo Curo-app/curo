@@ -51,6 +51,9 @@ sealed class Screen(override val route: String) : Route {
     object SearchResult : Screen("search_result")
 
     @Immutable
+    object DayNotes : Screen("day_notes")
+
+    @Immutable
     object EditCollection : Screen("edit_collection"), FABMenuItem {
         override val menuName = R.string.collection
         override val menuIcon = Icons.Filled.Menu
