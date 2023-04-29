@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import io.github.curo.data.Deadline
-import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.NotePreview
 import io.github.curo.utils.setAll
 
 @Stable
@@ -23,7 +23,7 @@ class NotePatchViewModel : ViewModel() {
 
     var hasCheckbox by mutableStateOf(false)
 
-    fun set(note: NotePreviewModel) {
+    fun set(note: NotePreview) {
         if (note.id == _id) {
             return
         }
@@ -36,7 +36,7 @@ class NotePatchViewModel : ViewModel() {
     }
 
 
-    fun toNote() = NotePreviewModel(
+    fun toNote() = NotePreview(
         id = id,
         name = name,
         description = description,

@@ -8,7 +8,7 @@ import io.github.curo.database.entities.Note
 import io.github.curo.database.entities.NoteWithCollectionNames
 
 @Stable
-class NotePreviewModel(
+class NotePreview(
     val id: Long = 0,
     val deadline: Deadline? = null,
     val emoji: Emoji = Emoji("\uD83D\uDCDD"),
@@ -20,14 +20,14 @@ class NotePreviewModel(
     var done by mutableStateOf(done)
 
     companion object {
-        fun Collection<NotePreviewModel>.extractCollections(): List<String> =
+        fun Collection<NotePreview>.extractCollections(): List<String> =
             this.flatMap { it.collections }.distinct()
 
-        fun of(noteWithCollectionNames: NoteWithCollectionNames): NotePreviewModel {
+        fun of(noteWithCollectionNames: NoteWithCollectionNames): NotePreview {
             val note = noteWithCollectionNames.note
             val deadline = Deadline.of(note.deadlineDate, note.deadlineTime)
 
-            return NotePreviewModel(
+            return NotePreview(
                 id = note.noteId,
                 deadline = deadline,
                 emoji = Emoji(note.emoji),
@@ -38,7 +38,7 @@ class NotePreviewModel(
             )
         }
 
-        fun of(note: Note): NotePreviewModel = of(NoteWithCollectionNames(note, listOf()))
+        fun of(note: Note): NotePreview = of(NoteWithCollectionNames(note, listOf()))
     }
 
     override fun toString(): String {

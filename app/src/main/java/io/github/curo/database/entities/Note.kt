@@ -1,7 +1,7 @@
 package io.github.curo.database.entities
 
 import androidx.room.*
-import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.NotePreview
 import io.github.curo.data.TimedDeadline
 import java.time.LocalDate
 import java.time.LocalTime
@@ -17,7 +17,7 @@ data class Note(
     val done: Boolean?
 ) {
     companion object {
-        fun of(notePreview: NotePreviewModel): Note =
+        fun of(notePreview: NotePreview): Note =
             Note(
                 noteId = notePreview.id,
                 name = notePreview.name,

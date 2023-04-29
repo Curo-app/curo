@@ -1,7 +1,7 @@
 package io.github.curo.database.entities
 
 import androidx.room.*
-import io.github.curo.data.CollectionPreviewModel
+import io.github.curo.data.CollectionPreview
 
 @Entity
 data class Collection(
@@ -9,7 +9,7 @@ data class Collection(
     val emoji: String = "\uD83D\uDDC2"
 ) {
     companion object {
-        fun of(collectionPreview: CollectionPreviewModel): Collection =
+        fun of(collectionPreview: CollectionPreview): Collection =
             Collection(
                 collectionName = collectionPreview.name,
                 emoji = collectionPreview.emoji.value

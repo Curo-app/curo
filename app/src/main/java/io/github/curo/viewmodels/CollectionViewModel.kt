@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import io.github.curo.data.CollectionPreviewModel
-import io.github.curo.data.NotePreviewModel
-import io.github.curo.data.NotePreviewModel.Companion.extractCollections
+import io.github.curo.data.CollectionPreview
+import io.github.curo.data.NotePreview
+import io.github.curo.data.NotePreview.Companion.extractCollections
 import io.github.curo.utils.NOT_FOUND_INDEX
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,8 +17,8 @@ import kotlinx.coroutines.withContext
 @Stable
 open class CollectionViewModel : FeedViewModel() {
 
-    private val _collections = mutableStateListOf<CollectionPreviewModel>()
-    val collections: List<CollectionPreviewModel> get() = _collections
+    private val _collections = mutableStateListOf<CollectionPreview>()
+    val collections: List<CollectionPreview> get() = _collections
 
     init {
         viewModelScope.launch {
@@ -30,7 +30,7 @@ open class CollectionViewModel : FeedViewModel() {
                         val notes = items.filter { note ->
                             name in note.collections
                         }
-                        CollectionPreviewModel(name = name, notes = notes)
+                        CollectionPreview(name = name, notes = notes)
                     }
 
                 withContext(Dispatchers.Main) {
@@ -68,7 +68,7 @@ open class CollectionViewModel : FeedViewModel() {
         }
     }
 
-    fun update(collection: CollectionPreviewModel) {
+    fun update(collection: CollectionPreview) {
         val index = _collections.indexOfFirst { it.name == collection.name }
         if (index == NOT_FOUND_INDEX) {
             _collections.add(collection)
@@ -77,14 +77,14 @@ open class CollectionViewModel : FeedViewModel() {
         }
     }
 
-    fun addNote(note: NotePreviewModel) {
+    fun addNote(note: NotePreview) {
         val noteCollectionNames = note.collections
         // updating existing collections
         _collections.replaceAll { collection ->
             if (collection.name in noteCollectionNames) {
                 val notExists = collection.notes.none { it.id == note.id }
 
-                CollectionPreviewModel(
+                CollectionPreview(
                     name = collection.name,
                     notes = if (notExists) {
                         collection.notes + note
@@ -108,7 +108,7 @@ open class CollectionViewModel : FeedViewModel() {
             it !in existingNames
         }.forEach { name ->
             _collections.add(
-                CollectionPreviewModel(
+                CollectionPreview(
                     name = name,
                     notes = listOf(note)
                 )

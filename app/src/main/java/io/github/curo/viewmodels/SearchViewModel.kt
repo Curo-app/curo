@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.NotePreview
 
 @Stable
 class SearchViewModel : FeedViewModel() {
@@ -20,5 +20,5 @@ class SearchViewModel : FeedViewModel() {
                 super.notes.filter { item -> item.name.contains(value, ignoreCase = true) }
             )
         }
-    override val notes: MutableList<NotePreviewModel> = mutableStateListOf()
+    override val notes: MutableList<NotePreview> = mutableStateListOf()
 }

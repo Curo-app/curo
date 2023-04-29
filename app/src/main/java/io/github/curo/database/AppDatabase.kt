@@ -1,8 +1,6 @@
 package io.github.curo.database
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import io.github.curo.database.converter.Converters
@@ -19,24 +17,4 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun collectionDao(): CollectionDao
     abstract fun noteCollectionCrossRefDao(): NoteCollectionCrossRefDao
-
-    companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
-
-        fun getDatabase(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context = context,
-                    klass = AppDatabase::class.java,
-                    name = "curo_database"
-                )
-                    .createFromAsset("databases/curo_database.db")
-                    .build()
-                INSTANCE = instance
-
-                instance
-            }
-        }
-    }
 }

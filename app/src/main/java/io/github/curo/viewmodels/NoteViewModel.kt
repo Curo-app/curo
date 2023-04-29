@@ -3,7 +3,7 @@ package io.github.curo.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Transaction
-import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.NotePreview
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.entities.Note
 import io.github.curo.database.dao.NoteDao
@@ -16,7 +16,7 @@ class NoteViewModel(
     private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
 ) : ViewModel() {
     @Transaction
-    suspend fun insert(notePreview: NotePreviewModel) {
+    suspend fun insert(notePreview: NotePreview) {
         val noteId = noteDao.insert(Note.of(notePreview))
         val crossRefs = notePreview.collections
             .map { NoteCollectionCrossRef(noteId, it) }
@@ -26,7 +26,7 @@ class NoteViewModel(
     suspend fun delete(noteId: Long) = noteDao.delete(noteId)
 
     @Transaction
-    suspend fun update(notePreview: NotePreviewModel) {
+    suspend fun update(notePreview: NotePreview) {
         noteDao.update(Note.of(notePreview))
         noteCollectionCrossRefDao.deleteAllByNoteId(notePreview.id)
         val crossRefs = notePreview.collections
@@ -35,13 +35,13 @@ class NoteViewModel(
     }
 
 
-    fun getAll(): Flow<List<NotePreviewModel>> =
+    fun getAll(): Flow<List<NotePreview>> =
         noteDao.getAll()
-            .map { l -> l.map { NotePreviewModel.of(it) } }
+            .map { l -> l.map { NotePreview.of(it) } }
 
-    fun find(noteId: Long): Flow<NotePreviewModel?> =
+    fun find(noteId: Long): Flow<NotePreview?> =
         noteDao.find(noteId)
-            .map { note -> note?.let { NotePreviewModel.of(it) } }
+            .map { note -> note?.let { NotePreview.of(it) } }
 
     suspend fun markCompleted(noteId: Long) =
         noteDao.markCompleted(noteId)

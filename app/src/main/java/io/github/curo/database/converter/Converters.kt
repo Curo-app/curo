@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import java.time.LocalDate
 import java.time.LocalTime
 
-class Converters {
+object Converters {
     @TypeConverter
     fun fromTimestampToLocalDate(ts: Long?): LocalDate? =
         ts?.let { LocalDate.ofEpochDay(it) }

@@ -33,7 +33,7 @@ import io.github.curo.viewmodels.CollectionViewModel
 @Composable
 fun Collections(
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
     viewModel: CollectionViewModel,
 ) {
     Scaffold { padding ->
@@ -58,8 +58,8 @@ fun Collections(
 
 @Composable
 fun ExpandableCollectionView(
-    collection: CollectionPreviewModel,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    collection: CollectionPreview,
+    onNoteClick: (NotePreview) -> Unit,
     onCollectionClick: (String) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
@@ -75,7 +75,7 @@ fun ExpandableCollectionView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionCard(
-    collection: CollectionPreviewModel,
+    collection: CollectionPreview,
     onCollectionClick: (String) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
@@ -94,8 +94,8 @@ private fun CollectionCard(
 
 @Composable
 fun CollectionNotes(
-    notes: List<NotePreviewModel>,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    notes: List<NotePreview>,
+    onNoteClick: (NotePreview) -> Unit,
     isExpanded: Boolean
 ) {
     // Opening Animation
@@ -134,7 +134,7 @@ fun CollectionNotes(
 
 
 @Composable
-private fun CollectionsItemHeader(item: CollectionPreviewModel) {
+private fun CollectionsItemHeader(item: CollectionPreview) {
     Text(
         text = item.name,
         maxLines = 1,
@@ -145,7 +145,7 @@ private fun CollectionsItemHeader(item: CollectionPreviewModel) {
 
 @Composable
 private fun CollectionTrailing(
-    item: CollectionPreviewModel,
+    item: CollectionPreview,
     isExpanded: Boolean,
     onExpand: () -> Unit,
 ) {
@@ -195,22 +195,22 @@ fun CollectionsScreenPreview() {
 @Composable
 fun ClosedCollectionPreview() {
     ExpandableCollectionView(
-        collection = CollectionPreviewModel(
+        collection = CollectionPreview(
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                NotePreviewModel(
+                NotePreview(
                     id = Random.nextLong(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                NotePreviewModel(
+                NotePreview(
                     id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                NotePreviewModel(
+                NotePreview(
                     id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
@@ -236,22 +236,22 @@ fun ClosedCollectionPreview() {
 @Composable
 fun OpenedCollectionPreview() {
     ExpandableCollectionView(
-        collection = CollectionPreviewModel(
+        collection = CollectionPreview(
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                NotePreviewModel(
+                NotePreview(
                     id = Random.nextLong(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                NotePreviewModel(
+                NotePreview(
                     id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                NotePreviewModel(
+                NotePreview(
                     id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
@@ -277,11 +277,11 @@ fun OpenedCollectionPreview() {
 @Composable
 fun FinishedCollectionPreview() {
     ExpandableCollectionView(
-        collection = CollectionPreviewModel(
+        collection = CollectionPreview(
             emoji = Emoji("\uD83D\uDC7D"),
             name = "My super list",
             notes = listOf(
-                NotePreviewModel(
+                NotePreview(
                     id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",

@@ -8,8 +8,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import io.github.curo.data.NotePreviewModel
-import io.github.curo.data.NotePreviewModel.Companion.extractCollections
+import io.github.curo.data.NotePreview
+import io.github.curo.data.NotePreview.Companion.extractCollections
 import io.github.curo.utils.setAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,8 +31,8 @@ class CalendarViewModel : FeedViewModel() {
     private val _collectionsNames = mutableStateMapOf<String, CollectionFilter>()
     val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
-    private val _notes = mutableStateListOf<NotePreviewModel>()
-    override val notes: List<NotePreviewModel>
+    private val _notes = mutableStateListOf<NotePreview>()
+    override val notes: List<NotePreview>
         get() = _notes
 
     private val _dayState = mutableStateMapOf<LocalDate, DayState>()
@@ -107,10 +107,10 @@ class CalendarViewModel : FeedViewModel() {
             }
     }
 
-    private fun getDateGrouped(items: List<NotePreviewModel>): Map<LocalDate?, DayState> {
+    private fun getDateGrouped(items: List<NotePreview>): Map<LocalDate?, DayState> {
         val today = LocalDate.now()
         val tomorrow = today.plusDays(1)
-        fun hasWarn(v: List<NotePreviewModel>): Boolean = v.any {
+        fun hasWarn(v: List<NotePreview>): Boolean = v.any {
             (it.deadline?.date == today || it.deadline?.date == tomorrow) &&
                     it.done == false
         }

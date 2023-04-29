@@ -39,7 +39,7 @@ import io.github.curo.viewmodels.CollectionPatchViewModel
 import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.FABMenuItem
 import io.github.curo.viewmodels.FeedViewModel
-import io.github.curo.data.NotePreviewModel
+import io.github.curo.data.NotePreview
 import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.Route
 import io.github.curo.data.Screen
@@ -402,7 +402,7 @@ private fun FABScreen(
 private fun FloatingActionButtonMenu(
     onSearchClick: (String) -> Unit,
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
     onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
     onCollectionFilter: (String) -> Unit,
@@ -468,7 +468,7 @@ private fun BottomNavBarScreen(
     bottomBarNavHost: NavHostController,
     mainNavHost: NavHostController,
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
     onCollectionFilter: (String) -> Unit,
     onDayClick: (LocalDate) -> Unit,
     feedViewModel: FeedViewModel,
@@ -543,7 +543,7 @@ private fun NavGraphBuilder.navCalendarScreen(
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,
     onCollectionClick: (String) -> Unit,
-    onNoteClick: (NotePreviewModel) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
 ) = composable(BottomNavigationScreen.Collections.route) {
     Collections(
         viewModel = collectionViewModel,

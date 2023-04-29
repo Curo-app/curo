@@ -3,7 +3,7 @@ package io.github.curo.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Transaction
-import io.github.curo.data.CollectionPreviewModel
+import io.github.curo.data.CollectionPreview
 import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
@@ -18,7 +18,7 @@ class RealCollectionViewModel(
     private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
 ) : ViewModel() {
     @Transaction
-    suspend fun insert(collectionPreview: CollectionPreviewModel) {
+    suspend fun insert(collectionPreview: CollectionPreview) {
         collectionDao.insert(Collection.of(collectionPreview))
         val notes = collectionPreview.notes.map { Note.of(it) }
         val noteIds = noteDao.insertAll(notes)
@@ -38,13 +38,13 @@ class RealCollectionViewModel(
                 noteDao.deleteAll(crossRefs.map { it.noteId })
             }
 
-    fun getAll(): Flow<List<CollectionPreviewModel>> =
+    fun getAll(): Flow<List<CollectionPreview>> =
         collectionDao.getAll()
-            .map { l -> l.map { CollectionPreviewModel.of(it) } }
+            .map { l -> l.map { CollectionPreview.of(it) } }
 
-    fun find(collectionName: String): Flow<CollectionPreviewModel?> =
+    fun find(collectionName: String): Flow<CollectionPreview?> =
         collectionDao.find(collectionName)
-            .map { collection -> collection?.let { CollectionPreviewModel.of(it) } }
+            .map { collection -> collection?.let { CollectionPreview.of(it) } }
 
 
     class RealCollectionViewModelFactory(
