@@ -34,18 +34,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kizitonwose.calendar.compose.CalendarState
 import io.github.curo.data.BottomNavigationScreen
-import io.github.curo.data.CalendarViewModel
-import io.github.curo.data.CollectionName
-import io.github.curo.data.CollectionPatchViewModel
-import io.github.curo.data.CollectionViewModel
+import io.github.curo.viewmodels.CalendarViewModel
+import io.github.curo.viewmodels.CollectionPatchViewModel
+import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.FABMenuItem
-import io.github.curo.data.FeedViewModel
-import io.github.curo.data.Note
-import io.github.curo.data.NotePatchViewModel
+import io.github.curo.viewmodels.FeedViewModel
+import io.github.curo.data.NotePreview
+import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.Route
 import io.github.curo.data.Screen
-import io.github.curo.data.SearchViewModel
-import io.github.curo.data.ShareScreenViewModel
+import io.github.curo.viewmodels.SearchViewModel
+import io.github.curo.viewmodels.ShareScreenViewModel
 import io.github.curo.ui.base.AboutUs
 import io.github.curo.ui.base.FABAddMenu
 import io.github.curo.ui.base.FABButtonState
@@ -198,7 +197,7 @@ private fun NavGraphBuilder.searchScreen(
                 mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
             },
             onCollectionClick = { collectionName ->
-                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName.value)
+                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName)
             }
         )
     }
@@ -218,7 +217,7 @@ private fun NavGraphBuilder.collectionEditScreen(
     ) {
         it.arguments?.getString("collectionName")?.let { name ->
             LaunchedEffect(name) {
-                collectionPatchViewModel.set(CollectionName(name.ifEmpty { "New collection" }))
+                collectionPatchViewModel.set(name.ifEmpty { "New collection" })
             }
         }
 
@@ -230,12 +229,12 @@ private fun NavGraphBuilder.collectionEditScreen(
             },
             onCollectionClick = { collectionName ->
                 mainNavController
-                    .navigate(Screen.EditCollection.route + '/' + collectionName.value)
+                    .navigate(Screen.EditCollection.route + '/' + collectionName)
             },
             onAddNoteClick = {
                 mainNavController
                     .navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
-                notePatchViewModel.newCollection = CollectionName(collectionPatchViewModel.name)
+                notePatchViewModel.newCollection = collectionPatchViewModel.name
             },
             onDeleteCollectionClick = { collection ->
                 collectionViewModel.delete(collection)
@@ -277,7 +276,7 @@ private fun NavGraphBuilder.dayNotesScreen(
             },
             onCollectionClick = { collectionName ->
                 mainNavController
-                    .navigate(Screen.EditCollection.route + '/' + collectionName.value)
+                    .navigate(Screen.EditCollection.route + '/' + collectionName)
             },
             onShareClick = {
                 shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -297,9 +296,9 @@ private fun NavGraphBuilder.noteEditScreen(
 ) {
     composable(
         route = Screen.EditNote.route + "/{noteId}",
-        arguments = listOf(navArgument("noteId", builder = { type = NavType.IntType }))
+        arguments = listOf(navArgument("noteId", builder = { type = NavType.LongType }))
     ) {
-        it.arguments?.getInt("noteId")?.let { id ->
+        it.arguments?.getLong("noteId")?.let { id ->
             LaunchedEffect(id) {
                 notePatchViewModel.set(feedViewModel.findOrCreate(id))
             }
@@ -374,7 +373,7 @@ private fun FABScreen(
             }
         },
         onCollectionClick = { collectionName ->
-            mainNavHost.navigate(Screen.EditCollection.route + '/' + collectionName.value)
+            mainNavHost.navigate(Screen.EditCollection.route + '/' + collectionName)
         },
         drawerState = drawerState,
         scope = scope,
@@ -402,11 +401,11 @@ private fun FABScreen(
 @Composable
 private fun FloatingActionButtonMenu(
     onSearchClick: (String) -> Unit,
-    onCollectionClick: (CollectionName) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onCollectionClick: (String) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
     onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
-    onCollectionFilter: (CollectionName) -> Unit,
+    onCollectionFilter: (String) -> Unit,
     onDayClick: (LocalDate) -> Unit,
     fabButtonState: FABButtonState,
     drawerState: DrawerState,
@@ -468,9 +467,9 @@ private fun BottomNavBarScreen(
     drawerState: DrawerState,
     bottomBarNavHost: NavHostController,
     mainNavHost: NavHostController,
-    onCollectionClick: (CollectionName) -> Unit,
-    onNoteClick: (Note) -> Unit,
-    onCollectionFilter: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
+    onCollectionFilter: (String) -> Unit,
     onDayClick: (LocalDate) -> Unit,
     feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
@@ -528,7 +527,7 @@ private fun BottomNavBarScreen(
 private fun NavGraphBuilder.navCalendarScreen(
     calendarViewModel: CalendarViewModel,
     calendarState: CalendarState,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
     onDayClick: (LocalDate) -> Unit,
 ) {
     composable(BottomNavigationScreen.Calendar.route) {
@@ -543,8 +542,8 @@ private fun NavGraphBuilder.navCalendarScreen(
 
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,
-    onCollectionClick: (CollectionName) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onCollectionClick: (String) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
 ) = composable(BottomNavigationScreen.Collections.route) {
     Collections(
         viewModel = collectionViewModel,
@@ -555,7 +554,7 @@ private fun NavGraphBuilder.navCollectionsScreen(
 
 private fun NavGraphBuilder.navFeedScreen(
     mainNavHost: NavHostController,
-    onCollectionClick: (CollectionName) -> Unit,
+    onCollectionClick: (String) -> Unit,
     feedViewModel: FeedViewModel,
 ) = composable(BottomNavigationScreen.Feed.route) {
     Feed(

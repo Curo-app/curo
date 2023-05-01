@@ -1,4 +1,4 @@
-package io.github.curo.data
+package io.github.curo.viewmodels
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -6,22 +6,24 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import io.github.curo.data.Deadline
+import io.github.curo.data.NotePreview
 import io.github.curo.utils.setAll
 
 @Stable
 class NotePatchViewModel : ViewModel() {
-    private var _id: Int by mutableStateOf(-1)
+    private var _id: Long by mutableStateOf(-1)
     val id get() = _id
     var name: String by mutableStateOf("My Note")
     var description: String by mutableStateOf("")
 
     var deadline: Deadline? by mutableStateOf(null)
-    var newCollection: CollectionName? by mutableStateOf(null)
-    var collections = mutableStateListOf<CollectionName>()
+    var newCollection: String? by mutableStateOf(null)
+    var collections = mutableStateListOf<String>()
 
     var hasCheckbox by mutableStateOf(false)
 
-    fun set(note: Note) {
+    fun set(note: NotePreview) {
         if (note.id == _id) {
             return
         }
@@ -34,7 +36,7 @@ class NotePatchViewModel : ViewModel() {
     }
 
 
-    fun toNote() = Note(
+    fun toNote() = NotePreview(
         id = id,
         name = name,
         description = description,

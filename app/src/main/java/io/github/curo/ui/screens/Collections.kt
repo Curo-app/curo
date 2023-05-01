@@ -26,13 +26,14 @@ import io.github.curo.ui.base.cardModifier
 import io.github.curo.ui.base.listItemColors
 import kotlin.random.Random
 import androidx.compose.foundation.lazy.items
+import io.github.curo.viewmodels.CollectionViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
-    onCollectionClick: (CollectionName) -> Unit,
-    onNoteClick: (Note) -> Unit,
+    onCollectionClick: (String) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
     viewModel: CollectionViewModel,
 ) {
     Scaffold { padding ->
@@ -57,9 +58,9 @@ fun Collections(
 
 @Composable
 fun ExpandableCollectionView(
-    collection: CollectionPreviewModel,
-    onNoteClick: (Note) -> Unit,
-    onCollectionClick: (CollectionName) -> Unit,
+    collection: CollectionPreview,
+    onNoteClick: (NotePreview) -> Unit,
+    onCollectionClick: (String) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
 ) {
@@ -74,8 +75,8 @@ fun ExpandableCollectionView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionCard(
-    collection: CollectionPreviewModel,
-    onCollectionClick: (CollectionName) -> Unit,
+    collection: CollectionPreview,
+    onCollectionClick: (String) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -93,8 +94,8 @@ private fun CollectionCard(
 
 @Composable
 fun CollectionNotes(
-    notes: List<Note>,
-    onNoteClick: (Note) -> Unit,
+    notes: List<NotePreview>,
+    onNoteClick: (NotePreview) -> Unit,
     isExpanded: Boolean
 ) {
     // Opening Animation
@@ -133,9 +134,9 @@ fun CollectionNotes(
 
 
 @Composable
-private fun CollectionsItemHeader(item: CollectionPreviewModel) {
+private fun CollectionsItemHeader(item: CollectionPreview) {
     Text(
-        text = item.name.value,
+        text = item.name,
         maxLines = 1,
         style = MaterialTheme.typography.titleMedium,
         overflow = TextOverflow.Ellipsis,
@@ -144,7 +145,7 @@ private fun CollectionsItemHeader(item: CollectionPreviewModel) {
 
 @Composable
 private fun CollectionTrailing(
-    item: CollectionPreviewModel,
+    item: CollectionPreview,
     isExpanded: Boolean,
     onExpand: () -> Unit,
 ) {
@@ -194,23 +195,23 @@ fun CollectionsScreenPreview() {
 @Composable
 fun ClosedCollectionPreview() {
     ExpandableCollectionView(
-        collection = CollectionPreviewModel(
+        collection = CollectionPreview(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = CollectionName("My super list"),
+            name = "My super list",
             notes = listOf(
-                Note(
-                    id = Random.nextInt(),
+                NotePreview(
+                    id = Random.nextLong(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                Note(
-                    id = Random.nextInt(),
+                NotePreview(
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                Note(
-                    id = Random.nextInt(),
+                NotePreview(
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
@@ -219,7 +220,7 @@ fun ClosedCollectionPreview() {
                         "Важное",
                         "Haskell",
                         "Ненавижу ФП"
-                    ).map { CollectionName(it) },
+                    ),
                     done = true
                 )
             )
@@ -235,23 +236,23 @@ fun ClosedCollectionPreview() {
 @Composable
 fun OpenedCollectionPreview() {
     ExpandableCollectionView(
-        collection = CollectionPreviewModel(
+        collection = CollectionPreview(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = CollectionName("My super list"),
+            name = "My super list",
             notes = listOf(
-                Note(
-                    id = Random.nextInt(),
+                NotePreview(
+                    id = Random.nextLong(),
                     name = "My first notedddddddddddddddddddddddddddfffffffffffffffff",
                     description = "My note descriptiondsdddddddddddddddddddddddddffffffffffffffffff",
                 ),
-                Note(
-                    id = Random.nextInt(),
+                NotePreview(
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDE3F"),
                     name = "Забыть матан",
                     done = false
                 ),
-                Note(
-                    id = Random.nextInt(),
+                NotePreview(
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
@@ -260,7 +261,7 @@ fun OpenedCollectionPreview() {
                         "Важное",
                         "Haskell",
                         "Ненавижу ФП"
-                    ).map { CollectionName(it) },
+                    ),
                     done = true
                 )
             )
@@ -276,12 +277,12 @@ fun OpenedCollectionPreview() {
 @Composable
 fun FinishedCollectionPreview() {
     ExpandableCollectionView(
-        collection = CollectionPreviewModel(
+        collection = CollectionPreview(
             emoji = Emoji("\uD83D\uDC7D"),
-            name = CollectionName("My super list"),
+            name = "My super list",
             notes = listOf(
-                Note(
-                    id = Random.nextInt(),
+                NotePreview(
+                    id = Random.nextLong(),
                     emoji = Emoji("\uD83D\uDC7D"),
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
@@ -290,7 +291,7 @@ fun FinishedCollectionPreview() {
                         "Важное",
                         "Haskell",
                         "Ненавижу ФП"
-                    ).map { CollectionName(it) },
+                    ),
                     done = true
                 )
             )

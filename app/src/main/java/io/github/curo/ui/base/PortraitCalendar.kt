@@ -9,7 +9,7 @@ import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.ContentHeightMode
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.core.daysOfWeek
-import io.github.curo.data.CalendarViewModel
+import io.github.curo.viewmodels.CalendarViewModel
 import io.github.curo.ui.screens.Day
 import io.github.curo.ui.screens.DaysOfWeekTitle
 import java.time.LocalDate

@@ -58,10 +58,9 @@ import androidx.compose.ui.unit.dp
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import io.github.curo.R
-import io.github.curo.data.CollectionName
-import io.github.curo.data.CollectionViewModel
+import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.Deadline
-import io.github.curo.data.NotePatchViewModel
+import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.SimpleDeadline
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
@@ -292,7 +291,7 @@ private fun EmptyChip(
 @Composable
 private fun CollectionAdder(
     collectionViewModel: CollectionViewModel,
-    collections: SnapshotStateList<CollectionName>,
+    collections: SnapshotStateList<String>,
 ) {
     var suggestionState: Suggestion by remember { mutableStateOf(Suggestion.Hidden) }
     var textFieldValue by remember { mutableStateOf(emptyTextFieldValue) }
@@ -358,7 +357,7 @@ private fun CollectionAdder(
                     collections.size != MAX_NOTE_COLLECTIONS_AMOUNT,
             onClick = {
                 suggestionState = Suggestion.Suggested
-                collections += CollectionName(textFieldValue.text)
+                collections += textFieldValue.text
                 textFieldValue = TextFieldValue("", selection = TextRange.Zero)
             },
         )
@@ -470,8 +469,8 @@ private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CurrentCollections(
-    patchCollection: CollectionName?,
-    collections: MutableList<CollectionName>
+    patchCollection: String?,
+    collections: MutableList<String>
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
@@ -482,7 +481,7 @@ private fun CurrentCollections(
                 SuggestionChip(onClick = { /* DO NOTHING */ },
                     modifier = Modifier.padding(vertical = 0.dp),
                     interactionSource = remember { MutableInteractionSource() },
-                    label = { Text(text = collection.value) },
+                    label = { Text(text = collection) },
                 )
             }
         }
@@ -495,13 +494,13 @@ private fun CurrentCollections(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
-    current: CollectionName,
-    collections: MutableList<CollectionName>
+    current: String,
+    collections: MutableList<String>
 ) {
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current.value) },
+        label = { Text(text = current) },
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Clear,

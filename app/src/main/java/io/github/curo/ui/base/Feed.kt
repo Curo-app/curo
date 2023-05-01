@@ -60,11 +60,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.curo.R
-import io.github.curo.data.CollectionName
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
-import io.github.curo.data.FeedViewModel
-import io.github.curo.data.Note
+import io.github.curo.viewmodels.FeedViewModel
+import io.github.curo.data.NotePreview
 import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
@@ -76,8 +75,8 @@ import java.time.LocalDate
 @Composable
 fun Feed(
     modifier: Modifier = Modifier,
-    onNoteClick: (Note) -> Unit,
-    onCollectionClick: (CollectionName) -> Unit,
+    onNoteClick: (NotePreview) -> Unit,
+    onCollectionClick: (String) -> Unit,
     viewModel: FeedViewModel,
 ) {
     LazyColumn(
@@ -151,8 +150,8 @@ fun SwipeBackground(dismissState: DismissState) {
 @Composable
 fun FeedForced(
     modifier: Modifier = Modifier,
-    onNoteClick: (Note) -> Unit,
-    content: List<Note>,
+    onNoteClick: (NotePreview) -> Unit,
+    content: List<NotePreview>,
 ) {
     Column(
         modifier = modifier
@@ -173,9 +172,9 @@ fun FeedForced(
 @Composable
 fun NoteCard(
     modifier: Modifier = Modifier,
-    item: Note,
-    onNoteClick: (Note) -> Unit,
-    onCollectionClick: ((CollectionName) -> Unit)?,
+    item: NotePreview,
+    onNoteClick: (NotePreview) -> Unit,
+    onCollectionClick: ((String) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
@@ -201,7 +200,7 @@ fun listItemColors(enabled: Boolean): ListItemColors =
         )
     }
 
-fun feedItemCheckboxFactory(item: Note): @Composable (() -> Unit)? =
+fun feedItemCheckboxFactory(item: NotePreview): @Composable (() -> Unit)? =
     item.done?.let {
         {
             FilledIconToggleButton(
@@ -220,7 +219,7 @@ fun feedItemCheckboxFactory(item: Note): @Composable (() -> Unit)? =
         }
     }
 
-fun feedItemDeadlineFactory(item: Note): @Composable (() -> Unit)? =
+fun feedItemDeadlineFactory(item: NotePreview): @Composable (() -> Unit)? =
     item.deadline?.let { deadline ->
         {
             val header = formatHeader(deadline)
@@ -253,7 +252,7 @@ fun feedItemDeadlineFactory(item: Note): @Composable (() -> Unit)? =
     }
 
 @Composable
-private fun FeedItemHeader(item: Note) {
+private fun FeedItemHeader(item: NotePreview) {
     Text(
         text = item.name,
         maxLines = 1,
@@ -308,8 +307,8 @@ private fun formatHeader(deadline: Deadline): String {
 }
 
 private fun feedItemSupportingTextFactory(
-    item: Note,
-    onCollectionClick: (CollectionName) -> Unit,
+    item: NotePreview,
+    onCollectionClick: (String) -> Unit,
 ): @Composable (() -> Unit)? = if (item.description != null || item.collections.isNotEmpty()) {
     {
         Column {
@@ -336,8 +335,8 @@ private fun feedItemSupportingTextFactory(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionChip(
-    name: CollectionName,
-    onClick: (CollectionName) -> Unit,
+    name: String,
+    onClick: (String) -> Unit,
 ) {
     SuggestionChip(
         modifier = Modifier
@@ -345,7 +344,7 @@ private fun CollectionChip(
             .height(30.dp),
         onClick = { onClick(name) },
         label = {
-            Text(text = name.value)
+            Text(text = name)
         })
 }
 
