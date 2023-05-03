@@ -22,7 +22,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -66,6 +65,7 @@ import io.github.curo.ui.screens.SearchView
 import io.github.curo.ui.screens.capitalizeFirstLetter
 import io.github.curo.ui.screens.rememberCuroCalendarState
 import io.github.curo.utils.NEW_ENTITY_ID
+import io.github.curo.viewmodels.NoteViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -78,7 +78,7 @@ val bottomMenu = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppScreen() {
+fun AppScreen(noteViewModel: NoteViewModel, notePatchViewModel: NotePatchViewModel) {
     val mainNavController = rememberNavController()
     val bottomNavigationNavController = rememberNavController()
     val currentSideMenuItem by mainNavController.currentBackStackEntryAsState()
@@ -88,7 +88,7 @@ fun AppScreen() {
 
     val collectionViewModel = remember { CollectionViewModel() }
     val calendarViewModel = remember { CalendarViewModel() }
-    val notePatchViewModel = remember { NotePatchViewModel() }
+//    val notePatchViewModel = remember { NotePatchViewModel() }
     val collectionPatchViewModel = remember { CollectionPatchViewModel() }
     val searchViewModel = remember { SearchViewModel() }
     val shareScreenViewModel = remember { ShareScreenViewModel() }
@@ -144,7 +144,7 @@ fun AppScreen() {
                     mainNavController = mainNavController,
                 )
                 noteEditScreen(
-                    feedViewModel = feedViewModel,
+                    noteViewModel = noteViewModel,
                     shareScreenViewModel = shareScreenViewModel,
                     collectionPatchViewModel = collectionPatchViewModel,
                     collectionViewModel = collectionViewModel,
@@ -287,7 +287,7 @@ private fun NavGraphBuilder.dayNotesScreen(
 }
 
 private fun NavGraphBuilder.noteEditScreen(
-    feedViewModel: FeedViewModel,
+    noteViewModel: NoteViewModel,
     shareScreenViewModel: ShareScreenViewModel,
     collectionPatchViewModel: CollectionPatchViewModel,
     collectionViewModel: CollectionViewModel,
@@ -298,9 +298,15 @@ private fun NavGraphBuilder.noteEditScreen(
         route = Screen.EditNote.route + "/{noteId}",
         arguments = listOf(navArgument("noteId", builder = { type = NavType.LongType }))
     ) {
+        val coroutineScope = rememberCoroutineScope()
+
         it.arguments?.getLong("noteId")?.let { id ->
             LaunchedEffect(id) {
-                notePatchViewModel.set(feedViewModel.findOrCreate(id))
+                noteViewModel.find(id).collect { notePreview ->
+                    if (notePreview != null) {
+                        notePatchViewModel.set(notePreview)
+                    }
+                }
             }
         }
         NoteEditMenu(
@@ -309,12 +315,16 @@ private fun NavGraphBuilder.noteEditScreen(
                 if (notePatchViewModel.newCollection != null) {
                     collectionPatchViewModel.notes.add(note)
                 }
-                feedViewModel.update(note)
+                coroutineScope.launch {
+                    notePatchViewModel.saveNote()
+                    notePatchViewModel.clear()
+                }
                 collectionViewModel.addNote(note)
                 mainNavController.popBackStack()
             },
             onDiscardNote = {
                 mainNavController.popBackStack()
+                notePatchViewModel.clear()
             },
             onShareNote = {
                 shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -323,7 +333,10 @@ private fun NavGraphBuilder.noteEditScreen(
                 mainNavController.navigate(Screen.NoteOptions.route + '/' + id)
             },
             onDeleteNote = { id ->
-                feedViewModel.delete(id)
+                coroutineScope.launch {
+                    noteViewModel.delete(id)
+                    notePatchViewModel.clear()
+                }
                 mainNavController.popBackStack()
             },
         )
@@ -368,7 +381,7 @@ private fun FABScreen(
             // Чтобы не делать два разных экрана для создания и изменения заметки будем считать,
             // что изменение заметки с id = -1 это ее создание
             when (menu) {
-                Screen.EditCollection -> mainNavHost.navigate(menu.route + "/")
+                Screen.EditCollection -> mainNavHost.navigate(menu.route + "/New collection")
                 Screen.EditNote -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
             }
         },
@@ -585,8 +598,8 @@ private fun navigateSameScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    AppScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun MainScreenPreview() {
+//    AppScreen()
+//}

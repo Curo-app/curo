@@ -3,22 +3,31 @@ package io.github.curo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import io.github.curo.ui.AppScreen
 import io.github.curo.ui.theme.CuroTheme
+import io.github.curo.viewmodels.NotePatchViewModel
+import io.github.curo.viewmodels.NoteViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        val noteViewModel: NoteViewModel by viewModels {
-//            val database = (application as CuroApplication).database
-//            NoteViewModel.NoteViewModelFactory(
-//                database.noteDao(),
-//                database.noteCollectionCrossRefDao()
-//            )
-//        }
+        val noteViewModel: NoteViewModel by viewModels {
+            val database = (application as CuroApplication).database
+            NoteViewModel.NoteViewModelFactory(
+                database.noteDao(),
+                database.noteCollectionCrossRefDao()
+            )
+        }
+        val notePatchViewModel: NotePatchViewModel by viewModels {
+            val database = (application as CuroApplication).database
+            NotePatchViewModel.NotePatchViewModelFactory(
+                database.noteDao()
+            )
+        }
         setContent {
             CuroTheme {
-                AppScreen()
+                AppScreen(noteViewModel, notePatchViewModel)
             }
         }
     }

@@ -53,19 +53,18 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import io.github.curo.R
-import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.Deadline
-import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.SimpleDeadline
 import io.github.curo.data.TimedDeadline
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
 import io.github.curo.utils.MAX_NOTE_COLLECTIONS_AMOUNT
+import io.github.curo.viewmodels.CollectionViewModel
+import io.github.curo.viewmodels.NotePatchViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -517,10 +516,10 @@ sealed class Suggestion {
     object Shown : Suggestion()
 }
 
-@Preview
-@Composable
-fun NoteOptionsPreview() {
-    val noteModel = remember { NotePatchViewModel() }
-    val viewModel = remember { CollectionViewModel() }
-    NoteOptionsScreen(noteModel, viewModel) {}
-}
+//@Preview
+//@Composable
+//fun NoteOptionsPreview() {
+//    val noteModel = remember { NotePatchViewModel() }
+//    val viewModel = remember { CollectionViewModel() }
+//    NoteOptionsScreen(noteModel, viewModel) {}
+//}
