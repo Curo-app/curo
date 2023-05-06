@@ -8,6 +8,7 @@ import io.github.curo.data.CollectionPreview
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
 import io.github.curo.data.NotePreview
+import io.github.curo.database.entities.CollectionInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,7 +35,7 @@ open class FeedViewModel : ViewModel() {
         name = "",
     )
 
-    fun delete(id: Long) {
+    fun deleteNote(id: Long) {
         _notes.removeIf { it.id == id }
     }
 
@@ -46,7 +47,7 @@ open class FeedViewModel : ViewModel() {
                 emoji = note.emoji,
                 name = note.name,
                 description = note.description,
-                collections = note.collections + collection.name,
+                collections = note.collections + CollectionInfo(0, collection.name),
                 done = note.done,
             )
             update(newNote)
@@ -88,7 +89,7 @@ open class FeedViewModel : ViewModel() {
                 deadline = Deadline.of(today),
                 emoji = Emoji("\uD83D\uDE02"),
                 name = "Не забыть про нюанс",
-                collections = listOf("Приколы"),
+                collections = listOf(CollectionInfo(0, "Нюансы")),
                 done = false
             ),
             NotePreview(
@@ -96,7 +97,8 @@ open class FeedViewModel : ViewModel() {
                 emoji = Emoji("\uD83D\uDE02"),
                 name = "Там еще какой-то прикол был...",
                 description = "Что-то про еврея, американца и русского",
-                collections = listOf("Приколы")
+                collections = listOf(CollectionInfo(1, "Приколы")),
+                done = false
             ),
             NotePreview(
                 id = 6,
@@ -105,10 +107,10 @@ open class FeedViewModel : ViewModel() {
                 name = "FP HW 3",
                 description = "Надо быстрее сделать",
                 collections = listOf(
-                    "Домашка",
-                    "Важное",
-                    "Haskell",
-                    "Ненавижу ФП"
+                    CollectionInfo(1, "Домашка"),
+                    CollectionInfo(1, "Важное"),
+                    CollectionInfo(1, "Haskell"),
+                    CollectionInfo(1, "Ненавижу ФП")
                 ),
                 done = false
             ),

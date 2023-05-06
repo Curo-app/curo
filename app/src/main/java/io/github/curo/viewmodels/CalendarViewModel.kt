@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import io.github.curo.data.NotePreview
 import io.github.curo.data.NotePreview.Companion.extractCollections
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.setAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +29,7 @@ class CalendarViewModel : FeedViewModel() {
         })
     }
 
-    private val _collectionsNames = mutableStateMapOf<String, CollectionFilter>()
+    private val _collectionsNames = mutableStateMapOf<CollectionInfo, CollectionFilter>()
     val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
     private val _notes = mutableStateListOf<NotePreview>()
@@ -129,7 +130,7 @@ class CalendarViewModel : FeedViewModel() {
 
     @Stable
     data class CollectionFilter(
-        val name: String,
+        val name: CollectionInfo,
     ) {
         var enabled: Boolean by mutableStateOf(false)
     }
