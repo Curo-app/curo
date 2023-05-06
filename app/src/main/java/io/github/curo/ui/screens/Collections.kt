@@ -33,7 +33,7 @@ import io.github.curo.viewmodels.CollectionViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
     viewModel: CollectionViewModel,
 ) {
@@ -61,7 +61,7 @@ fun Collections(
 fun ExpandableCollectionView(
     collection: CollectionPreview,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
 ) {
@@ -77,7 +77,7 @@ fun ExpandableCollectionView(
 @Composable
 private fun CollectionCard(
     collection: CollectionPreview,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

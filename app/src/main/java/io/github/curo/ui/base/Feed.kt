@@ -77,7 +77,7 @@ import java.time.LocalDate
 fun Feed(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     viewModel: FeedViewModel,
 ) {
     LazyColumn(
@@ -175,7 +175,7 @@ fun NoteCard(
     modifier: Modifier = Modifier,
     item: NotePreview,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: ((String) -> Unit)?,
+    onCollectionClick: ((CollectionInfo) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
@@ -309,7 +309,7 @@ private fun formatHeader(deadline: Deadline): String {
 
 private fun feedItemSupportingTextFactory(
     item: NotePreview,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
 ): @Composable (() -> Unit)? = if (item.description != null || item.collections.isNotEmpty()) {
     {
         Column {
@@ -336,8 +336,8 @@ private fun feedItemSupportingTextFactory(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionChip(
-    name: String,
-    onClick: (String) -> Unit,
+    name: CollectionInfo,
+    onClick: (CollectionInfo) -> Unit,
 ) {
     SuggestionChip(
         modifier = Modifier

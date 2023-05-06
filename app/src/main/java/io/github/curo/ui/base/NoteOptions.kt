@@ -291,7 +291,7 @@ private fun EmptyChip(
 @Composable
 private fun CollectionAdder(
     collectionViewModel: CollectionViewModel,
-    collections: SnapshotStateList<String>,
+    collections: SnapshotStateList<CollectionInfo>,
 ) {
     var suggestionState: Suggestion by remember { mutableStateOf(Suggestion.Hidden) }
     var textFieldValue by remember { mutableStateOf(emptyTextFieldValue) }
@@ -469,8 +469,8 @@ private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CurrentCollections(
-    patchCollection: String?,
-    collections: MutableList<String>
+    patchCollection: CollectionInfo?,
+    collections: MutableList<CollectionInfo>
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
@@ -494,8 +494,8 @@ private fun CurrentCollections(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
-    current: String,
-    collections: MutableList<String>
+    current: CollectionInfo,
+    collections: MutableList<CollectionInfo>
 ) {
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),

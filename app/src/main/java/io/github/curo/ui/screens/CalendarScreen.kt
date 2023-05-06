@@ -29,6 +29,7 @@ import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CalendarViewModel
 import io.github.curo.ui.base.LandscapeCalendar
 import io.github.curo.ui.base.PortraitCalendar
@@ -43,7 +44,7 @@ private val cellsBackgroundColor: Color @Composable get() = MaterialTheme.colorS
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel,
     calendarState: CalendarState,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
 ) {
     CalendarMenu(
@@ -60,7 +61,7 @@ fun CalendarMenu(
     modifier: Modifier = Modifier,
     calendarState: CalendarState,
     calendarViewModel: CalendarViewModel,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
 ) {
     Column(modifier = modifier) {
@@ -92,7 +93,7 @@ fun CalendarMenu(
 
 @Composable
 private fun CurrentCollections(
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     viewModel: CalendarViewModel,
 ) {
     LazyRow(
@@ -112,7 +113,7 @@ private fun CurrentCollections(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
     current: CalendarViewModel.CollectionFilter,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
 ) {
     FilterChip(
         onClick = {

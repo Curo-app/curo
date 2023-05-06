@@ -437,11 +437,11 @@ private fun FABScreen(
 @Composable
 private fun FloatingActionButtonMenu(
     onSearchClick: (String) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
     onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
-    onCollectionFilter: (String) -> Unit,
+    onCollectionFilter: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
     fabButtonState: FABButtonState,
     drawerState: DrawerState,
@@ -503,9 +503,9 @@ private fun BottomNavBarScreen(
     drawerState: DrawerState,
     bottomBarNavHost: NavHostController,
     mainNavHost: NavHostController,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionFilter: (String) -> Unit,
+    onCollectionFilter: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
     feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
@@ -563,7 +563,7 @@ private fun BottomNavBarScreen(
 private fun NavGraphBuilder.navCalendarScreen(
     calendarViewModel: CalendarViewModel,
     calendarState: CalendarState,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
 ) {
     composable(BottomNavigationScreen.Calendar.route) {
@@ -578,7 +578,7 @@ private fun NavGraphBuilder.navCalendarScreen(
 
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
 ) = composable(BottomNavigationScreen.Collections.route) {
     Collections(
@@ -590,7 +590,7 @@ private fun NavGraphBuilder.navCollectionsScreen(
 
 private fun NavGraphBuilder.navFeedScreen(
     mainNavHost: NavHostController,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     feedViewModel: FeedViewModel,
 ) = composable(BottomNavigationScreen.Feed.route) {
     Feed(

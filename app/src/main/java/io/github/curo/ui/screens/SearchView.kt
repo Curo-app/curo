@@ -45,7 +45,7 @@ fun SearchView(
     onLeadingIconClick: () -> Unit,
     searchViewModel: SearchViewModel,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit
+    onCollectionClick: (CollectionInfo) -> Unit
 ) {
     Column(
         modifier = Modifier

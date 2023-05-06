@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import io.github.curo.R
 import io.github.curo.viewmodels.CalendarViewModel
 import io.github.curo.data.NotePreview
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.ui.base.Feed
 import io.github.curo.ui.theme.CuroTheme
 import io.github.curo.utils.DateTimeUtils.dateFormatter
@@ -32,7 +33,7 @@ fun DayNotes(
     viewModel: CalendarViewModel,
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onShareClick: () -> Unit,
     onBackToMenuClick: () -> Unit,
 ) {
