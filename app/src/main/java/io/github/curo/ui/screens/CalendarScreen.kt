@@ -23,15 +23,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
-import io.github.curo.viewmodels.CalendarViewModel
 import io.github.curo.ui.base.LandscapeCalendar
 import io.github.curo.ui.base.PortraitCalendar
+import io.github.curo.viewmodels.CalendarViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -231,9 +230,9 @@ private fun isCurrentDayOfWeek(
     dayOfWeek: DayOfWeek,
 ) = dayOfWeek == LocalDate.now().dayOfWeek
 
-@Preview(showBackground = true)
-@Composable
-fun CalendarPreview() {
-    val viewModel = remember { CalendarViewModel() }
-    CalendarScreen(viewModel, rememberCuroCalendarState(), onCollectionClick = {}, onDayClick = {})
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CalendarPreview() {
+//    val viewModel = remember { CalendarViewModel() }
+//    CalendarScreen(viewModel, rememberCuroCalendarState(), onCollectionClick = {}, onDayClick = {})
+//}
