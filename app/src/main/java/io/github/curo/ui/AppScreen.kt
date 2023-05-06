@@ -1,6 +1,5 @@
 package io.github.curo.ui
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
