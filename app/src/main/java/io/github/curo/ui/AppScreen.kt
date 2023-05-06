@@ -69,6 +69,7 @@ import io.github.curo.utils.NEW_ENTITY_ID
 import io.github.curo.viewmodels.NoteViewModel
 import io.github.curo.viewmodels.RealCollectionViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -330,23 +331,17 @@ private fun NavGraphBuilder.noteEditScreen(
         }
         NoteEditMenu(
             note = notePatchViewModel,
-            onSaveNote = { note ->
+            onSaveNote = { _ ->
                 coroutineScope.launch {
                     val newId = notePatchViewModel.saveNote()
-//                    if (notePatchViewModel.isCreateInEditCollection()) {
-//                        collectionPatchViewModel.createdNoteIds.add(newId)
-//                    }
-                    notePatchViewModel.clear()
-                    noteViewModel.find(newId).collect { notePreview ->
-                        if (notePreview == null) {
-                            Log.v("swine", "notePreview is null")
-                            return@collect
-                        }
-                        if (notePatchViewModel.isCreateInEditCollection()) {
-                            collectionPatchViewModel.notes.add(notePreview)
-                        }
-                        collectionViewModel.addNote(notePreview)
+
+                    val notePreview = noteViewModel.find(newId).firstOrNull() ?: return@launch
+
+                    if (notePatchViewModel.isCreateInEditCollection()) {
+                        collectionPatchViewModel.notes.add(notePreview)
                     }
+                    collectionViewModel.addNote(notePreview)
+                    notePatchViewModel.clear()
                 }
                 mainNavController.popBackStack()
             },
