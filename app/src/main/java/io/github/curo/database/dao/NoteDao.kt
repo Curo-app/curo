@@ -2,7 +2,7 @@ package io.github.curo.database.dao
 
 import androidx.room.*
 import io.github.curo.database.entities.Note
-import io.github.curo.database.entities.NoteWithCollectionNames
+import io.github.curo.database.entities.NoteWithCollections
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -28,11 +28,11 @@ interface NoteDao {
 
     @Transaction
     @Query("SELECT * FROM Note")
-    fun getAll(): Flow<List<NoteWithCollectionNames>>
+    fun getAll(): Flow<List<NoteWithCollections>>
 
     @Transaction
     @Query("SELECT * FROM Note WHERE note_id = :noteId")
-    fun find(noteId: Long): Flow<NoteWithCollectionNames?>
+    fun find(noteId: Long): Flow<NoteWithCollections?>
 
     @Query("UPDATE Note SET done = TRUE WHERE note_id = :noteId")
     suspend fun markCompleted(noteId: Long)

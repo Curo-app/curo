@@ -15,6 +15,6 @@ interface NoteCollectionCrossRefDao {
     @Query("DELETE FROM NoteCollectionCrossRef WHERE note_id = :noteId")
     suspend fun deleteAllByNoteId(noteId: Long)
 
-    @Query("SELECT * FROM NoteCollectionCrossRef WHERE collection_name = :collectionName")
-    fun listByCollectionName(collectionName: String): Flow<List<NoteCollectionCrossRef>>
+    @Query("SELECT * FROM NoteCollectionCrossRef WHERE collection_id = :collectionId")
+    fun listByCollectionId(collectionId: Long): Flow<List<NoteCollectionCrossRef>>
 }

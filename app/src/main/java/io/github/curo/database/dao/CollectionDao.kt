@@ -10,8 +10,8 @@ interface CollectionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(collection: Collection)
 
-    @Query("DELETE FROM Collection WHERE collection_name = :collectionName")
-    suspend fun delete(collectionName: String)
+    @Query("DELETE FROM Collection WHERE collection_id = :collectionId")
+    suspend fun delete(collectionId: Long)
 
     @Update
     suspend fun update(collection: Collection)
@@ -21,6 +21,6 @@ interface CollectionDao {
     fun getAll(): Flow<List<CollectionWithNotes>>
 
     @Transaction
-    @Query("SELECT * FROM Collection WHERE collection_name = :collectionName")
-    fun find(collectionName: String): Flow<CollectionWithNotes?>
+    @Query("SELECT * FROM Collection WHERE collection_id = :collectionId")
+    fun find(collectionId: Long): Flow<CollectionWithNotes?>
 }
