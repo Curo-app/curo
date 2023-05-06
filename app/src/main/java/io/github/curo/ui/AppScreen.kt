@@ -43,6 +43,7 @@ import io.github.curo.data.NotePreview
 import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.Route
 import io.github.curo.data.Screen
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.SearchViewModel
 import io.github.curo.viewmodels.ShareScreenViewModel
 import io.github.curo.ui.base.AboutUs
@@ -205,7 +206,7 @@ private fun NavGraphBuilder.searchScreen(
                 mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
             },
             onCollectionClick = { collectionName ->
-                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName)
+                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName.collectionId)
             }
         )
     }
@@ -221,15 +222,15 @@ private fun NavGraphBuilder.collectionEditScreen(
 ) {
     composable(
         route = Screen.EditCollection.route + "/{collectionName}",
-        arguments = listOf(navArgument("collectionName", builder = { type = NavType.StringType }))
+        arguments = listOf(navArgument("collectionName", builder = { type = NavType.LongType }))
     ) {
         val coroutineScope = rememberCoroutineScope()
 
-        it.arguments?.getString("collectionName")?.let { name ->
-            LaunchedEffect(name) {
-                collectionViewModel.find(name).collect { collection ->
+        it.arguments?.getLong("collectionName")?.let { id ->
+            LaunchedEffect(id) {
+                collectionViewModel.find(id).collect { collection ->
                     if (collection != null) {
-                        collectionPatchViewModel.oldName = collection.name
+//                        collectionPatchViewModel.oldName = collection.id
                         collectionPatchViewModel.setCollection(collection)
                     }
                 }
@@ -242,8 +243,8 @@ private fun NavGraphBuilder.collectionEditScreen(
             onNoteClick = { note ->
                 mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
             },
-            onCollectionClick = { collectionName ->
-                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName)
+            onCollectionClick = { collectionId ->
+                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionId.collectionId)
             },
             onAddNote = {
                 mainNavController.navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
@@ -296,7 +297,7 @@ private fun NavGraphBuilder.dayNotesScreen(
             },
             onCollectionClick = { collectionName ->
                 mainNavController
-                    .navigate(Screen.EditCollection.route + '/' + collectionName)
+                    .navigate(Screen.EditCollection.route + '/' + collectionName.collectionId)
             },
             onShareClick = {
                 shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -404,12 +405,12 @@ private fun FABScreen(
             // Чтобы не делать два разных экрана для создания и изменения заметки будем считать,
             // что изменение заметки с id = -1 это ее создание
             when (menu) {
-                Screen.EditCollection -> mainNavHost.navigate(menu.route + "/New collection")
+                Screen.EditCollection -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
                 Screen.EditNote -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
             }
         },
         onCollectionClick = { collectionName ->
-            mainNavHost.navigate(Screen.EditCollection.route + '/' + collectionName)
+            mainNavHost.navigate(Screen.EditCollection.route + '/' + collectionName.collectionId)
         },
         drawerState = drawerState,
         scope = scope,
