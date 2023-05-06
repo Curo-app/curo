@@ -217,10 +217,10 @@ fun ClosedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
@@ -258,10 +258,10 @@ fun OpenedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
@@ -288,10 +288,10 @@ fun FinishedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
