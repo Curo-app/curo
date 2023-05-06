@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 
 @Entity(
-    primaryKeys = ["note_id", "collection_name"],
+    primaryKeys = ["note_id", "collection_id"],
     foreignKeys = [
         ForeignKey(
             entity = Note::class,
@@ -17,8 +17,8 @@ import androidx.room.ForeignKey.Companion.CASCADE
         ),
         ForeignKey(
             entity = Collection::class,
-            parentColumns = ["collection_name"],
-            childColumns = ["collection_name"],
+            parentColumns = ["collection_id"],
+            childColumns = ["collection_id"],
             onDelete = CASCADE,
             onUpdate = CASCADE
         )
@@ -26,5 +26,5 @@ import androidx.room.ForeignKey.Companion.CASCADE
 )
 data class NoteCollectionCrossRef(
     @ColumnInfo(name = "note_id", index = true) val noteId: Long,
-    @ColumnInfo(name = "collection_name", index = true) val collectionName: String
+    @ColumnInfo(name = "collection_id", index = true) val collectionId: Long
 )
