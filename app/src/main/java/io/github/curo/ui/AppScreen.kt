@@ -66,6 +66,7 @@ import io.github.curo.ui.screens.capitalizeFirstLetter
 import io.github.curo.ui.screens.rememberCuroCalendarState
 import io.github.curo.utils.NEW_ENTITY_ID
 import io.github.curo.viewmodels.NoteViewModel
+import io.github.curo.viewmodels.RealCollectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -78,7 +79,11 @@ val bottomMenu = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppScreen(noteViewModel: NoteViewModel, notePatchViewModel: NotePatchViewModel) {
+fun AppScreen(
+    noteViewModel: NoteViewModel,
+    notePatchViewModel: NotePatchViewModel,
+    realCollectionViewModel: RealCollectionViewModel
+) {
     val mainNavController = rememberNavController()
     val bottomNavigationNavController = rememberNavController()
     val currentSideMenuItem by mainNavController.currentBackStackEntryAsState()
@@ -334,7 +339,7 @@ private fun NavGraphBuilder.noteEditScreen(
             },
             onDeleteNote = { id ->
                 coroutineScope.launch {
-                    noteViewModel.delete(id)
+                    notePatchViewModel.delete(id)
                     notePatchViewModel.clear()
                 }
                 mainNavController.popBackStack()
