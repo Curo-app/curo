@@ -5,7 +5,7 @@ import io.github.curo.data.CollectionPreview
 
 @Entity
 data class Collection(
-    @PrimaryKey @ColumnInfo(name = "collection_id") val collectionId: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "collection_id") val collectionId: Long,
     @ColumnInfo(name = "collection_name") val collectionName: String,
     val emoji: String = "\uD83D\uDDC2"
 ) {
