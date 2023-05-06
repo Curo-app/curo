@@ -8,6 +8,7 @@ import io.github.curo.database.entities.CollectionWithNotes
 
 @Stable
 class CollectionPreview(
+    val id: Long = 0,
     val emoji: Emoji = Emoji("\uD83D\uDDC2"),
     val name: String,
     val notes: List<NotePreview>
