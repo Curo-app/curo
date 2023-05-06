@@ -23,12 +23,11 @@ class CollectionPatchViewModel(
     private val noteDao: NoteDao,
     private val collectionDao: CollectionDao,
     private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
-) : FeedViewModel() {
+) : FeedViewModel(noteDao) {
     var name: String by mutableStateOf("New collection")
     override val notes: MutableList<NotePreview> = mutableStateListOf()
     // TODO: make id as a primary key instead of saving previous name
     var oldName: String by mutableStateOf("")
-    var createdNoteIds: MutableList<Long> = mutableStateListOf()
 
     @Transaction
     suspend fun insert(collectionPreview: CollectionPreview) {
@@ -54,7 +53,6 @@ class CollectionPatchViewModel(
     fun clear() {
         name = ""
         notes.clear()
-        createdNoteIds.clear()
     }
 
     fun set(name: String) {
