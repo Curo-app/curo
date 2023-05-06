@@ -357,7 +357,7 @@ private fun CollectionAdder(
                     collections.size != MAX_NOTE_COLLECTIONS_AMOUNT,
             onClick = {
                 suggestionState = Suggestion.Suggested
-                collections += textFieldValue.text
+//                collections += textFieldValue.text // TODO
                 textFieldValue = TextFieldValue("", selection = TextRange.Zero)
             },
         )
