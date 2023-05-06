@@ -34,11 +34,12 @@ class NotePatchViewModel(
     var hasCheckbox by mutableStateOf(false)
 
     @Transaction
-    suspend fun insert(notePreview: NotePreview) {
+    suspend fun insert(notePreview: NotePreview) : Long {
         val noteId = noteDao.insert(Note.of(notePreview))
         val crossRefs = notePreview.collections
             .map { NoteCollectionCrossRef(noteId, it) }
         noteCollectionCrossRefDao.insertAll(crossRefs)
+        return noteId
     }
 
     suspend fun delete(noteId: Long) = noteDao.delete(noteId)
@@ -91,13 +92,18 @@ class NotePatchViewModel(
         done = if (hasCheckbox) false else null
     )
 
-    suspend fun saveNote() {
+    suspend fun saveNote() : Long {
         val notePreview = toNote()
-        if (notePreview.id == 0L) {
+        return if (notePreview.id == 0L) {
             insert(notePreview)
         } else {
             update(notePreview)
+            notePreview.id
         }
+    }
+
+    fun isCreateInEditCollection() : Boolean {
+        return newCollection != null
     }
 
     class NotePatchViewModelFactory(

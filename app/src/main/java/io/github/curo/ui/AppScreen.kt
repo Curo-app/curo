@@ -1,5 +1,6 @@
 package io.github.curo.ui
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
@@ -146,7 +147,7 @@ fun AppScreen(
                     shareScreenViewModel = shareScreenViewModel,
                     collectionPatchViewModel = collectionPatchViewModel,
                     notePatchViewModel = notePatchViewModel,
-                    collectionViewModel = collectionViewModel,
+                    collectionViewModel = realCollectionViewModel,
                     mainNavController = mainNavController,
                 )
                 noteEditScreen(
@@ -214,7 +215,7 @@ private fun NavGraphBuilder.collectionEditScreen(
     shareScreenViewModel: ShareScreenViewModel,
     collectionPatchViewModel: CollectionPatchViewModel,
     notePatchViewModel: NotePatchViewModel,
-    collectionViewModel: CollectionViewModel,
+    collectionViewModel: RealCollectionViewModel,
     mainNavController: NavHostController,
 ) {
     composable(
@@ -225,6 +226,12 @@ private fun NavGraphBuilder.collectionEditScreen(
 
         it.arguments?.getString("collectionName")?.let { name ->
             LaunchedEffect(name) {
+                collectionViewModel.find(name).collect { collection ->
+                    if (collection != null) {
+                        collectionPatchViewModel.oldName = collection.name
+                        collectionPatchViewModel.setCollection(collection)
+                    }
+                }
                 collectionPatchViewModel.set(name.ifEmpty { "New collection" })
             }
         }
@@ -237,23 +244,27 @@ private fun NavGraphBuilder.collectionEditScreen(
             onCollectionClick = { collectionName ->
                 mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName)
             },
-            onAddNoteClick = {
+            onAddNote = {
                 mainNavController.navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
                 notePatchViewModel.newCollection = collectionPatchViewModel.name
             },
-            onDeleteCollectionClick = { collection ->
-                collectionViewModel.delete(collection)
+            onDeleteCollection = { collectionName ->
+                coroutineScope.launch {
+                    collectionPatchViewModel.delete(collectionName)
+                    collectionPatchViewModel.clear()
+                }
                 mainNavController.popBackStack()
             },
-            onShareCollectionClick = {
+            onShareCollection = {
                 shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             },
-            onBackToMenuClick = { mainNavController.popBackStack() },
-            onSaveClick = { collection ->
+            onBackToMenu = { mainNavController.popBackStack() },
+            onSaveCollection = { collection ->
                 coroutineScope.launch {
                     collectionPatchViewModel.save()
+                    collectionPatchViewModel.clear()
                 }
-                collectionViewModel.update(collection)
+//                collectionViewModel.update(collection)
                 feedViewModel.addCollection(collection)
                 mainNavController.popBackStack()
             }
@@ -320,14 +331,23 @@ private fun NavGraphBuilder.noteEditScreen(
         NoteEditMenu(
             note = notePatchViewModel,
             onSaveNote = { note ->
-                if (notePatchViewModel.newCollection != null) {
-                    collectionPatchViewModel.notes.add(note)
-                }
                 coroutineScope.launch {
-                    notePatchViewModel.saveNote()
+                    val newId = notePatchViewModel.saveNote()
+//                    if (notePatchViewModel.isCreateInEditCollection()) {
+//                        collectionPatchViewModel.createdNoteIds.add(newId)
+//                    }
                     notePatchViewModel.clear()
+                    noteViewModel.find(newId).collect { notePreview ->
+                        if (notePreview == null) {
+                            Log.v("swine", "notePreview is null")
+                            return@collect
+                        }
+                        if (notePatchViewModel.isCreateInEditCollection()) {
+                            collectionPatchViewModel.notes.add(notePreview)
+                        }
+                        collectionViewModel.addNote(notePreview)
+                    }
                 }
-                collectionViewModel.addNote(note)
                 mainNavController.popBackStack()
             },
             onDiscardNote = {
