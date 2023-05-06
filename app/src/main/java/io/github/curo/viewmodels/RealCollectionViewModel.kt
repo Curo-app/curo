@@ -17,27 +17,6 @@ class RealCollectionViewModel(
     private val collectionDao: CollectionDao,
     private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
 ) : ViewModel() {
-    @Transaction
-    suspend fun insert(collectionPreview: CollectionPreview) {
-        collectionDao.insert(Collection.of(collectionPreview))
-        val notes = collectionPreview.notes.map { Note.of(it) }
-        val noteIds = noteDao.insertAll(notes)
-        val crossRefs = noteIds.map { NoteCollectionCrossRef(it, collectionPreview.name) }
-        noteCollectionCrossRefDao.insertAll(crossRefs)
-    }
-
-    // deletes collection and relationship
-    suspend fun delete(collectionName: String) = collectionDao.delete(collectionName)
-
-    // deletes collection with all notes
-    @Transaction
-    suspend fun deleteCascade(collectionName: String) =
-        noteCollectionCrossRefDao.listByCollectionName(collectionName)
-            .collect { crossRefs ->
-                collectionDao.delete(collectionName)
-                noteDao.deleteAll(crossRefs.map { it.noteId })
-            }
-
     fun getAll(): Flow<List<CollectionPreview>> =
         collectionDao.getAll()
             .map { l -> l.map { CollectionPreview.of(it) } }

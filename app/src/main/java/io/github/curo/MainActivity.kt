@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import io.github.curo.ui.AppScreen
 import io.github.curo.ui.theme.CuroTheme
+import io.github.curo.viewmodels.CollectionPatchViewModel
 import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.viewmodels.NoteViewModel
 import io.github.curo.viewmodels.RealCollectionViewModel
@@ -34,9 +35,17 @@ class MainActivity : ComponentActivity() {
                 database.noteCollectionCrossRefDao()
             )
         }
+        val collectionPatchViewModel: CollectionPatchViewModel by viewModels {
+            val database = (application as CuroApplication).database
+            CollectionPatchViewModel.CollectionPatchViewModelFactory(
+                database.noteDao(),
+                database.collectionDao(),
+                database.noteCollectionCrossRefDao()
+            )
+        }
         setContent {
             CuroTheme {
-                AppScreen(noteViewModel, notePatchViewModel, realCollectionViewModel)
+                AppScreen(noteViewModel, notePatchViewModel, realCollectionViewModel, collectionPatchViewModel)
             }
         }
     }

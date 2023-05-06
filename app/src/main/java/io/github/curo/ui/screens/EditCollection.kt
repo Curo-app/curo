@@ -103,25 +103,25 @@ fun EditCollectionScreen(
     }
 }
 
-@Preview
-@Composable
-fun EditCollectionPreview() {
-    val viewModel by remember { mutableStateOf(CollectionPatchViewModel()) }
-    CuroTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            EditCollectionScreen(
-                viewModel = viewModel,
-                onNoteClick = { /* TODO */ },
-                onCollectionClick = { /* TODO */ },
-                onAddNoteClick = { /* do something */ },
-                onDeleteCollectionClick = { /* do something */ },
-                onShareCollectionClick = { /* do something */ },
-                onBackToMenuClick = { /* do something */ },
-                onSaveClick = { /* do something */ },
-            )
-        }
-    }
-}
+//@Preview
+//@Composable
+//fun EditCollectionPreview() {
+//    val viewModel by remember { mutableStateOf(CollectionPatchViewModel()) }
+//    CuroTheme {
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = MaterialTheme.colorScheme.background
+//        ) {
+//            EditCollectionScreen(
+//                viewModel = viewModel,
+//                onNoteClick = { /* TODO */ },
+//                onCollectionClick = { /* TODO */ },
+//                onAddNoteClick = { /* do something */ },
+//                onDeleteCollectionClick = { /* do something */ },
+//                onShareCollectionClick = { /* do something */ },
+//                onBackToMenuClick = { /* do something */ },
+//                onSaveClick = { /* do something */ },
+//            )
+//        }
+//    }
+//}

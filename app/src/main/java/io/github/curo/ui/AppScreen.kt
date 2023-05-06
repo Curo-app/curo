@@ -82,7 +82,8 @@ val bottomMenu = listOf(
 fun AppScreen(
     noteViewModel: NoteViewModel,
     notePatchViewModel: NotePatchViewModel,
-    realCollectionViewModel: RealCollectionViewModel
+    realCollectionViewModel: RealCollectionViewModel,
+    collectionPatchViewModel: CollectionPatchViewModel,
 ) {
     val mainNavController = rememberNavController()
     val bottomNavigationNavController = rememberNavController()
@@ -94,7 +95,7 @@ fun AppScreen(
     val collectionViewModel = remember { CollectionViewModel() }
     val calendarViewModel = remember { CalendarViewModel() }
 //    val notePatchViewModel = remember { NotePatchViewModel() }
-    val collectionPatchViewModel = remember { CollectionPatchViewModel() }
+//    val collectionPatchViewModel = remember { CollectionPatchViewModel() }
     val searchViewModel = remember { SearchViewModel() }
     val shareScreenViewModel = remember { ShareScreenViewModel() }
 
@@ -220,6 +221,8 @@ private fun NavGraphBuilder.collectionEditScreen(
         route = Screen.EditCollection.route + "/{collectionName}",
         arguments = listOf(navArgument("collectionName", builder = { type = NavType.StringType }))
     ) {
+        val coroutineScope = rememberCoroutineScope()
+
         it.arguments?.getString("collectionName")?.let { name ->
             LaunchedEffect(name) {
                 collectionPatchViewModel.set(name.ifEmpty { "New collection" })
@@ -229,16 +232,13 @@ private fun NavGraphBuilder.collectionEditScreen(
         EditCollectionScreen(
             viewModel = collectionPatchViewModel,
             onNoteClick = { note ->
-                mainNavController
-                    .navigate(Screen.EditNote.route + '/' + note.id)
+                mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
             },
             onCollectionClick = { collectionName ->
-                mainNavController
-                    .navigate(Screen.EditCollection.route + '/' + collectionName)
+                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName)
             },
             onAddNoteClick = {
-                mainNavController
-                    .navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
+                mainNavController.navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
                 notePatchViewModel.newCollection = collectionPatchViewModel.name
             },
             onDeleteCollectionClick = { collection ->
@@ -250,6 +250,9 @@ private fun NavGraphBuilder.collectionEditScreen(
             },
             onBackToMenuClick = { mainNavController.popBackStack() },
             onSaveClick = { collection ->
+                coroutineScope.launch {
+                    collectionPatchViewModel.save()
+                }
                 collectionViewModel.update(collection)
                 feedViewModel.addCollection(collection)
                 mainNavController.popBackStack()
