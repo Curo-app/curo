@@ -66,6 +66,7 @@ import io.github.curo.viewmodels.FeedViewModel
 import io.github.curo.data.NotePreview
 import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.data.TimedDeadline
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
 import java.time.LocalDate
@@ -344,7 +345,7 @@ private fun CollectionChip(
             .height(30.dp),
         onClick = { onClick(name) },
         label = {
-            Text(text = name)
+            Text(text = name.collectionName)
         })
 }
 

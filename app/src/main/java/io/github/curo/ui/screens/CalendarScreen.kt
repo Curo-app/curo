@@ -121,7 +121,7 @@ private fun CollectionChip(
         },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current.name) },
+        label = { Text(text = current.name.collectionName) },
         selected = current.enabled,
     )
 }

@@ -12,6 +12,7 @@ import io.github.curo.R
 import io.github.curo.viewmodels.CollectionPatchViewModel
 import io.github.curo.data.CollectionPreview
 import io.github.curo.data.NotePreview
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.ui.base.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +68,7 @@ fun EditCollectionScreen(
                         )
                     }
                     IconButton(onClick = {
-                        onDeleteCollection(viewModel.name)
+                        onDeleteCollection(CollectionInfo(viewModel.id, viewModel.name))
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Delete,

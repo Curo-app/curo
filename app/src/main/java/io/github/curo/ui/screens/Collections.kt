@@ -26,6 +26,7 @@ import io.github.curo.ui.base.cardModifier
 import io.github.curo.ui.base.listItemColors
 import kotlin.random.Random
 import androidx.compose.foundation.lazy.items
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CollectionViewModel
 
 
@@ -83,7 +84,7 @@ private fun CollectionCard(
 ) {
     ListItem(
         modifier = Modifier.cardModifier(interactionSource) {
-            onCollectionClick(collection.name)
+            onCollectionClick(CollectionInfo(collection.id, collection.name))
         },
         headlineText = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },

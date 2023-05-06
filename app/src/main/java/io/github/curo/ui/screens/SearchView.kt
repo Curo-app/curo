@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
 import io.github.curo.data.NotePreview
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.SearchViewModel
 import io.github.curo.ui.base.Feed
 

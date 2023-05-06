@@ -233,7 +233,7 @@ private fun NavGraphBuilder.collectionEditScreen(
                         collectionPatchViewModel.setCollection(collection)
                     }
                 }
-                collectionPatchViewModel.set(name.ifEmpty { "New collection" })
+                collectionPatchViewModel.set(id)
             }
         }
 
@@ -247,11 +247,11 @@ private fun NavGraphBuilder.collectionEditScreen(
             },
             onAddNote = {
                 mainNavController.navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
-                notePatchViewModel.newCollection = collectionPatchViewModel.name
+                notePatchViewModel.newCollection = CollectionInfo(collectionPatchViewModel.id, collectionPatchViewModel.name)
             },
-            onDeleteCollection = { collectionName ->
+            onDeleteCollection = { collection ->
                 coroutineScope.launch {
-                    collectionPatchViewModel.delete(collectionName)
+                    collectionPatchViewModel.delete(collection.collectionId)
                     collectionPatchViewModel.clear()
                 }
                 mainNavController.popBackStack()
