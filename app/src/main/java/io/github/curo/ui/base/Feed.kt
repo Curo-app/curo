@@ -90,7 +90,7 @@ fun Feed(
             val dismissState = rememberDismissState(
                 confirmStateChange = {
                     if (it == DismissValue.DismissedToStart) {
-                        viewModel.delete(currentItem.id)
+                        viewModel.deleteNote(currentItem.id)
                         true
                     } else false
                 }
