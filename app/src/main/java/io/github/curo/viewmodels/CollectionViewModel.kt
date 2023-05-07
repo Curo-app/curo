@@ -5,18 +5,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.curo.data.CollectionPreview
 import io.github.curo.data.NotePreview
 import io.github.curo.data.NotePreview.Companion.extractCollections
 import io.github.curo.database.entities.CollectionInfo
+import io.github.curo.database.dao.NoteDao
 import io.github.curo.utils.NOT_FOUND_INDEX
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Stable
-open class CollectionViewModel : FeedViewModel() {
+open class CollectionViewModel(
+    noteDao: NoteDao
+): FeedViewModel(noteDao) {
 
     private val _collections = mutableStateListOf<CollectionPreview>()
     val collections: List<CollectionPreview> get() = _collections
@@ -120,5 +125,17 @@ open class CollectionViewModel : FeedViewModel() {
 
     fun delete(name: String) {
         _collections.removeIf { it.name == name }
+    }
+
+    class CollectionViewModelFactory(
+        private val noteDao: NoteDao
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(CollectionViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return CollectionViewModel(noteDao) as T
+            }
+            throw IllegalArgumentException("Unknown VieModel Class")
+        }
     }
 }

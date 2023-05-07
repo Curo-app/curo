@@ -185,12 +185,12 @@ private fun CollectionTrailing(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CollectionsScreenPreview() {
-    val viewModel = remember { CollectionViewModel() }
-    Collections(viewModel = viewModel, onCollectionClick = {}, onNoteClick = {})
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CollectionsScreenPreview() {
+//    val viewModel = remember { CollectionViewModel() }
+//    Collections(viewModel = viewModel, onCollectionClick = {}, onNoteClick = {})
+//}
 
 @Preview(showBackground = true)
 @Composable

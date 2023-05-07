@@ -42,8 +42,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,19 +58,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.curo.R
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
-import io.github.curo.viewmodels.FeedViewModel
 import io.github.curo.data.NotePreview
 import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.data.TimedDeadline
 import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
+import io.github.curo.viewmodels.FeedViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 
@@ -80,17 +82,22 @@ fun Feed(
     onCollectionClick: (CollectionInfo) -> Unit,
     viewModel: FeedViewModel,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val feedUiState by viewModel.feedUiState.collectAsState()
+
     LazyColumn(
         modifier = modifier
             .background(color = MaterialTheme.colorScheme.background)
             .wrapContentSize()
     ) {
-        items(viewModel.notes, { it.id }) { item ->
+        items(feedUiState.notes, { it.id }) { item ->
             val currentItem by rememberUpdatedState(item)
             val dismissState = rememberDismissState(
                 confirmStateChange = {
                     if (it == DismissValue.DismissedToStart) {
-                        viewModel.deleteNote(currentItem.id)
+                        coroutineScope.launch {
+                            viewModel.deleteNote(currentItem.id)
+                        }
                         true
                     } else false
                 }
@@ -363,13 +370,13 @@ fun EmojiContainer(item: Emoji, size: Float = 30F) {
     )
 }
 
-@Preview
-@Composable
-fun NoteCardPreview() {
-    val viewModel = remember { FeedViewModel() }
-    Feed(
-        viewModel = viewModel,
-        onCollectionClick = {},
-        onNoteClick = {},
-    )
-}
+//@Preview
+//@Composable
+//fun NoteCardPreview() {
+//    val viewModel = remember { FeedViewModel() }
+//    Feed(
+//        viewModel = viewModel,
+//        onCollectionClick = {},
+//        onNoteClick = {},
+//    )
+//}

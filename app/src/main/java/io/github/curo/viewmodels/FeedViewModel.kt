@@ -3,64 +3,91 @@ package io.github.curo.viewmodels
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import io.github.curo.data.CollectionPreview
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
 import io.github.curo.data.NotePreview
 import io.github.curo.database.entities.CollectionInfo
+import io.github.curo.database.dao.NoteDao
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
+data class FeedUiState(
+    val notes: List<NotePreview> = emptyList(),
+)
+
 @Stable
-open class FeedViewModel : ViewModel() {
+open class FeedViewModel(
+    private val noteDao: NoteDao
+) : ViewModel() {
     private val _notes = mutableStateListOf<NotePreview>()
-    open val notes: List<NotePreview> get() = _notes
+    open val notes: List<NotePreview>
+        get() = _notes
 
-    fun update(note: NotePreview) {
-        val index = _notes.indexOfFirst { it.id == note.id }
-        if (index == -1) {
-            _notes.add(note)
-        } else {
-            _notes[index] = note
-        }
-    }
-
-    fun findOrCreate(id: Long): NotePreview = notes.find { note ->
-        note.id == id
-    } ?: NotePreview(
-        id = notes.maxOf(NotePreview::id).inc(),
-        name = "",
-    )
-
-    fun deleteNote(id: Long) {
-        _notes.removeIf { it.id == id }
-    }
-
-    fun addCollection(collection: CollectionPreview) {
-        collection.notes.forEach { note ->
-            val newNote = NotePreview(
-                id = note.id,
-                deadline = note.deadline,
-                emoji = note.emoji,
-                name = note.name,
-                description = note.description,
-                collections = note.collections + CollectionInfo(0, collection.name),
-                done = note.done,
+    val feedUiState: StateFlow<FeedUiState> =
+        getAll().map { FeedUiState(it) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = FeedUiState()
             )
-            update(newNote)
-        }
-    }
+
+    private fun getAll(): Flow<List<NotePreview>> =
+        noteDao.getAll()
+            .map { l -> l.map { NotePreview.of(it) } }
+
+//    fun update(note: NotePreview) {
+//        val index = _notes.indexOfFirst { it.id == note.id }
+//        if (index == -1) {
+//            _notes.add(note)
+//        } else {
+//            _notes[index] = note
+//        }
+//    }
+
+//    fun findOrCreate(id: Long): NotePreview = notes.find { note ->
+//        note.id == id
+//    } ?: NotePreview(
+//        id = notes.maxOf(NotePreview::id).inc(),
+//        name = "",
+//    )
+
+//    fun deleteNote(id: Long) {
+//        _notes.removeIf { it.id == id }
+//    }
+
+    suspend fun deleteNote(noteId: Long) = noteDao.delete(noteId)
+
+//    fun addCollection(collection: CollectionPreview) {
+//        collection.notes.forEach { note ->
+//            val newNote = NotePreview(
+//                id = note.id,
+//                deadline = note.deadline,
+//                emoji = note.emoji,
+//                name = note.name,
+//                description = note.description,
+//                collections = note.collections + collection.name,
+//                done = note.done,
+//            )
+//            update(newNote)
+//        }
+//    }
 
     init {
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
-                _notes.addAll(loadItems())
+                _notes.addAll(getAll().first())
             }
         }
-
     }
 
     protected fun loadItems(): List<NotePreview> {
@@ -135,5 +162,18 @@ open class FeedViewModel : ViewModel() {
                 done = true
             )
         )
+    }
+
+    open class FeedViewModelFactory(
+        private val noteDao: NoteDao
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(FeedViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return FeedViewModel(noteDao) as T
+            }
+            throw IllegalArgumentException("Unknown VieModel Class")
+        }
+
     }
 }

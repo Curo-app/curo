@@ -7,10 +7,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.curo.data.NotePreview
 import io.github.curo.data.NotePreview.Companion.extractCollections
 import io.github.curo.database.entities.CollectionInfo
+import io.github.curo.database.dao.NoteDao
 import io.github.curo.utils.setAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +21,9 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 @Stable
-class CalendarViewModel : FeedViewModel() {
+class CalendarViewModel(
+    noteDao: NoteDao
+) : FeedViewModel(noteDao) {
     private var _currentDay by mutableStateOf(LocalDate.now())
     val currentDay: LocalDate = _currentDay
 
@@ -146,5 +151,17 @@ class CalendarViewModel : FeedViewModel() {
         value class NoWarn(val amount: Int) : DayState
 
         object Empty : DayState
+    }
+
+    class CalendarViewModelFactory(
+        private val noteDao: NoteDao
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(CalendarViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return CalendarViewModel(noteDao) as T
+            }
+            throw IllegalArgumentException("Unknown VieModel Class")
+        }
     }
 }

@@ -24,19 +24,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
 import io.github.curo.data.NotePreview
 import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.SearchViewModel
 import io.github.curo.ui.base.Feed
+import io.github.curo.viewmodels.SearchViewModel
 
 @Composable
 fun SearchView(
@@ -140,33 +139,33 @@ fun SearchView(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SearchViewPreview() {
-    MaterialTheme {
-        SearchView(
-            onSearchTextChanged = { /* Updated each time the text changes */ },
-            onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
-            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
-            searchViewModel = remember { SearchViewModel() },
-            onNoteClick = { /* TODO */ },
-            onCollectionClick = { /* TODO */ }
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SearchViewPreview() {
+//    MaterialTheme {
+//        SearchView(
+//            onSearchTextChanged = { /* Updated each time the text changes */ },
+//            onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
+//            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
+//            searchViewModel = remember { SearchViewModel() },
+//            onNoteClick = { /* TODO */ },
+//            onCollectionClick = { /* TODO */ }
+//        )
+//    }
+//}
 
-@Preview(showBackground = true)
-@Composable
-fun SearchViewPreviewResults() {
-    MaterialTheme {
-        SearchView(
-            onSearchTextChanged = { /* Updated each time the text changes */ },
-            onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
-            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
-            searchViewModel = remember { SearchViewModel().apply { query = "ddd" } },
-            onNoteClick = { /* TODO */ },
-            onCollectionClick = { /* TODO */ }
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SearchViewPreviewResults() {
+//    MaterialTheme {
+//        SearchView(
+//            onSearchTextChanged = { /* Updated each time the text changes */ },
+//            onSearchKeyboardClick = { /* TODO: Show results or navigate to separate screen */ },
+//            onLeadingIconClick = { /* TODO: Navigate to previous screen */ },
+//            searchViewModel = remember { SearchViewModel().apply { query = "ddd" } },
+//            onNoteClick = { /* TODO */ },
+//            onCollectionClick = { /* TODO */ }
+//        )
+//    }
+//}
 

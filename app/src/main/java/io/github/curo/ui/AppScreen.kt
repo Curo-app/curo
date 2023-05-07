@@ -82,23 +82,27 @@ val bottomMenu = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScreen(
+    feedViewModel: FeedViewModel,
     noteViewModel: NoteViewModel,
     notePatchViewModel: NotePatchViewModel,
     realCollectionViewModel: RealCollectionViewModel,
     collectionPatchViewModel: CollectionPatchViewModel,
+    calendarViewModel: CalendarViewModel,
+    collectionViewModel: CollectionViewModel,
+    searchViewModel: SearchViewModel
 ) {
     val mainNavController = rememberNavController()
     val bottomNavigationNavController = rememberNavController()
     val currentSideMenuItem by mainNavController.currentBackStackEntryAsState()
 
     val scope = rememberCoroutineScope()
-    val feedViewModel = remember { FeedViewModel() }
+//    val feedViewModel = remember { FeedViewModel() }
 
-    val collectionViewModel = remember { CollectionViewModel() }
-    val calendarViewModel = remember { CalendarViewModel() }
+//    val collectionViewModel = remember { CollectionViewModel() }
+//    val calendarViewModel = remember { CalendarViewModel() }
 //    val notePatchViewModel = remember { NotePatchViewModel() }
 //    val collectionPatchViewModel = remember { CollectionPatchViewModel() }
-    val searchViewModel = remember { SearchViewModel() }
+//    val searchViewModel = remember { SearchViewModel() }
     val shareScreenViewModel = remember { ShareScreenViewModel() }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -266,7 +270,9 @@ private fun NavGraphBuilder.collectionEditScreen(
                     collectionPatchViewModel.clear()
                 }
 //                collectionViewModel.update(collection)
-                feedViewModel.addCollection(collection)
+
+//                The only usage of feedViewModel addCollection
+//                feedViewModel.addCollection(collection)
                 mainNavController.popBackStack()
             }
         )
@@ -337,9 +343,10 @@ private fun NavGraphBuilder.noteEditScreen(
 
                     val notePreview = noteViewModel.find(newId).firstOrNull() ?: return@launch
 
-                    if (notePatchViewModel.isCreateInEditCollection()) {
-                        collectionPatchViewModel.notes.add(notePreview)
-                    }
+                    // TODO: fix logic
+//                    if (notePatchViewModel.isCreateInEditCollection()) {
+//                        collectionPatchViewModel.notes.add(notePreview)
+//                    }
                     collectionViewModel.addNote(notePreview)
                     notePatchViewModel.clear()
                 }
