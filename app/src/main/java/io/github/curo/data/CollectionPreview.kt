@@ -29,6 +29,7 @@ class CollectionPreview(
     companion object {
         fun of(collectionWithNotes: CollectionWithNotes): CollectionPreview =
             CollectionPreview(
+                id = collectionWithNotes.collection.collectionId,
                 emoji = Emoji(collectionWithNotes.collection.emoji),
                 name = collectionWithNotes.collection.collectionName,
                 notes = collectionWithNotes.notes.map { NotePreview.of(it) }
@@ -36,7 +37,7 @@ class CollectionPreview(
     }
 
     override fun toString(): String {
-        return "CollectionPreviewModel(emoji=$emoji, name='$name', notes=$notes, progress=$progress)"
+        return "CollectionPreview(id=$id, emoji=$emoji, name='$name', notes=$notes, progress=$progress)"
     }
 }
 
