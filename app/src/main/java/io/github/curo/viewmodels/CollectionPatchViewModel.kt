@@ -1,6 +1,5 @@
 package io.github.curo.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -25,7 +24,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 data class CollectionPatchUiState(
-    val notes: List<NotePreview> = listOf(NotePreview(name="test"))
+    val notes: List<NotePreview> = mutableListOf()
 )
 
 @Stable
@@ -39,16 +38,16 @@ class CollectionPatchViewModel(
     override val notes: MutableList<NotePreview> = mutableStateListOf()
 
     val collectionUiState: StateFlow<CollectionPatchUiState> =
-        collectionDao.find(id)
-            .also {
-                Log.v("bug", "$id for collectionUiState: $it")
+        // TODO: replace with findById
+        collectionDao.getAll()
+            .map { c ->
+                c.find { it.collection.collectionId == id }
             }
             .filterNotNull()
-            .map {
-                c -> c.notes.map { NotePreview.of(it) }
+            .map { c ->
+                c.notes.map { NotePreview.of(it) }
             }
             .map { notes ->
-                Log.v("bug", "$id for $notes")
                 CollectionPatchUiState(notes)
             }
             .stateIn(
