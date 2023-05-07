@@ -1,8 +1,10 @@
 package io.github.curo.viewmodels
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -71,16 +73,18 @@ open class CollectionViewModel(
 //        }
 //    }
 
-    var expanded = mutableStateListOf<Long>()
-        private set
+    private var expanded = mutableStateListOf<Long>()
     var suggestions = mutableStateListOf<CollectionInfo>()
         private set
 
-    var query = mutableStateOf("")
-        private set(value) {
+    private var _query by mutableStateOf("")
+
+    var query
+        get() = _query
+        set(value) {
             suggestions.clear()
-            if (value == query) return
-            field = value
+            if (value == _query) return
+            _query = value
             val collectionsNames =
                 notes.extractCollections()
             suggestions.addAll(collectionsNames)
