@@ -34,9 +34,10 @@ class CollectionPatchViewModel(
     suspend fun insert(collectionPreview: CollectionPreview) {
         collectionDao.insert(Collection.of(collectionPreview))
         val notes = collectionPreview.notes.map { Note.of(it) }
-        val noteIds = noteDao.insertAll(notes)
-        val crossRefs = noteIds.map { NoteCollectionCrossRef(it, collectionPreview.id) }
-        noteCollectionCrossRefDao.insertAll(crossRefs)
+        // TODO: insert to crossref on note insert
+//        val noteIds = noteDao.insertAll(notes)
+//        val crossRefs = noteIds.map { NoteCollectionCrossRef(it, collectionPreview.id) }
+//        noteCollectionCrossRefDao.insertAll(crossRefs)
     }
 
     // deletes collection and relationship
