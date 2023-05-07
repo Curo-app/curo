@@ -237,7 +237,6 @@ private fun NavGraphBuilder.collectionEditScreen(
                         collectionPatchViewModel.setCollection(collection)
                     }
                 }
-//                collectionPatchViewModel.set(id)
             }
         }
 
@@ -250,8 +249,11 @@ private fun NavGraphBuilder.collectionEditScreen(
                 mainNavController.navigate(Screen.EditCollection.route + '/' + collectionId.collectionId)
             },
             onAddNote = {
-                mainNavController.navigate(Screen.EditNote.route + '/' + NEW_ENTITY_ID)
-                notePatchViewModel.newCollection = CollectionInfo(collectionPatchViewModel.id, collectionPatchViewModel.name)
+                coroutineScope.launch {
+                    val noteId = notePatchViewModel.insertInCollection(collectionPatchViewModel.id)
+                    notePatchViewModel.newCollection = CollectionInfo(collectionPatchViewModel.id, collectionPatchViewModel.name)
+                    mainNavController.navigate(Screen.EditNote.route + "/$noteId")
+                }
             },
             onDeleteCollection = { collection ->
                 coroutineScope.launch {
@@ -344,9 +346,9 @@ private fun NavGraphBuilder.noteEditScreen(
                     val notePreview = noteViewModel.find(newId).firstOrNull() ?: return@launch
 
                     // TODO: fix logic
-//                    if (notePatchViewModel.isCreateInEditCollection()) {
-//                        collectionPatchViewModel.notes.add(notePreview)
-//                    }
+                    if (notePatchViewModel.isCreateInEditCollection()) {
+                        collectionPatchViewModel.notes.add(notePreview)
+                    }
                     collectionViewModel.addNote(notePreview)
                     notePatchViewModel.clear()
                 }
