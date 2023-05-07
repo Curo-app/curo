@@ -79,6 +79,7 @@ class CollectionPatchViewModel(
             }
 
     fun clear() {
+        id = 0L
         name = ""
         notes.clear()
     }
@@ -99,20 +100,20 @@ class CollectionPatchViewModel(
         notes.setAll(collection.notes)
     }
 
-    fun toCollection() = CollectionPreview(
+    fun toCollectionPreview() = CollectionPreview(
         id = id,
         name = name,
         notes = notes,
     )
 
     suspend fun save() {
-        val collection = toCollection()
+        val collectionPreview = toCollectionPreview()
 //        delete(oldName) // TODO: remove this workaround
-        insert(collection)
+        collectionDao.update(Collection.of(collectionPreview))
     }
 
     suspend fun insertEmpty(): Long {
-        val collection = toCollection()
+        val collection = toCollectionPreview()
         return collectionDao.insert(Collection.of(collection))
     }
 

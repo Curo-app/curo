@@ -84,7 +84,7 @@ fun EditCollectionScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { onSaveCollection(viewModel.toCollection()) },
+                        onClick = { onSaveCollection(viewModel.toCollectionPreview()) },
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {
