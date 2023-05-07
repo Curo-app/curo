@@ -343,13 +343,12 @@ private fun NavGraphBuilder.noteEditScreen(
                 coroutineScope.launch {
                     val newId = notePatchViewModel.saveNote()
 
-                    val notePreview = noteViewModel.find(newId).firstOrNull() ?: return@launch
+//                    val notePreview = noteViewModel.find(newId).firstOrNull() ?: return@launch
 
-                    // TODO: fix logic
-                    if (notePatchViewModel.isCreateInEditCollection()) {
-                        collectionPatchViewModel.notes.add(notePreview)
-                    }
-                    collectionViewModel.addNote(notePreview)
+//                    if (notePatchViewModel.isCreateInEditCollection()) {
+//                        collectionPatchViewModel.notes.add(notePreview)
+//                    }
+//                    collectionViewModel.addNote(notePreview)
                     notePatchViewModel.clear()
                 }
                 mainNavController.popBackStack()

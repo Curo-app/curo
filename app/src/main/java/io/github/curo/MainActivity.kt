@@ -62,7 +62,9 @@ class MainActivity : ComponentActivity() {
         val collectionViewModel: CollectionViewModel by viewModels {
             val database = (application as CuroApplication).database
             CollectionViewModel.CollectionViewModelFactory(
-                database.noteDao()
+                database.noteDao(),
+                database.collectionDao(),
+                database.noteCollectionCrossRefDao()
             )
         }
         val searchViewModel: SearchViewModel by viewModels {

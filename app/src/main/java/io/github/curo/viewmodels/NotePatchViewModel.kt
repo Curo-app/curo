@@ -111,9 +111,9 @@ class NotePatchViewModel(
         return noteId
     }
 
-    fun isCreateInEditCollection() : Boolean {
-        return newCollection != null
-    }
+//    fun isCreateInEditCollection() : Boolean {
+//        return newCollection != null
+//    }
 
     class NotePatchViewModelFactory(
         private val noteDao: NoteDao,

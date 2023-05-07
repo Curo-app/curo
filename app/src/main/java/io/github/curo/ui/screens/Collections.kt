@@ -37,6 +37,8 @@ fun Collections(
     onNoteClick: (NotePreview) -> Unit,
     viewModel: CollectionViewModel,
 ) {
+    val collectionState by viewModel.collectionUiState.collectAsState()
+
     Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
@@ -44,13 +46,13 @@ fun Collections(
                 .background(color = MaterialTheme.colorScheme.background)
                 .wrapContentSize()
         ) {
-            items(viewModel.collections) { collection ->
+            items(collectionState.collections) { collection ->
                 ExpandableCollectionView(
                     collection = collection,
                     onNoteClick = onNoteClick,
                     onCollectionClick = onCollectionClick,
-                    isExpanded = collection.name in viewModel.expanded,
-                    onCollectionExpand = { viewModel.expand(collection.name) },
+                    isExpanded = viewModel.isExpanded(collection.id),
+                    onCollectionExpand = { viewModel.expand(collection.id) },
                 )
             }
         }
