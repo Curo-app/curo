@@ -2,6 +2,7 @@ package io.github.curo.database.entities
 
 import androidx.room.*
 import io.github.curo.data.CollectionPreview
+import kotlin.collections.Collection as KotlinCollection
 
 @Entity
 data class Collection(
@@ -27,4 +28,9 @@ data class CollectionWithNotes(
         associateBy = Junction(NoteCollectionCrossRef::class)
     )
     val notes: List<Note>
-)
+) {
+    companion object {
+        fun KotlinCollection<CollectionWithNotes>.toCollectionPreviews(): List<CollectionPreview> =
+            this.map { CollectionPreview.of(it) }
+    }
+}
