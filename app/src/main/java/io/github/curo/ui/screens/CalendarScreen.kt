@@ -32,7 +32,6 @@ import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CalendarViewModel
 import io.github.curo.ui.base.LandscapeCalendar
 import io.github.curo.ui.base.PortraitCalendar
-import io.github.curo.viewmodels.CalendarViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
