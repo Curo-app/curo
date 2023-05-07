@@ -133,6 +133,7 @@ fun AppScreen(
                         scope = scope,
                         feedViewModel = feedViewModel,
                         collectionViewModel = collectionViewModel,
+                        collectionPatchViewModel = collectionPatchViewModel,
                         calendarViewModel = calendarViewModel,
                     )
                 }
@@ -233,11 +234,10 @@ private fun NavGraphBuilder.collectionEditScreen(
             LaunchedEffect(id) {
                 collectionViewModel.find(id).collect { collection ->
                     if (collection != null) {
-//                        collectionPatchViewModel.oldName = collection.id
                         collectionPatchViewModel.setCollection(collection)
                     }
                 }
-                collectionPatchViewModel.set(id)
+//                collectionPatchViewModel.set(id)
             }
         }
 
@@ -399,6 +399,7 @@ private fun FABScreen(
     scope: CoroutineScope,
     feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
+    collectionPatchViewModel: CollectionPatchViewModel,
     calendarViewModel: CalendarViewModel,
 ) {
     var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Closed) }
