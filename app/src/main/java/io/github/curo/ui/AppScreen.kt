@@ -403,6 +403,7 @@ private fun FABScreen(
     calendarViewModel: CalendarViewModel,
 ) {
     var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Closed) }
+    val coroutineScope = rememberCoroutineScope()
 
     FloatingActionButtonMenu(
         onSearchClick = { query ->
@@ -412,7 +413,12 @@ private fun FABScreen(
             // Чтобы не делать два разных экрана для создания и изменения заметки будем считать,
             // что изменение заметки с id = -1 это ее создание
             when (menu) {
-                Screen.EditCollection -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
+                Screen.EditCollection -> {
+                    coroutineScope.launch {
+                        val newId = collectionPatchViewModel.insertEmpty()
+                        mainNavHost.navigate(menu.route + "/$newId")
+                    }
+                }
                 Screen.EditNote -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
             }
         },

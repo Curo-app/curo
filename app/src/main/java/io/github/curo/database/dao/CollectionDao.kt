@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CollectionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(collection: Collection)
+    suspend fun insert(collection: Collection): Long
 
     @Query("DELETE FROM Collection WHERE collection_id = :collectionId")
     suspend fun delete(collectionId: Long)
