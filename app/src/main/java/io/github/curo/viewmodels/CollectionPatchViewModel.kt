@@ -15,7 +15,6 @@ import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.database.entities.Collection
 import io.github.curo.database.entities.Note
-import io.github.curo.database.entities.NoteCollectionCrossRef
 import io.github.curo.utils.setAll
 
 @Stable
@@ -83,6 +82,11 @@ class CollectionPatchViewModel(
         val collection = toCollection()
 //        delete(oldName) // TODO: remove this workaround
         insert(collection)
+    }
+
+    suspend fun insertEmpty(): Long {
+        val collection = toCollection()
+        return collectionDao.insert(Collection.of(collection))
     }
 
     class CollectionPatchViewModelFactory(

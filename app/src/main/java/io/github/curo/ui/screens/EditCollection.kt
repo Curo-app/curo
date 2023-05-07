@@ -92,11 +92,11 @@ fun EditCollectionScreen(
             )
         },
     ) { padding ->
-        Feed(
-            viewModel = viewModel,
+        FeedForced(
             modifier = modifier.padding(padding),
+            content = viewModel.notes,
             onNoteClick = onNoteClick,
-            onCollectionClick = onCollectionClick
+//            onCollectionClick = onCollectionClick
         )
     }
 }
