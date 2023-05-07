@@ -103,6 +103,14 @@ class NotePatchViewModel(
         }
     }
 
+    suspend fun insertInCollection(collectionId: Long): Long {
+        val noteId = saveNote()
+        noteCollectionCrossRefDao.insert(
+            NoteCollectionCrossRef(noteId, collectionId)
+        )
+        return noteId
+    }
+
     fun isCreateInEditCollection() : Boolean {
         return newCollection != null
     }
