@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NoteCollectionCrossRefDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(crossRef: NoteCollectionCrossRef)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(crossRefs: List<NoteCollectionCrossRef>)
 
     @Query("DELETE FROM NoteCollectionCrossRef WHERE note_id = :noteId")
