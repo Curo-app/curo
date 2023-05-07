@@ -4,8 +4,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.database.entities.Note
-import io.github.curo.database.entities.NoteWithCollectionNames
+import io.github.curo.database.entities.NoteWithCollections
 
 @Stable
 class NotePreview(
@@ -14,16 +15,16 @@ class NotePreview(
     val emoji: Emoji = Emoji("\uD83D\uDCDD"),
     val name: String,
     val description: String? = null,
-    val collections: List<String> = emptyList(),
+    val collections: List<CollectionInfo> = emptyList(),
     done: Boolean? = null
 ) {
     var done by mutableStateOf(done)
 
     companion object {
-        fun Collection<NotePreview>.extractCollections(): List<String> =
+        fun Collection<NotePreview>.extractCollections(): List<CollectionInfo> =
             this.flatMap { it.collections }.distinct()
 
-        fun of(noteWithCollectionNames: NoteWithCollectionNames): NotePreview {
+        fun of(noteWithCollectionNames: NoteWithCollections): NotePreview {
             val note = noteWithCollectionNames.note
             val deadline = Deadline.of(note.deadlineDate, note.deadlineTime)
 
@@ -38,7 +39,7 @@ class NotePreview(
             )
         }
 
-        fun of(note: Note): NotePreview = of(NoteWithCollectionNames(note, listOf()))
+        fun of(note: Note): NotePreview = of(NoteWithCollections(note, listOf()))
     }
 
     override fun toString(): String {

@@ -32,6 +32,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
 import io.github.curo.data.NotePreview
+import io.github.curo.database.entities.CollectionInfo
+import io.github.curo.viewmodels.SearchViewModel
 import io.github.curo.ui.base.Feed
 import io.github.curo.viewmodels.SearchViewModel
 
@@ -42,7 +44,7 @@ fun SearchView(
     onLeadingIconClick: () -> Unit,
     searchViewModel: SearchViewModel,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit
+    onCollectionClick: (CollectionInfo) -> Unit
 ) {
     Column(
         modifier = Modifier

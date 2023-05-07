@@ -66,6 +66,7 @@ import io.github.curo.data.Emoji
 import io.github.curo.data.NotePreview
 import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.data.TimedDeadline
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
 import io.github.curo.viewmodels.FeedViewModel
@@ -78,7 +79,7 @@ import java.time.LocalDate
 fun Feed(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     viewModel: FeedViewModel,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -95,7 +96,7 @@ fun Feed(
                 confirmStateChange = {
                     if (it == DismissValue.DismissedToStart) {
                         coroutineScope.launch {
-                            viewModel.delete(currentItem.id)
+                            viewModel.deleteNote(currentItem.id)
                         }
                         true
                     } else false
@@ -181,7 +182,7 @@ fun NoteCard(
     modifier: Modifier = Modifier,
     item: NotePreview,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: ((String) -> Unit)?,
+    onCollectionClick: ((CollectionInfo) -> Unit)?,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
@@ -315,7 +316,7 @@ private fun formatHeader(deadline: Deadline): String {
 
 private fun feedItemSupportingTextFactory(
     item: NotePreview,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
 ): @Composable (() -> Unit)? = if (item.description != null || item.collections.isNotEmpty()) {
     {
         Column {
@@ -342,8 +343,8 @@ private fun feedItemSupportingTextFactory(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionChip(
-    name: String,
-    onClick: (String) -> Unit,
+    name: CollectionInfo,
+    onClick: (CollectionInfo) -> Unit,
 ) {
     SuggestionChip(
         modifier = Modifier
@@ -351,7 +352,7 @@ private fun CollectionChip(
             .height(30.dp),
         onClick = { onClick(name) },
         label = {
-            Text(text = name)
+            Text(text = name.collectionName)
         })
 }
 

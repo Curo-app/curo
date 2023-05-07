@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
 import io.github.curo.data.NotePreview
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.database.dao.NoteDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -60,11 +61,11 @@ open class FeedViewModel(
 //        name = "",
 //    )
 
-//    fun delete(id: Long) {
+//    fun deleteNote(id: Long) {
 //        _notes.removeIf { it.id == id }
 //    }
 
-    suspend fun delete(noteId: Long) = noteDao.delete(noteId)
+    suspend fun deleteNote(noteId: Long) = noteDao.delete(noteId)
 
 //    fun addCollection(collection: CollectionPreview) {
 //        collection.notes.forEach { note ->
@@ -115,7 +116,7 @@ open class FeedViewModel(
                 deadline = Deadline.of(today),
                 emoji = Emoji("\uD83D\uDE02"),
                 name = "Не забыть про нюанс",
-                collections = listOf("Приколы"),
+                collections = listOf(CollectionInfo(0, "Нюансы")),
                 done = false
             ),
             NotePreview(
@@ -123,7 +124,8 @@ open class FeedViewModel(
                 emoji = Emoji("\uD83D\uDE02"),
                 name = "Там еще какой-то прикол был...",
                 description = "Что-то про еврея, американца и русского",
-                collections = listOf("Приколы")
+                collections = listOf(CollectionInfo(1, "Приколы")),
+                done = false
             ),
             NotePreview(
                 id = 6,
@@ -132,10 +134,10 @@ open class FeedViewModel(
                 name = "FP HW 3",
                 description = "Надо быстрее сделать",
                 collections = listOf(
-                    "Домашка",
-                    "Важное",
-                    "Haskell",
-                    "Ненавижу ФП"
+                    CollectionInfo(1, "Домашка"),
+                    CollectionInfo(1, "Важное"),
+                    CollectionInfo(1, "Haskell"),
+                    CollectionInfo(1, "Ненавижу ФП")
                 ),
                 done = false
             ),

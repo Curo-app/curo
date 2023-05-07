@@ -12,6 +12,7 @@ import io.github.curo.data.Deadline
 import io.github.curo.data.NotePreview
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.database.entities.Note
 import io.github.curo.database.entities.NoteCollectionCrossRef
 import io.github.curo.utils.setAll
@@ -28,8 +29,8 @@ class NotePatchViewModel(
     var description: String by mutableStateOf("")
 
     var deadline: Deadline? by mutableStateOf(null)
-    var newCollection: String? by mutableStateOf(null)
-    var collections = mutableStateListOf<String>()
+    var newCollection: CollectionInfo? by mutableStateOf(null)
+    var collections = mutableStateListOf<CollectionInfo>()
 
     var hasCheckbox by mutableStateOf(false)
 
@@ -37,7 +38,7 @@ class NotePatchViewModel(
     suspend fun insert(notePreview: NotePreview) : Long {
         val noteId = noteDao.insert(Note.of(notePreview))
         val crossRefs = notePreview.collections
-            .map { NoteCollectionCrossRef(noteId, it) }
+            .map { NoteCollectionCrossRef(noteId, it.collectionId) }
         noteCollectionCrossRefDao.insertAll(crossRefs)
         return noteId
     }
@@ -49,7 +50,7 @@ class NotePatchViewModel(
         noteDao.update(Note.of(notePreview))
         noteCollectionCrossRefDao.deleteAllByNoteId(notePreview.id)
         val crossRefs = notePreview.collections
-            .map { NoteCollectionCrossRef(notePreview.id, it) }
+            .map { NoteCollectionCrossRef(notePreview.id, it.collectionId) }
         noteCollectionCrossRefDao.insertAll(crossRefs)
     }
 

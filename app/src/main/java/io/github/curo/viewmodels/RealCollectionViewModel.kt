@@ -2,13 +2,11 @@ package io.github.curo.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.room.Transaction
 import io.github.curo.data.CollectionPreview
 import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.database.entities.*
-import io.github.curo.database.entities.Collection
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -21,8 +19,8 @@ class RealCollectionViewModel(
         collectionDao.getAll()
             .map { l -> l.map { CollectionPreview.of(it) } }
 
-    fun find(collectionName: String): Flow<CollectionPreview?> =
-        collectionDao.find(collectionName)
+    fun find(collectionId: Long): Flow<CollectionPreview?> =
+        collectionDao.find(collectionId)
             .map { collection -> collection?.let { CollectionPreview.of(it) } }
 
 

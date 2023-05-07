@@ -26,13 +26,14 @@ import io.github.curo.ui.base.cardModifier
 import io.github.curo.ui.base.listItemColors
 import kotlin.random.Random
 import androidx.compose.foundation.lazy.items
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CollectionViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
     viewModel: CollectionViewModel,
 ) {
@@ -60,7 +61,7 @@ fun Collections(
 fun ExpandableCollectionView(
     collection: CollectionPreview,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
 ) {
@@ -76,14 +77,14 @@ fun ExpandableCollectionView(
 @Composable
 private fun CollectionCard(
     collection: CollectionPreview,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
         modifier = Modifier.cardModifier(interactionSource) {
-            onCollectionClick(collection.name)
+            onCollectionClick(CollectionInfo(collection.id, collection.name))
         },
         headlineText = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },
@@ -216,10 +217,10 @@ fun ClosedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
@@ -257,10 +258,10 @@ fun OpenedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
@@ -287,10 +288,10 @@ fun FinishedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )

@@ -60,6 +60,7 @@ import io.github.curo.R
 import io.github.curo.data.Deadline
 import io.github.curo.data.SimpleDeadline
 import io.github.curo.data.TimedDeadline
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
 import io.github.curo.utils.MAX_NOTE_COLLECTIONS_AMOUNT
@@ -290,7 +291,7 @@ private fun EmptyChip(
 @Composable
 private fun CollectionAdder(
     collectionViewModel: CollectionViewModel,
-    collections: SnapshotStateList<String>,
+    collections: SnapshotStateList<CollectionInfo>,
 ) {
     var suggestionState: Suggestion by remember { mutableStateOf(Suggestion.Hidden) }
     var textFieldValue by remember { mutableStateOf(emptyTextFieldValue) }
@@ -341,11 +342,11 @@ private fun CollectionAdder(
                         onClick = {
                             suggestionState = Suggestion.Suggested
                             textFieldValue = TextFieldValue(
-                                text = label,
-                                selection = TextRange(label.length)
+                                text = label.collectionName,
+                                selection = TextRange(label.collectionName.length)
                             )
                         },
-                        text = { Text(text = label) }
+                        text = { Text(text = label.collectionName) }
                     )
                 }
             }
@@ -356,7 +357,7 @@ private fun CollectionAdder(
                     collections.size != MAX_NOTE_COLLECTIONS_AMOUNT,
             onClick = {
                 suggestionState = Suggestion.Suggested
-                collections += textFieldValue.text
+//                collections += textFieldValue.text // TODO
                 textFieldValue = TextFieldValue("", selection = TextRange.Zero)
             },
         )
@@ -468,8 +469,8 @@ private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CurrentCollections(
-    patchCollection: String?,
-    collections: MutableList<String>
+    patchCollection: CollectionInfo?,
+    collections: MutableList<CollectionInfo>
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
@@ -480,7 +481,7 @@ private fun CurrentCollections(
                 SuggestionChip(onClick = { /* DO NOTHING */ },
                     modifier = Modifier.padding(vertical = 0.dp),
                     interactionSource = remember { MutableInteractionSource() },
-                    label = { Text(text = collection) },
+                    label = { Text(text = collection.collectionName) },
                 )
             }
         }
@@ -493,13 +494,13 @@ private fun CurrentCollections(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
-    current: String,
-    collections: MutableList<String>
+    current: CollectionInfo,
+    collections: MutableList<CollectionInfo>
 ) {
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current) },
+        label = { Text(text = current.collectionName) },
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Clear,

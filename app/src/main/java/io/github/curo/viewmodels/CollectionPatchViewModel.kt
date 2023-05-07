@@ -24,29 +24,30 @@ class CollectionPatchViewModel(
     private val collectionDao: CollectionDao,
     private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
 ) : FeedViewModel(noteDao) {
+    var id: Long by mutableStateOf(0L)
     var name: String by mutableStateOf("New collection")
     override val notes: MutableList<NotePreview> = mutableStateListOf()
     // TODO: make id as a primary key instead of saving previous name
-    var oldName: String by mutableStateOf("")
+//    var oldName: String by mutableStateOf("")
 
     @Transaction
     suspend fun insert(collectionPreview: CollectionPreview) {
         collectionDao.insert(Collection.of(collectionPreview))
         val notes = collectionPreview.notes.map { Note.of(it) }
         val noteIds = noteDao.insertAll(notes)
-        val crossRefs = noteIds.map { NoteCollectionCrossRef(it, collectionPreview.name) }
+        val crossRefs = noteIds.map { NoteCollectionCrossRef(it, collectionPreview.id) }
         noteCollectionCrossRefDao.insertAll(crossRefs)
     }
 
     // deletes collection and relationship
-    suspend fun delete(collectionName: String) = collectionDao.delete(collectionName)
+    suspend fun delete(collectionId: Long) = collectionDao.delete(collectionId)
 
     // deletes collection with all notes
     @Transaction
-    suspend fun deleteCascade(collectionName: String) =
-        noteCollectionCrossRefDao.listByCollectionName(collectionName)
+    suspend fun deleteCascade(collectionId: Long) =
+        noteCollectionCrossRefDao.listByCollectionId(collectionId)
             .collect { crossRefs ->
-                collectionDao.delete(collectionName)
+                collectionDao.delete(collectionId)
                 noteDao.deleteAll(crossRefs.map { it.noteId })
             }
 
@@ -55,28 +56,31 @@ class CollectionPatchViewModel(
         notes.clear()
     }
 
-    fun set(name: String) {
-        if (name == this.name) return
+    fun set(id: Long) {
+        if (id == this.id) return
+        this.id = id
         this.name = name
         this.notes.setAll(
-            super.notes.filter { item -> name in item.collections }
+            super.notes.filter { item -> id in item.collections.map { it.collectionId } }
         )
     }
 
     fun setCollection(collection: CollectionPreview) {
-        if (name == this.name) return
+        if (id == this.id) return
+        id = collection.id
         name = collection.name
         notes.setAll(collection.notes)
     }
 
     fun toCollection() = CollectionPreview(
+        id = id,
         name = name,
         notes = notes,
     )
 
     suspend fun save() {
         val collection = toCollection()
-        delete(oldName) // TODO: remove this workaround
+//        delete(oldName) // TODO: remove this workaround
         insert(collection)
     }
 

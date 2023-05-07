@@ -33,14 +33,19 @@ data class Note(
     }
 }
 
-data class NoteWithCollectionNames(
+data class NoteWithCollections(
     @Embedded val note: Note,
     @Relation(
         parentColumn = "note_id",
-        entityColumn = "collection_name",
+        entityColumn = "collection_id",
         associateBy = Junction(NoteCollectionCrossRef::class),
         entity = Collection::class,
-        projection = ["collection_name"]
+        projection = ["collection_id", "collection_name"]
     )
-    val collections: List<String>,
+    val collections: List<CollectionInfo>,
+)
+
+data class CollectionInfo(
+    @ColumnInfo(name = "collection_id") val collectionId: Long,
+    @ColumnInfo(name = "collection_name") val collectionName: String,
 )

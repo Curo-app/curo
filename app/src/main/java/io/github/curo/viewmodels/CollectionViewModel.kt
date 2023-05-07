@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.curo.data.CollectionPreview
 import io.github.curo.data.NotePreview
 import io.github.curo.data.NotePreview.Companion.extractCollections
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.utils.NOT_FOUND_INDEX
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,7 @@ open class CollectionViewModel(
                         val notes = items.filter { note ->
                             name in note.collections
                         }
-                        CollectionPreview(name = name, notes = notes)
+                        CollectionPreview(id = name.collectionId, name = name.collectionName, notes = notes)
                     }
 
                 withContext(Dispatchers.Main) {
@@ -48,8 +49,8 @@ open class CollectionViewModel(
     private val _expanded = mutableStateListOf<String>()
     val expanded: List<String> get() = _expanded
 
-    private val _suggestions = mutableStateListOf<String>()
-    val suggestions: List<String> get() = _suggestions
+    private val _suggestions = mutableStateListOf<CollectionInfo>()
+    val suggestions: List<CollectionInfo> get() = _suggestions
 
     private var _query: String by mutableStateOf("")
     var query
@@ -86,7 +87,7 @@ open class CollectionViewModel(
         val noteCollectionNames = note.collections
         // updating existing collections
         _collections.replaceAll { collection ->
-            if (collection.name in noteCollectionNames) {
+            if (collection.id in noteCollectionNames.map { it.collectionId }) {
                 val notExists = collection.notes.none { it.id == note.id }
 
                 CollectionPreview(
@@ -108,13 +109,14 @@ open class CollectionViewModel(
             }
         }
         // creating new collections
-        val existingNames = _collections.map { it.name }
+        val existingNames = _collections.map { CollectionInfo(it.id, it.name) }
         noteCollectionNames.filter {
             it !in existingNames
         }.forEach { name ->
             _collections.add(
                 CollectionPreview(
-                    name = name,
+                    id = name.collectionId,
+                    name = name.collectionName,
                     notes = listOf(note)
                 )
             )
