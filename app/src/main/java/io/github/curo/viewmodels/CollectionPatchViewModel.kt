@@ -1,5 +1,6 @@
 package io.github.curo.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -7,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
 import io.github.curo.data.CollectionPreview
 import io.github.curo.data.NotePreview
@@ -16,6 +18,15 @@ import io.github.curo.database.dao.NoteDao
 import io.github.curo.database.entities.Collection
 import io.github.curo.database.entities.Note
 import io.github.curo.utils.setAll
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+
+data class CollectionPatchUiState(
+    val notes: List<NotePreview> = listOf(NotePreview(name="test"))
+)
 
 @Stable
 class CollectionPatchViewModel(
@@ -24,10 +35,27 @@ class CollectionPatchViewModel(
     private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
 ) : FeedViewModel(noteDao) {
     var id: Long by mutableStateOf(0L)
-    var name: String by mutableStateOf("New collection")
+    var name: String by mutableStateOf("")
     override val notes: MutableList<NotePreview> = mutableStateListOf()
-    // TODO: make id as a primary key instead of saving previous name
-//    var oldName: String by mutableStateOf("")
+
+    val collectionUiState: StateFlow<CollectionPatchUiState> =
+        collectionDao.find(id)
+            .also {
+                Log.v("bug", "$id for collectionUiState: $it")
+            }
+            .filterNotNull()
+            .map {
+                c -> c.notes.map { NotePreview.of(it) }
+            }
+            .map { notes ->
+                Log.v("bug", "$id for $notes")
+                CollectionPatchUiState(notes)
+            }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = CollectionPatchUiState()
+            )
 
     @Transaction
     suspend fun insert(collectionPreview: CollectionPreview) {
@@ -57,7 +85,7 @@ class CollectionPatchViewModel(
     }
 
     fun set(id: Long) {
-        if (id == this.id) return
+        if (this.id == id) return
         this.id = id
         this.name = name
         this.notes.setAll(
@@ -66,7 +94,7 @@ class CollectionPatchViewModel(
     }
 
     fun setCollection(collection: CollectionPreview) {
-        if (id == this.id) return
+        if (this.id == collection.id) return
         id = collection.id
         name = collection.name
         notes.setAll(collection.notes)
