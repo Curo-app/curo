@@ -79,14 +79,14 @@ class CollectionPatchViewModel(
         notes.clear()
     }
 
-    fun set(id: Long) {
-        if (this.id == id) return
-        this.id = id
-        this.name = name
-        this.notes.setAll(
-            super.notes.filter { item -> id in item.collections.map { it.collectionId } }
-        )
-    }
+//    fun set(id: Long) {
+//        if (this.id == id) return
+//        this.id = id
+//        this.name = name
+//        this.notes.setAll(
+//            super.notes.filter { item -> id in item.collections.map { it.collectionId } }
+//        )
+//    }
 
     fun setCollection(collection: CollectionPreview) {
         if (this.id == collection.id) return
@@ -101,9 +101,8 @@ class CollectionPatchViewModel(
         notes = notes,
     )
 
-    suspend fun save() {
+    suspend fun updateCollection() {
         val collectionPreview = toCollectionPreview()
-//        delete(oldName) // TODO: remove this workaround
         collectionDao.update(Collection.of(collectionPreview))
     }
 

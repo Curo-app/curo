@@ -121,6 +121,10 @@ class NotePatchViewModel(
         update(notePreview)
     }
 
+    override fun toString(): String {
+        return "NotePatchViewModel(id=$id, name='$name', description='$description', deadline=$deadline, newCollection=$newCollection, collections=$collections, hasCheckbox=$hasCheckbox)"
+    }
+
 //    fun isCreateInEditCollection() : Boolean {
 //        return newCollection != null
 //    }

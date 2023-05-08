@@ -233,10 +233,12 @@ private fun NavGraphBuilder.collectionEditScreen(
 
         it.arguments?.getLong("collectionName")?.let { id ->
             LaunchedEffect(id) {
-                collectionViewModel.find(id).collect { collection ->
-                    if (collection != null) {
-                        collectionPatchViewModel.setCollection(collection)
-                    }
+                val collection = collectionViewModel.find(id).firstOrNull()
+                if (collection != null) {
+                    collectionPatchViewModel.setCollection(collection)
+                } else {
+                    Log.v("error", "collection $id not found")
+                    mainNavController.popBackStack()
                 }
             }
         }
@@ -267,9 +269,9 @@ private fun NavGraphBuilder.collectionEditScreen(
                 shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             },
             onBackToMenu = { mainNavController.popBackStack() },
-            onSaveCollection = { collection ->
+            onSaveCollection = { _ ->
                 coroutineScope.launch {
-                    collectionPatchViewModel.save()
+                    collectionPatchViewModel.updateCollection()
                     collectionPatchViewModel.clear()
                 }
 //                collectionViewModel.update(collection)
