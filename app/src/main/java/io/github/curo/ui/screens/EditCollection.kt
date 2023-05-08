@@ -1,6 +1,5 @@
 package io.github.curo.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -29,9 +28,7 @@ fun EditCollectionScreen(
     onBackToMenu: () -> Unit,
     onSaveCollection: (CollectionPreview) -> Unit,
 ) {
-    Log.v("bug", "EditCollectionScreen rendering")
-    val collectionState by viewModel.collectionUiState.collectAsState()
-    Log.v("bug", "collectionState: ${collectionState.notes}")
+    val collectionState by viewModel.collectionPatchUiState.collectAsState()
 
     Scaffold(
         modifier = modifier,

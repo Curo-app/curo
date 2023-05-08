@@ -16,7 +16,6 @@ import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.database.entities.Collection
-import io.github.curo.database.entities.Note
 import io.github.curo.utils.setAll
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,7 +37,7 @@ class CollectionPatchViewModel(
     var name: String by mutableStateOf("")
     override val notes: MutableList<NotePreview> = mutableStateListOf()
 
-    val collectionUiState: StateFlow<CollectionPatchUiState> =
+    val collectionPatchUiState: StateFlow<CollectionPatchUiState> =
         // TODO: replace with findById
         collectionDao.getAll()
             .map { collections -> collections.find { it.collection.collectionId == id } }
@@ -51,15 +50,15 @@ class CollectionPatchViewModel(
                 initialValue = CollectionPatchUiState()
             )
 
-    @Transaction
-    suspend fun insert(collectionPreview: CollectionPreview) {
-        collectionDao.insert(Collection.of(collectionPreview))
-        val notes = collectionPreview.notes.map { Note.of(it) }
-        // TODO: insert to crossref on note insert
+//    @Transaction
+//    suspend fun insert(collectionPreview: CollectionPreview) {
+//        collectionDao.insert(Collection.of(collectionPreview))
+//        val notes = collectionPreview.notes.map { Note.of(it) }
+//        TODO: insert to crossref on note insert
 //        val noteIds = noteDao.insertAll(notes)
 //        val crossRefs = noteIds.map { NoteCollectionCrossRef(it, collectionPreview.id) }
 //        noteCollectionCrossRefDao.insertAll(crossRefs)
-    }
+//    }
 
     // deletes collection and relationship
     suspend fun delete(collectionId: Long) = collectionDao.delete(collectionId)
@@ -108,7 +107,8 @@ class CollectionPatchViewModel(
 
     suspend fun insertEmpty(): Long {
         val collection = toCollectionPreview()
-        return collectionDao.insert(Collection.of(collection))
+        id = collectionDao.insert(Collection.of(collection))
+        return id
     }
 
     class CollectionPatchViewModelFactory(
