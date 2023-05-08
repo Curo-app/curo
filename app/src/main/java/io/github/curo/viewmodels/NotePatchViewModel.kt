@@ -93,22 +93,32 @@ class NotePatchViewModel(
         done = if (hasCheckbox) false else null
     )
 
-    suspend fun saveNote() : Long {
-        val notePreview = toNote()
-        return if (notePreview.id == 0L) {
-            insert(notePreview)
-        } else {
-            update(notePreview)
-            notePreview.id
-        }
-    }
+//    suspend fun saveNote() : Long {
+//        val notePreview = toNote()
+//        return if (notePreview.id == 0L) {
+//            insert(notePreview)
+//        } else {
+//            update(notePreview)
+//            notePreview.id
+//        }
+//    }
 
     suspend fun insertInCollection(collectionId: Long): Long {
-        val noteId = saveNote()
+        val noteId = insertNote()
         noteCollectionCrossRefDao.insert(
             NoteCollectionCrossRef(noteId, collectionId)
         )
         return noteId
+    }
+
+    suspend fun insertNote(): Long {
+        val notePreview = toNote()
+        return insert(notePreview)
+    }
+
+    suspend fun updateNote() {
+        val notePreview = toNote()
+        update(notePreview)
     }
 
 //    fun isCreateInEditCollection() : Boolean {

@@ -1,5 +1,6 @@
 package io.github.curo.ui
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
@@ -65,7 +66,6 @@ import io.github.curo.ui.screens.EditCollectionScreen
 import io.github.curo.ui.screens.SearchView
 import io.github.curo.ui.screens.capitalizeFirstLetter
 import io.github.curo.ui.screens.rememberCuroCalendarState
-import io.github.curo.utils.NEW_ENTITY_ID
 import io.github.curo.viewmodels.NoteViewModel
 import io.github.curo.viewmodels.RealCollectionViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -135,6 +135,7 @@ fun AppScreen(
                         collectionViewModel = collectionViewModel,
                         collectionPatchViewModel = collectionPatchViewModel,
                         calendarViewModel = calendarViewModel,
+                        notePatchViewModel = notePatchViewModel,
                     )
                 }
                 composable(Screen.AboutUs.route) {
@@ -330,10 +331,12 @@ private fun NavGraphBuilder.noteEditScreen(
 
         it.arguments?.getLong("noteId")?.let { id ->
             LaunchedEffect(id) {
-                noteViewModel.find(id).collect { notePreview ->
-                    if (notePreview != null) {
-                        notePatchViewModel.set(notePreview)
-                    }
+                val note = noteViewModel.find(id).firstOrNull()
+                if (note != null) {
+                    notePatchViewModel.set(note)
+                } else {
+                    Log.e("error", "unknown note id $id")
+                    mainNavController.popBackStack()
                 }
             }
         }
@@ -341,14 +344,7 @@ private fun NavGraphBuilder.noteEditScreen(
             note = notePatchViewModel,
             onSaveNote = { _ ->
                 coroutineScope.launch {
-                    val newId = notePatchViewModel.saveNote()
-
-//                    val notePreview = noteViewModel.find(newId).firstOrNull() ?: return@launch
-
-//                    if (notePatchViewModel.isCreateInEditCollection()) {
-//                        collectionPatchViewModel.notes.add(notePreview)
-//                    }
-//                    collectionViewModel.addNote(notePreview)
+                    notePatchViewModel.updateNote()
                     notePatchViewModel.clear()
                 }
                 mainNavController.popBackStack()
@@ -401,6 +397,7 @@ private fun FABScreen(
     feedViewModel: FeedViewModel,
     collectionViewModel: CollectionViewModel,
     collectionPatchViewModel: CollectionPatchViewModel,
+    notePatchViewModel: NotePatchViewModel,
     calendarViewModel: CalendarViewModel,
 ) {
     var fabButtonState: FABButtonState by remember { mutableStateOf(FABButtonState.Closed) }
@@ -420,7 +417,12 @@ private fun FABScreen(
                         mainNavHost.navigate(menu.route + "/$newId")
                     }
                 }
-                Screen.EditNote -> mainNavHost.navigate(menu.route + "/$NEW_ENTITY_ID")
+                Screen.EditNote -> {
+                    coroutineScope.launch {
+                        val newId = notePatchViewModel.insertNote()
+                        mainNavHost.navigate(menu.route + "/$newId")
+                    }
+                }
             }
         },
         onCollectionClick = { collectionName ->
