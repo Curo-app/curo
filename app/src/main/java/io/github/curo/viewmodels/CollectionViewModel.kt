@@ -9,12 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.curo.data.CollectionPreview
+import io.github.curo.data.CollectionPreview.Companion.toCollectionPreviews
 import io.github.curo.data.NotePreview.Companion.extractCollections
 import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.database.entities.CollectionInfo
-import io.github.curo.database.entities.CollectionWithNotes.Companion.toCollectionPreviews
 import io.github.curo.utils.NOT_FOUND_INDEX
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,12 +37,8 @@ open class CollectionViewModel(
 
     val collectionUiState: StateFlow<CollectionUiState> =
         collectionDao.getAll()
-            .map { collections ->
-                collections.toCollectionPreviews()
-            }
-            .map { notes ->
-                CollectionUiState(notes)
-            }
+            .map { collections -> collections.toCollectionPreviews() }
+            .map { notes -> CollectionUiState(notes) }
             .stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),

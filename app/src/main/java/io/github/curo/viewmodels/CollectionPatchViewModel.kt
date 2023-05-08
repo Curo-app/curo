@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
 import io.github.curo.data.CollectionPreview
 import io.github.curo.data.NotePreview
+import io.github.curo.data.NotePreview.Companion.toNotePreviews
 import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
@@ -40,16 +41,10 @@ class CollectionPatchViewModel(
     val collectionUiState: StateFlow<CollectionPatchUiState> =
         // TODO: replace with findById
         collectionDao.getAll()
-            .map { c ->
-                c.find { it.collection.collectionId == id }
-            }
+            .map { collections -> collections.find { it.collection.collectionId == id } }
             .filterNotNull()
-            .map { c ->
-                c.notes.map { NotePreview.of(it) }
-            }
-            .map { notes ->
-                CollectionPatchUiState(notes)
-            }
+            .map { collection -> collection.notes.toNotePreviews() }
+            .map { notes -> CollectionPatchUiState(notes) }
             .stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
