@@ -28,9 +28,4 @@ data class CollectionWithNotes(
         associateBy = Junction(NoteCollectionCrossRef::class)
     )
     val notes: List<Note>
-) {
-    companion object {
-        fun KotlinCollection<CollectionWithNotes>.toCollectionPreviews(): List<CollectionPreview> =
-            this.map { CollectionPreview.of(it) }
-    }
-}
+)
