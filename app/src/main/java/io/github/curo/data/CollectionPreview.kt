@@ -34,6 +34,9 @@ class CollectionPreview(
                 name = collectionWithNotes.collection.collectionName,
                 notes = collectionWithNotes.notes.map { NotePreview.of(it) }
             )
+
+        fun Collection<CollectionWithNotes>.toCollectionPreviews(): List<CollectionPreview> =
+            this.map { of(it) }
     }
 
     override fun toString(): String {

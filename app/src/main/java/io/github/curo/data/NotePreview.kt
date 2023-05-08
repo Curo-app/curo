@@ -24,6 +24,8 @@ class NotePreview(
         fun Collection<NotePreview>.extractCollections(): List<CollectionInfo> =
             this.flatMap { it.collections }.distinct()
 
+        fun Collection<Note>.toNotePreviews(): List<NotePreview> = this.map { of(it) }
+
         fun of(noteWithCollectionNames: NoteWithCollections): NotePreview {
             val note = noteWithCollectionNames.note
             val deadline = Deadline.of(note.deadlineDate, note.deadlineTime)
