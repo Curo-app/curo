@@ -259,17 +259,18 @@ private fun NavGraphBuilder.collectionEditScreen(
                 }
             },
             onDeleteCollection = { collection ->
+                mainNavController.popBackStack()
                 coroutineScope.launch {
                     collectionPatchViewModel.delete(collection.collectionId)
                     collectionPatchViewModel.clear()
                 }
-                mainNavController.popBackStack()
             },
             onShareCollection = {
                 shareScreenViewModel.link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             },
             onBackToMenu = { mainNavController.popBackStack() },
             onSaveCollection = { _ ->
+                mainNavController.popBackStack()
                 coroutineScope.launch {
                     collectionPatchViewModel.updateCollection()
                     collectionPatchViewModel.clear()
@@ -278,7 +279,6 @@ private fun NavGraphBuilder.collectionEditScreen(
 
 //                The only usage of feedViewModel addCollection
 //                feedViewModel.addCollection(collection)
-                mainNavController.popBackStack()
             }
         )
     }
@@ -345,11 +345,11 @@ private fun NavGraphBuilder.noteEditScreen(
         NoteEditMenu(
             note = notePatchViewModel,
             onSaveNote = { _ ->
+                mainNavController.popBackStack()
                 coroutineScope.launch {
                     notePatchViewModel.updateNote()
                     notePatchViewModel.clear()
                 }
-                mainNavController.popBackStack()
             },
             onDiscardNote = {
                 mainNavController.popBackStack()
@@ -362,11 +362,11 @@ private fun NavGraphBuilder.noteEditScreen(
                 mainNavController.navigate(Screen.NoteOptions.route + '/' + id)
             },
             onDeleteNote = { id ->
+                mainNavController.popBackStack()
                 coroutineScope.launch {
                     notePatchViewModel.delete(id)
                     notePatchViewModel.clear()
                 }
-                mainNavController.popBackStack()
             },
         )
     }
