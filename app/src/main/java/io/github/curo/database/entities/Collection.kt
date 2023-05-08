@@ -2,7 +2,6 @@ package io.github.curo.database.entities
 
 import androidx.room.*
 import io.github.curo.data.CollectionPreview
-import kotlin.collections.Collection as KotlinCollection
 
 @Entity
 data class Collection(
