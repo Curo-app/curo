@@ -320,10 +320,12 @@ private fun CollectionAdder(
                 value = textFieldValue,
                 onValueChange = {
                     textFieldValue = it
-                    collectionInfo = CollectionInfo(0, it.text)
                     if (textFieldValue.text.isNotBlank()) {
                         collectionViewModel.query = textFieldValue.text
                     }
+
+                    collectionInfo = CollectionInfo(0, it.text)
+
                     suggestionState = when (suggestionState) {
                         Suggestion.Hidden -> Suggestion.Shown
                         Suggestion.Shown -> Suggestion.Shown
@@ -333,6 +335,8 @@ private fun CollectionAdder(
                 onClear = {
                     suggestionState = Suggestion.Suggested
                     textFieldValue = emptyTextFieldValue
+
+                    collectionInfo = CollectionInfo(0, "")
                 },
             )
 
