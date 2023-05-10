@@ -295,6 +295,9 @@ private fun CollectionAdder(
 ) {
     var suggestionState: Suggestion by remember { mutableStateOf(Suggestion.Hidden) }
     var textFieldValue by remember { mutableStateOf(emptyTextFieldValue) }
+    var collectionInfo by remember {
+        mutableStateOf(CollectionInfo(0, ""))
+    }
 
     Row(
         modifier = Modifier
@@ -317,6 +320,7 @@ private fun CollectionAdder(
                 value = textFieldValue,
                 onValueChange = {
                     textFieldValue = it
+                    collectionInfo = CollectionInfo(0, it.text)
                     if (textFieldValue.text.isNotBlank()) {
                         collectionViewModel.query = textFieldValue.text
                     }
@@ -341,6 +345,7 @@ private fun CollectionAdder(
                     DropdownMenuItem(
                         onClick = {
                             suggestionState = Suggestion.Suggested
+                            collectionInfo = label
                             textFieldValue = TextFieldValue(
                                 text = label.collectionName,
                                 selection = TextRange(label.collectionName.length)
@@ -357,7 +362,7 @@ private fun CollectionAdder(
                     collections.size != MAX_NOTE_COLLECTIONS_AMOUNT,
             onClick = {
                 suggestionState = Suggestion.Suggested
-//                collections += textFieldValue.text // TODO
+                collections += collectionInfo
                 textFieldValue = TextFieldValue("", selection = TextRange.Zero)
             },
         )
