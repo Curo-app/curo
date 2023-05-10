@@ -10,16 +10,19 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.Transaction
 import io.github.curo.data.Deadline
 import io.github.curo.data.NotePreview
+import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.database.entities.Note
 import io.github.curo.database.entities.NoteCollectionCrossRef
 import io.github.curo.utils.setAll
+import io.github.curo.database.entities.Collection as CollectionEntity
 
 @Stable
 class NotePatchViewModel(
     private val noteDao: NoteDao,
+    private val collectionDao: CollectionDao,
     private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
 ) : ViewModel() {
     var id: Long by mutableStateOf(0L)
@@ -48,10 +51,25 @@ class NotePatchViewModel(
     @Transaction
     suspend fun update(notePreview: NotePreview) {
         noteDao.update(Note.of(notePreview))
+
+        val createdInNoteOptionsMenu = notePreview.collections
+            .filter { it.collectionId == 0L }
+            .map { CollectionEntity.of(it) }
+
+        val updatedInNoteOptionsMenu = notePreview.collections
+            .filter { it.collectionId != 0L }
+            .map { CollectionEntity.of(it) }
+
+        val ids = collectionDao.insertAll(createdInNoteOptionsMenu)
+
         noteCollectionCrossRefDao.deleteAllByNoteId(notePreview.id)
-        val crossRefs = notePreview.collections
+        val crossRefs = updatedInNoteOptionsMenu
             .map { NoteCollectionCrossRef(notePreview.id, it.collectionId) }
+        val insertedCrossRefs = ids
+            .map { NoteCollectionCrossRef(notePreview.id, it) }
+
         noteCollectionCrossRefDao.insertAll(crossRefs)
+        noteCollectionCrossRefDao.insertAll(insertedCrossRefs)
     }
 
     /*
@@ -131,12 +149,13 @@ class NotePatchViewModel(
 
     class NotePatchViewModelFactory(
         private val noteDao: NoteDao,
+        private val collectionDao: CollectionDao,
         private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(NotePatchViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return NotePatchViewModel(noteDao, noteCollectionCrossRefDao) as T
+                return NotePatchViewModel(noteDao, collectionDao, noteCollectionCrossRefDao) as T
             }
             throw IllegalArgumentException("Unknown VieModel Class")
         }
