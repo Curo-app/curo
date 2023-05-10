@@ -295,9 +295,6 @@ private fun CollectionAdder(
 ) {
     var suggestionState: Suggestion by remember { mutableStateOf(Suggestion.Hidden) }
     var textFieldValue by remember { mutableStateOf(emptyTextFieldValue) }
-    var collectionInfo by remember {
-        mutableStateOf(CollectionInfo(0, ""))
-    }
 
     Row(
         modifier = Modifier
@@ -324,8 +321,6 @@ private fun CollectionAdder(
                         collectionViewModel.query = textFieldValue.text
                     }
 
-                    collectionInfo = CollectionInfo(0, it.text)
-
                     suggestionState = when (suggestionState) {
                         Suggestion.Hidden -> Suggestion.Shown
                         Suggestion.Shown -> Suggestion.Shown
@@ -335,8 +330,6 @@ private fun CollectionAdder(
                 onClear = {
                     suggestionState = Suggestion.Suggested
                     textFieldValue = emptyTextFieldValue
-
-                    collectionInfo = CollectionInfo(0, "")
                 },
             )
 
@@ -349,9 +342,9 @@ private fun CollectionAdder(
                     DropdownMenuItem(
                         onClick = {
                             suggestionState = Suggestion.Suggested
-                            collectionInfo = label
+                            collections += label
                             textFieldValue = TextFieldValue(
-                                text = label.collectionName,
+                                text = "",
                                 selection = TextRange(label.collectionName.length)
                             )
                         },
@@ -366,7 +359,10 @@ private fun CollectionAdder(
                     collections.size != MAX_NOTE_COLLECTIONS_AMOUNT,
             onClick = {
                 suggestionState = Suggestion.Suggested
-                collections += collectionInfo
+                collections += CollectionInfo(
+                    collectionId = 0,
+                    collectionName = textFieldValue.text,
+                )
                 textFieldValue = TextFieldValue("", selection = TextRange.Zero)
             },
         )
@@ -487,7 +483,8 @@ private fun CurrentCollections(
     ) {
         patchCollection?.let { collection ->
             item {
-                SuggestionChip(onClick = { /* DO NOTHING */ },
+                SuggestionChip(
+                    onClick = { /* DO NOTHING */ },
                     modifier = Modifier.padding(vertical = 0.dp),
                     interactionSource = remember { MutableInteractionSource() },
                     label = { Text(text = collection.collectionName) },
