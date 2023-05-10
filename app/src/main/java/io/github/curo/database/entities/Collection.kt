@@ -16,6 +16,12 @@ data class Collection(
                 collectionName = collectionPreview.name,
                 emoji = collectionPreview.emoji.value
             )
+
+        fun of(collectionInfo: CollectionInfo): Collection =
+            Collection(
+                collectionId = collectionInfo.collectionId,
+                collectionName = collectionInfo.collectionName,
+            )
     }
 }
 
