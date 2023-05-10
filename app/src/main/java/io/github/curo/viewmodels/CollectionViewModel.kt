@@ -82,7 +82,7 @@ open class CollectionViewModel(
             if (value == _query) return
             _query = value
             val collectionsNames =
-                notes.extractCollections()
+                collectionUiState.value.collections.map { CollectionInfo(it.id, it.name) }
             suggestions.addAll(collectionsNames)
         }
 
