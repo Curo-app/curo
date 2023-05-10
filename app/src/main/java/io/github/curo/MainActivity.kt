@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
             val database = (application as CuroApplication).database
             NotePatchViewModel.NotePatchViewModelFactory(
                 database.noteDao(),
+                database.collectionDao(),
                 database.noteCollectionCrossRefDao()
             )
         }
