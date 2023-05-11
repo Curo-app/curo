@@ -13,14 +13,17 @@ import androidx.lifecycle.viewModelScope
 import io.github.curo.data.NotePreview
 import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
-import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.database.dao.NoteDao
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.setAll
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -64,11 +67,25 @@ class CalendarViewModel(
                 initialValue = CalendarNotesState(emptyList())
             )
 
-    private var _currentDay by mutableStateOf(LocalDate.now())
-    val currentDay: LocalDate = _currentDay
+    private var _currentDay = MutableStateFlow(LocalDate.now())
+
+    val currentDay: LocalDate
+        get() = _currentDay.value
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val feedUiState: StateFlow<FeedUiState> =
+        _currentDay
+            .mapLatest { noteDao.getNotesForDate(it).first() }
+            .map { notes -> notes.map { NotePreview.of(it) } }
+            .map { notes -> FeedUiState(notes) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = FeedUiState()
+            )
 
     fun setDay(day: LocalDate) {
-        _currentDay = day
+        _currentDay.value = day
         _notes.setAll(super.notes.filter { note ->
             note.deadline?.let { it.date == day } ?: false
         })
