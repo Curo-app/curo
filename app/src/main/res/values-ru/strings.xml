@@ -1,0 +1,73 @@
+<resources>
+    <string name="app_name">Curo</string>
+
+    <string name="collections_screen_name">Коллекции</string>
+    <string name="feed_screen_name">Лента</string>
+    <string name="calendar_screen_name">Календарь</string>
+    <string name="about_us_screen_name">О нас</string>
+    <string name="settings_screen_name">Настройки</string>
+
+    <string name="search_hint">Поиск…</string>
+
+    <string name="searchbar_icon_description">Поиск</string>
+    <string name="topappbar_settings_icon_description">Настройки</string>
+    <string name="topappbar_menu_icon_description">Меню</string>
+
+    <string name="title_textfield_hint">Заголовок</string>
+    <string name="note_textfield_hint">Заметка</string>
+
+    <string name="delete_note_content_description">Удалить заметку</string>
+    <string name="share_note_content_description">Поделиться заметкой</string>
+    <string name="save_note_content_description">Сохранить заметку</string>
+    <string name="discard_note_content_description">Отменить изменения</string>
+
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="collection">Коллекция</string>
+    <string name="note">Заметка</string>
+
+    <string name="home_content_description">Перейти на домашний экран</string>
+    <string name="settings_content_description">Настройки приложения</string>
+    <string name="about_us_content_description">Информация о приложении</string>
+    <string name="about_us_text">
+        Добро пожаловать в Curo! Мы - команда увлеченных студентов, которые собрались вместе, чтобы создать полезное приложение для Android, которое сделает вашу повседневную жизнь проще. Curo был создан как часть нашего курсового проекта, но мы считаем, что он может стать чем-то большим.\n\n
+        Curo — это многофункциональное приложение, которое предоставляет несколько функций, которые помогут вам оставаться организованным и не отставать от графика. Наше приложение включает в себя заметки, напоминания и календарь — все в одном месте. С Curo вы можете отслеживать важные события, встречи и сроки. Вы можете устанавливать напоминания для себя и создавать списки дел, чтобы никогда не пропускать задачи.\n\n
+        Наша команда усердно работала над созданием удобного и визуально привлекательного приложения. Мы понимаем важность простого в использовании и навигации приложения, поэтому мы разработали Curo с учетом простоты. Приложение интуитивно понятное и удобное, с чистым и современным дизайном.\n\n
+        В Curo мы стремимся сделать наше приложение как можно лучше. Мы постоянно работаем над улучшением приложения и добавлением новых функций для вашего удобства. Наша команда приветствует отзывы и предложения от наших пользователей, так как мы хотим создать приложение, отвечающее потребностям наших пользователей.\n\n
+        Спасибо, что выбрали Curo. Мы надеемся, что наше приложение поможет вам оставаться организованным и продуктивным, и мы с нетерпением ждем продолжения улучшения и развития нашего приложения для удовлетворения ваших потребностей.
+    </string>
+
+    <string name="light_theme">Светлая</string>
+    <string name="dark_theme">Темная</string>
+    <string name="theme_label">Тема</string>
+    <string name="theme_content_description">Выбрать тему</string>
+    <string name="main_emoji">&#127814;</string>
+
+    <string name="setup_deadline_date">Установить дату окончания</string>
+    <string name="setup_deadline_time">Установить время окончания</string>
+    <string name="clear">Отчистить</string>
+    <string name="add">Добавить</string>
+    <string name="collection_name">Название коллекции</string>
+    <string name="clear_input">Отчистить ввод</string>
+    <string name="maximum_collections_amount_reached">Достигнуто максимальное количество коллекций</string>
+    <string name="with_checkbox">С чекбоксом</string>
+    <string name="clear_collection">Отчистить коллекцию</string>
+    <string name="done">Готово</string>
+    <string name="expand_collection_notes">Раскрыть записи коллекции</string>
+    <string name="on_properties_description">Дписание свойств</string>
+
+
+    <string name="calendar_menu">Меню календаря</string>
+    <string name="calendar_search">Поиск по календарю</string>
+
+    <string name="add_note">Добавить заметку</string>
+    <string name="share_collection">Поделиться коллекцией</string>
+    <string name="delete_collection">Удалить коллекцию</string>
+    <string name="back_to_collections">Вернуться в коллекцию</string>
+    <string name="delete">Удалить</string>
+    <string name="save_collection">Сохранить коллекцию</string>
+    <string name="copy_to_clipboard">Скопировать в буфер</string>
+    <string name="share_description">Ваша заметка или коллекция доступны по ссылке ниже</string>
+    <string name="share_error">В настоящее время ссылка недоступна</string>
+    <string name="default_note_name">Моя заметка…</string>
+</resources>

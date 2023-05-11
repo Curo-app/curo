@@ -4,20 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import io.github.curo.ui.AppScreen
 import io.github.curo.ui.theme.CuroTheme
-import io.github.curo.viewmodels.CalendarViewModel
-import io.github.curo.viewmodels.CollectionPatchViewModel
-import io.github.curo.viewmodels.CollectionViewModel
-import io.github.curo.viewmodels.FeedViewModel
-import io.github.curo.viewmodels.NotePatchViewModel
-import io.github.curo.viewmodels.NoteViewModel
-import io.github.curo.viewmodels.RealCollectionViewModel
-import io.github.curo.viewmodels.SearchViewModel
+import io.github.curo.viewmodels.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val themeViewModel: ThemeViewModel by viewModels()
         val noteViewModel: NoteViewModel by viewModels {
             val database = (application as CuroApplication).database
             NoteViewModel.NoteViewModelFactory(
@@ -77,8 +73,14 @@ class MainActivity : ComponentActivity() {
             )
         }
         setContent {
-            CuroTheme {
+            val themeState by themeViewModel.themeState.collectAsState()
+
+            CuroTheme(
+                darkThemeState = themeState.darkTheme,
+                themeInitialized = themeState.initialized
+            ) {
                 AppScreen(
+                    themeViewModel,
                     feedViewModel,
                     noteViewModel,
                     notePatchViewModel,

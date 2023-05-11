@@ -15,14 +15,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.curo.R
 import io.github.curo.data.Emoji
+import io.github.curo.viewmodels.ThemeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(drawerState: DrawerState, scope: CoroutineScope) {
+fun Settings(themeViewModel: ThemeViewModel, drawerState: DrawerState, scope: CoroutineScope) {
     Scaffold(
         topBar = {
             TextTopAppBar(
@@ -31,22 +33,23 @@ fun Settings(drawerState: DrawerState, scope: CoroutineScope) {
             )
         },
         content = { padding ->
-            SettingsContent(Modifier.padding(padding))
+            SettingsContent(themeViewModel, Modifier.padding(padding))
         }
     )
 }
 
 @Composable
-private fun SettingsContent(modifier: Modifier = Modifier) {
+private fun SettingsContent(themeViewModel: ThemeViewModel, modifier: Modifier = Modifier) {
     Surface(modifier = modifier.padding(horizontal = 30.dp, vertical = 5.dp)) {
         Column(Modifier.padding(5.dp)) {
             SelectSettingItem(
+                themeViewModel = themeViewModel,
                 suggestions = listOf(
-                    stringResource(id = R.string.russian_lang),
-                    stringResource(id = R.string.english_lang)
+                    (stringResource(id = R.string.light_theme) to false),
+                    (stringResource(id = R.string.dark_theme) to true)
                 ),
-                label = stringResource(id = R.string.lang_label),
-                contentDescription = stringResource(id = R.string.lang_content_description)
+                label = stringResource(id = R.string.theme_label),
+                contentDescription = stringResource(id = R.string.theme_content_description)
             )
         }
     }
@@ -55,8 +58,9 @@ private fun SettingsContent(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectSettingItem(
+    themeViewModel: ThemeViewModel,
     modifier: Modifier = Modifier,
-    suggestions: List<String>,
+    suggestions: List<Pair<String, Boolean>>,
     label: String,
     contentDescription: String
 ) {
@@ -89,11 +93,12 @@ fun SelectSettingItem(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            suggestions.forEach { label ->
+            suggestions.forEach { (label, isDark) ->
                 DropdownMenuItem(
                     text = { Text(text = label) },
                     onClick = {
                         selectedText = label
+                        themeViewModel.onThemeChanged(isDark)
                         expanded = false
                     }
                 )
@@ -175,5 +180,5 @@ fun AboutUsPreview() {
 @Preview(showBackground = true)
 @Composable
 fun SettingsPreview() {
-    SettingsContent()
+    SettingsContent(viewModel())
 }
