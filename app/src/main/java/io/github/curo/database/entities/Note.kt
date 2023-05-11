@@ -48,4 +48,12 @@ data class NoteWithCollections(
 data class CollectionInfo(
     @ColumnInfo(name = "collection_id") val collectionId: Long,
     @ColumnInfo(name = "collection_name") val collectionName: String,
-)
+) {
+    companion object {
+        fun of(collectionWithNotes: CollectionWithNotes): CollectionInfo =
+            CollectionInfo(
+                collectionId = collectionWithNotes.collection.collectionId,
+                collectionName = collectionWithNotes.collection.collectionName
+            )
+    }
+}
