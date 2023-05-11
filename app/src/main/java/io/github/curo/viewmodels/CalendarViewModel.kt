@@ -106,10 +106,12 @@ class CalendarViewModel(
         }
     }
 
+    // onCollectionFilterClick
+    // set day State for each day
     fun updateOnFilters() {
         viewModelScope.launch {
             val showedCollections = buildSet {
-                _collectionsNames.forEach { (name, filter) ->
+                collectionsState.value.collectionNames.forEach { (name, filter) ->
                     if (filter.enabled) {
                         add(name)
                     }
@@ -120,9 +122,15 @@ class CalendarViewModel(
                 return@launch
             }
 
-            val filteredNotes = super.notes.filter { note ->
-                note.collections.any { it in showedCollections }
-            }
+            val filteredNotesIds = showedCollections
+                .map { noteCollectionCrossRefDao.listByCollectionId(it.collectionId).first() }
+                .flatten()
+                .map { it.noteId }
+                .distinct()
+
+            val filteredNotes =
+                noteDao.findAll(filteredNotesIds).first()
+                    .map { NotePreview.of(it) }
 
             val dateCounted = getDateGrouped(filteredNotes)
 
