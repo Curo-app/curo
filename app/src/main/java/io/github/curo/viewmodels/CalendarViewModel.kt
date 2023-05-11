@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.curo.data.NotePreview
-import io.github.curo.data.NotePreview.Companion.extractCollections
 import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.entities.CollectionInfo
@@ -34,6 +33,10 @@ data class CalendarCollectionsState(
         collectionNames.values.toList()
 }
 
+data class CalendarNotesState(
+    val notes: List<NotePreview>
+)
+
 @Stable
 class CalendarViewModel(
     private val noteDao: NoteDao,
@@ -51,6 +54,16 @@ class CalendarViewModel(
                 initialValue = CalendarCollectionsState(emptyMap())
             )
 
+    val notesState: StateFlow<CalendarNotesState> =
+        noteDao.getAll()
+            .map { notes -> notes.map { NotePreview.of(it) } }
+            .map { notes -> CalendarNotesState(notes) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = CalendarNotesState(emptyList())
+            )
+
     private var _currentDay by mutableStateOf(LocalDate.now())
     val currentDay: LocalDate = _currentDay
 
@@ -61,7 +74,7 @@ class CalendarViewModel(
         })
     }
 
-    private val _collectionsNames = mutableStateMapOf<CollectionInfo, CollectionFilter>()
+//    private var _collectionsNames: Map<CollectionInfo, CollectionFilter> = mutableStateMapOf()
 //    val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
     private val _notes = mutableStateListOf<NotePreview>()
@@ -77,16 +90,15 @@ class CalendarViewModel(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val items = loadItems()
-                val collections = items
-                    .extractCollections()
-                    .associateWith { CollectionFilter(it) }
+                notesState.collect {
+                    val items = it.notes
 
-                val dateCounted = getDateGrouped(items)
+                    // return day state for each day
+                    val dateCounted = getDateGrouped(items)
 
-                withContext(Dispatchers.Main) {
-                    _collectionsNames.putAll(collections)
-                    setDateGrouped(dateCounted)
+                    withContext(Dispatchers.Main) {
+                        setDateGrouped(dateCounted)
+                    }
                 }
             }
         }
