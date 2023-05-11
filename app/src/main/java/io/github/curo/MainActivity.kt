@@ -57,7 +57,9 @@ class MainActivity : ComponentActivity() {
         val calendarViewModel: CalendarViewModel by viewModels {
             val database = (application as CuroApplication).database
             CalendarViewModel.CalendarViewModelFactory(
-                database.noteDao()
+                database.noteDao(),
+                database.collectionDao(),
+                database.noteCollectionCrossRefDao()
             )
         }
         val collectionViewModel: CollectionViewModel by viewModels {
