@@ -34,6 +34,10 @@ interface NoteDao {
     @Query("SELECT * FROM Note WHERE note_id = :noteId")
     fun find(noteId: Long): Flow<NoteWithCollections?>
 
+    @Transaction
+    @Query("SELECT * FROM Note WHERE note_id IN (:noteIds)")
+    fun findAll(noteIds: List<Long>): Flow<List<NoteWithCollections>>
+
     @Query("UPDATE Note SET done = TRUE WHERE note_id = :noteId")
     suspend fun markCompleted(noteId: Long)
 }
