@@ -95,7 +95,7 @@ class CalendarViewModel(
     private fun resetFilters() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val items = super.notes
+                val items = noteDao.getAll().first().map { NotePreview.of(it) }
 
                 val dateCounted = getDateGrouped(items)
 
