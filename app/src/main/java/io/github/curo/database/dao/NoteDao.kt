@@ -4,6 +4,7 @@ import androidx.room.*
 import io.github.curo.database.entities.Note
 import io.github.curo.database.entities.NoteWithCollections
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface NoteDao {
@@ -40,4 +41,8 @@ interface NoteDao {
 
     @Query("UPDATE Note SET done = TRUE WHERE note_id = :noteId")
     suspend fun markCompleted(noteId: Long)
+
+    @Transaction
+    @Query("SELECT * FROM Note WHERE deadline_date = :date")
+    fun getNotesForDate(date: LocalDate): Flow<List<NoteWithCollections>>
 }
