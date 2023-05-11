@@ -95,13 +95,15 @@ private fun CurrentCollections(
     onCollectionClick: (CollectionInfo) -> Unit,
     viewModel: CalendarViewModel,
 ) {
+    val calendarCollectionUiState by viewModel.collectionsState.collectAsState()
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 5.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        items(viewModel.collectionsNames) { collection ->
+        items(calendarCollectionUiState.getCollectionFilters()) { collection ->
             val currentItem by rememberUpdatedState(collection)
             CollectionChip(currentItem, onCollectionClick)
         }

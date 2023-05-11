@@ -18,16 +18,39 @@ import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.utils.setAll
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
+data class CalendarCollectionsState(
+    val collectionNames: Map<CollectionInfo, CalendarViewModel.CollectionFilter>
+) {
+    fun getCollectionFilters(): List<CalendarViewModel.CollectionFilter> =
+        collectionNames.values.toList()
+}
+
 @Stable
 class CalendarViewModel(
-    noteDao: NoteDao,
+    private val noteDao: NoteDao,
     collectionDao: CollectionDao,
-    noteCollectionCrossRefDao: NoteCollectionCrossRefDao
+    private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
 ) : FeedViewModel(noteDao) {
+
+    val collectionsState: StateFlow<CalendarCollectionsState> =
+        collectionDao.getAll()
+            .map { collections -> collections.map { CollectionInfo.of(it) } }
+            .map { names -> CalendarCollectionsState(names.associateWith { CollectionFilter(it) }) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = CalendarCollectionsState(emptyMap())
+            )
+
     private var _currentDay by mutableStateOf(LocalDate.now())
     val currentDay: LocalDate = _currentDay
 
@@ -39,9 +62,11 @@ class CalendarViewModel(
     }
 
     private val _collectionsNames = mutableStateMapOf<CollectionInfo, CollectionFilter>()
-    val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
+//    val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
     private val _notes = mutableStateListOf<NotePreview>()
+
+    // field is never used, but should be in DayNotes.kt
     override val notes: List<NotePreview>
         get() = _notes
 
