@@ -34,18 +34,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kizitonwose.calendar.compose.CalendarState
 import io.github.curo.data.BottomNavigationScreen
-import io.github.curo.viewmodels.CalendarViewModel
-import io.github.curo.viewmodels.CollectionPatchViewModel
-import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.FABMenuItem
-import io.github.curo.viewmodels.FeedViewModel
 import io.github.curo.data.NotePreview
-import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.Route
 import io.github.curo.data.Screen
 import io.github.curo.database.entities.CollectionInfo
-import io.github.curo.viewmodels.SearchViewModel
-import io.github.curo.viewmodels.ShareScreenViewModel
 import io.github.curo.ui.base.AboutUs
 import io.github.curo.ui.base.FABAddMenu
 import io.github.curo.ui.base.FABButtonState
@@ -66,8 +59,7 @@ import io.github.curo.ui.screens.EditCollectionScreen
 import io.github.curo.ui.screens.SearchView
 import io.github.curo.ui.screens.capitalizeFirstLetter
 import io.github.curo.ui.screens.rememberCuroCalendarState
-import io.github.curo.viewmodels.NoteViewModel
-import io.github.curo.viewmodels.RealCollectionViewModel
+import io.github.curo.viewmodels.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -82,6 +74,7 @@ val bottomMenu = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScreen(
+    themeViewModel: ThemeViewModel,
     feedViewModel: FeedViewModel,
     noteViewModel: NoteViewModel,
     notePatchViewModel: NotePatchViewModel,
@@ -142,7 +135,7 @@ fun AppScreen(
                     AboutUs(drawerState, scope)
                 }
                 composable(Screen.Settings.route) {
-                    Settings(drawerState, scope)
+                    Settings(themeViewModel, drawerState, scope)
                 }
                 dayNotesScreen(
                     viewModel = calendarViewModel,
