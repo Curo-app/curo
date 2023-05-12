@@ -3,7 +3,6 @@ package io.github.curo.viewmodels
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,7 +14,6 @@ import io.github.curo.database.dao.CollectionDao
 import io.github.curo.database.dao.NoteCollectionCrossRefDao
 import io.github.curo.database.dao.NoteDao
 import io.github.curo.database.entities.CollectionInfo
-import io.github.curo.utils.setAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,19 +84,19 @@ class CalendarViewModel(
 
     fun setDay(day: LocalDate) {
         _currentDay.value = day
-        _notes.setAll(super.notes.filter { note ->
-            note.deadline?.let { it.date == day } ?: false
-        })
+//        _notes.setAll(super.notes.filter { note ->
+//            note.deadline?.let { it.date == day } ?: false
+//        })
     }
 
 //    private var _collectionsNames: Map<CollectionInfo, CollectionFilter> = mutableStateMapOf()
 //    val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
-    private val _notes = mutableStateListOf<NotePreview>()
+//    private val _notes = mutableStateListOf<NotePreview>()
 
     // field is never used, but should be in DayNotes.kt
-    override val notes: List<NotePreview>
-        get() = _notes
+//    override val notes: List<NotePreview>
+//        get() = _notes
 
     private val _dayState = mutableStateMapOf<LocalDate, DayState>()
     val dayState: Map<LocalDate, DayState>

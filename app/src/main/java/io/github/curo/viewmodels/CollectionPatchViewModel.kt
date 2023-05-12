@@ -35,7 +35,7 @@ class CollectionPatchViewModel(
 ) : FeedViewModel(noteDao) {
     var id: Long by mutableStateOf(0L)
     var name: String by mutableStateOf("")
-    override val notes: MutableList<NotePreview> = mutableStateListOf()
+    val notes: MutableList<NotePreview> = mutableStateListOf()
 
     val collectionPatchUiState: StateFlow<CollectionPatchUiState> =
         // TODO: replace with findById

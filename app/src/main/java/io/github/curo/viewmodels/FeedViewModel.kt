@@ -1,21 +1,16 @@
 package io.github.curo.viewmodels
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.curo.data.NotePreview
 import io.github.curo.database.dao.NoteDao
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 data class FeedUiState(
     val notes: List<NotePreview> = emptyList(),
@@ -25,9 +20,9 @@ data class FeedUiState(
 open class FeedViewModel(
     private val noteDao: NoteDao
 ) : ViewModel() {
-    private val _notes = mutableStateListOf<NotePreview>()
-    open val notes: List<NotePreview>
-        get() = _notes
+//    private val _notes = mutableStateListOf<NotePreview>()
+//    val notes: List<NotePreview>
+//        get() = _notes
 
     open val feedUiState: StateFlow<FeedUiState> =
         getAll().map { FeedUiState(it) }
@@ -78,13 +73,13 @@ open class FeedViewModel(
 //        }
 //    }
 
-    init {
-        viewModelScope.launch {
-            withContext(Dispatchers.Main) {
-                _notes.addAll(getAll().first())
-            }
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            withContext(Dispatchers.Main) {
+//                _notes.addAll(getAll().first())
+//            }
+//        }
+//    }
 
 //    protected fun loadItems(): List<NotePreview> {
 //        val today = LocalDate.now()
