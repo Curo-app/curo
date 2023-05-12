@@ -105,4 +105,7 @@ dependencies {
 
     // Calendar
     implementation 'com.kizitonwose.calendar:compose:2.3.0'
+
+    // DataStorage
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 }

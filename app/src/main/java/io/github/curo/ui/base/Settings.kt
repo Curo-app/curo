@@ -67,6 +67,7 @@ fun SelectSettingItem(
     contentDescription: String
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     val selectedThemeMode by themeViewModel.themeMode.collectAsState()
 
     val icon =
@@ -100,7 +101,9 @@ fun SelectSettingItem(
                 DropdownMenuItem(
                     text = { Text(text = themeLabel) },
                     onClick = {
-                        themeViewModel.onThemeChanged(themeMode)
+                        coroutineScope.launch {
+                            themeViewModel.changeTheme(themeMode)
+                        }
                         expanded = false
                     }
                 )
