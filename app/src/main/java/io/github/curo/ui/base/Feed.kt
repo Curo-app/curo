@@ -176,7 +176,6 @@ fun FeedForced(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteCard(
     modifier: Modifier = Modifier,
@@ -187,17 +186,16 @@ fun NoteCard(
 ) {
     ListItem(
         modifier = modifier.cardModifier(interactionSource) { onNoteClick(item) },
-        headlineText = { FeedItemHeader(item) },
-        supportingText = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
+        headlineContent = { FeedItemHeader(item) },
+        supportingContent = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
         leadingContent = { EmojiContainer(item.emoji) },
-        overlineText = feedItemDeadlineFactory(item),
+        overlineContent = feedItemDeadlineFactory(item),
         trailingContent = feedItemCheckboxFactory(item),
         colors = listItemColors(item.done != true),
     )
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun listItemColors(enabled: Boolean): ListItemColors =
     if (enabled) {
         ListItemDefaults.colors()

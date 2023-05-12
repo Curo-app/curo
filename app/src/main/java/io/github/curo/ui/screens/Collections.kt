@@ -30,7 +30,6 @@ import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CollectionViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
     onCollectionClick: (CollectionInfo) -> Unit,
@@ -75,7 +74,6 @@ fun ExpandableCollectionView(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionCard(
     collection: CollectionPreview,
@@ -88,7 +86,7 @@ private fun CollectionCard(
         modifier = Modifier.cardModifier(interactionSource) {
             onCollectionClick(CollectionInfo(collection.id, collection.name))
         },
-        headlineText = { CollectionsItemHeader(collection) },
+        headlineContent = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },
         trailingContent = { CollectionTrailing(collection, isExpanded, onCollectionExpand) },
         colors = listItemColors(collection.progress?.run { !isFinished() } ?: true)

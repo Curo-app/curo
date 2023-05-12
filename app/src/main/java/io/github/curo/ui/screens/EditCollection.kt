@@ -24,7 +24,7 @@ fun EditCollectionScreen(
     onCollectionClick: (CollectionInfo) -> Unit,
     onAddNote: () -> Unit,
     onDeleteCollection: (CollectionInfo) -> Unit,
-    onShareCollection: () -> Unit,
+    onShareCollection: (CollectionPreview) -> Unit,
     onBackToMenu: () -> Unit,
     onSaveCollection: (CollectionPreview) -> Unit,
 ) {
@@ -63,12 +63,15 @@ fun EditCollectionScreen(
                             contentDescription = stringResource(R.string.add_note)
                         )
                     }
-                    IconButton(onClick = onShareCollection) {
-                        Icon(
-                            imageVector = Icons.Rounded.Share,
-                            contentDescription = stringResource(R.string.share_collection)
-                        )
-                    }
+                    IconButton(
+                        onClick = { onShareCollection(viewModel.toCollectionPreview()) },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Rounded.Share,
+                                contentDescription = stringResource(R.string.share_collection)
+                            )
+                        },
+                    )
                     IconButton(onClick = {
                         onDeleteCollection(CollectionInfo(viewModel.id, viewModel.name))
                     }) {
