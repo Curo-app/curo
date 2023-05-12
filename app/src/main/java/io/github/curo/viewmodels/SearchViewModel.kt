@@ -1,31 +1,43 @@
 package io.github.curo.viewmodels
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import io.github.curo.data.NotePreview
 import io.github.curo.database.dao.NoteDao
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 
 @Stable
 class SearchViewModel(
     noteDao: NoteDao
 ) : FeedViewModel(noteDao) {
-    private var _query: String by mutableStateOf("")
+    private var _query = MutableStateFlow("")
     var query
-        get() = _query
+        get() = _query.value
         set(value) {
-            notes.clear()
-            if (value == _query) return
-            _query = value
-            notes.addAll(
-                super.notes.filter { item -> item.name.contains(value, ignoreCase = true) }
-            )
+            if (value == _query.value) return
+            _query.value = value
         }
-    override val notes: MutableList<NotePreview> = mutableStateListOf()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val feedUiState: StateFlow<FeedUiState> =
+        _query
+            .mapLatest { noteDao.searchNotes(it).first() }
+            .map { notes -> notes.map { NotePreview.of(it) } }
+            .map { notes -> FeedUiState(notes) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = FeedUiState(emptyList())
+            )
 
     class SearchViewModelFactory(
         private val noteDao: NoteDao
