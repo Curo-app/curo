@@ -45,4 +45,8 @@ interface NoteDao {
     @Transaction
     @Query("SELECT * FROM Note WHERE deadline_date = :date")
     fun getNotesForDate(date: LocalDate): Flow<List<NoteWithCollections>>
+
+    @Transaction
+    @Query("SELECT * FROM Note WHERE name LIKE '%' || :query || '%'")
+    fun searchNotes(query: String): Flow<List<NoteWithCollections>>
 }
