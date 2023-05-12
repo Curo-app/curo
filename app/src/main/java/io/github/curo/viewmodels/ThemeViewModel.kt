@@ -1,16 +1,34 @@
 package io.github.curo.viewmodels
 
 import androidx.lifecycle.ViewModel
+import io.github.curo.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class ThemeViewModel : ViewModel() {
-    private val _themeState = MutableStateFlow(ThemeState())
-    val themeState: StateFlow<ThemeState> = _themeState
+    private val _themeMode = MutableStateFlow<ThemeMode>(ThemeMode.Companion.System)
+    val themeMode: StateFlow<ThemeMode> = _themeMode
 
-    fun onThemeChanged(newThemeIsDark: Boolean) {
-        _themeState.value = ThemeState(newThemeIsDark, initialized = true)
+    fun onThemeChanged(newTheme: ThemeMode) {
+        _themeMode.value = newTheme
     }
 }
 
-data class ThemeState(val darkTheme: Boolean = false, val initialized: Boolean = false)
+
+sealed interface ThemeMode {
+    val resourceId: Int
+
+    companion object {
+        object System : ThemeMode {
+            override val resourceId: Int = R.string.system_theme
+        }
+
+        object Light : ThemeMode {
+            override val resourceId: Int = R.string.light_theme
+        }
+
+        object Dark : ThemeMode {
+            override val resourceId: Int = R.string.dark_theme
+        }
+    }
+}

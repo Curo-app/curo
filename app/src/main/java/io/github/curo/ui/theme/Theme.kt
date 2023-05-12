@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import io.github.curo.viewmodels.ThemeMode
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -29,13 +30,16 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun CuroTheme(
-    darkThemeState: Boolean = false,
-    themeInitialized: Boolean = false,
+    themeMode: ThemeMode = ThemeMode.Companion.System,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val darkTheme = if (themeInitialized) darkThemeState else isSystemInDarkTheme()
+    val darkTheme = when (themeMode) {
+        ThemeMode.Companion.System -> isSystemInDarkTheme()
+        ThemeMode.Companion.Light -> false
+        ThemeMode.Companion.Dark -> true
+    }
 
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

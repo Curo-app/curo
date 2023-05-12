@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.curo.R
 import io.github.curo.data.Emoji
+import io.github.curo.viewmodels.ThemeMode
 import io.github.curo.viewmodels.ThemeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -45,8 +46,9 @@ private fun SettingsContent(themeViewModel: ThemeViewModel, modifier: Modifier =
             SelectSettingItem(
                 themeViewModel = themeViewModel,
                 suggestions = listOf(
-                    (stringResource(id = R.string.light_theme) to false),
-                    (stringResource(id = R.string.dark_theme) to true)
+                    ThemeMode.Companion.System,
+                    ThemeMode.Companion.Light,
+                    ThemeMode.Companion.Dark
                 ),
                 label = stringResource(id = R.string.theme_label),
                 contentDescription = stringResource(id = R.string.theme_content_description)
@@ -60,12 +62,12 @@ private fun SettingsContent(themeViewModel: ThemeViewModel, modifier: Modifier =
 fun SelectSettingItem(
     themeViewModel: ThemeViewModel,
     modifier: Modifier = Modifier,
-    suggestions: List<Pair<String, Boolean>>,
+    suggestions: List<ThemeMode>,
     label: String,
     contentDescription: String
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf("") }
+    val selectedThemeMode by themeViewModel.themeMode.collectAsState()
 
     val icon =
         if (expanded) Icons.Rounded.KeyboardArrowUp
@@ -77,8 +79,8 @@ fun SelectSettingItem(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = selectedText,
-            onValueChange = { selectedText = it },
+            value = stringResource(id = selectedThemeMode.resourceId),
+            onValueChange = { },
             modifier = modifier
                 .width(330.dp)
                 .menuAnchor(),
@@ -93,12 +95,12 @@ fun SelectSettingItem(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            suggestions.forEach { (label, isDark) ->
+            suggestions.forEach { themeMode ->
+                val themeLabel = stringResource(id = themeMode.resourceId)
                 DropdownMenuItem(
-                    text = { Text(text = label) },
+                    text = { Text(text = themeLabel) },
                     onClick = {
-                        selectedText = label
-                        themeViewModel.onThemeChanged(isDark)
+                        themeViewModel.onThemeChanged(themeMode)
                         expanded = false
                     }
                 )

@@ -39,6 +39,7 @@
         Thank you for choosing Curo. We hope that our app helps you stay organized and productive, and we look forward to continuing to improve and evolve our app to meet your needs.
     </string>
 
+    <string name="system_theme">System</string>
     <string name="light_theme">Light</string>
     <string name="dark_theme">Dark</string>
     <string name="theme_label">Theme</string>

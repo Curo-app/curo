@@ -73,12 +73,9 @@ class MainActivity : ComponentActivity() {
             )
         }
         setContent {
-            val themeState by themeViewModel.themeState.collectAsState()
+            val themeMode by themeViewModel.themeMode.collectAsState()
 
-            CuroTheme(
-                darkThemeState = themeState.darkTheme,
-                themeInitialized = themeState.initialized
-            ) {
+            CuroTheme(themeMode = themeMode) {
                 AppScreen(
                     themeViewModel,
                     feedViewModel,
