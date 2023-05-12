@@ -492,7 +492,9 @@ private fun CurrentCollections(
             }
         }
         items(collections) { collection ->
-            CollectionChip(collection, collections)
+            if (patchCollection == null || patchCollection.collectionId != collection.collectionId) {
+                CollectionChip(collection, collections)
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -102,8 +102,8 @@ fun SearchBar(
     onSearch: (String?) -> Unit = {},
 ) {
     val hint: String = stringResource(R.string.search_hint)
-    var text by remember { mutableStateOf("") }
-    var isHint by remember { mutableStateOf(hint.isNotEmpty()) }
+    var text by rememberSaveable { mutableStateOf("") }
+    var isHint by rememberSaveable { mutableStateOf(hint.isNotEmpty()) }
 
     Surface(
         modifier = modifier
