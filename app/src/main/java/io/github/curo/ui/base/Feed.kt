@@ -80,6 +80,7 @@ fun Feed(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     viewModel: FeedViewModel,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -117,6 +118,7 @@ fun Feed(
                         item = item,
                         onNoteClick = onNoteClick,
                         onCollectionClick = onCollectionClick,
+                        onChecked = onChecked
                     )
                 }
             )
@@ -159,6 +161,7 @@ fun SwipeBackground(dismissState: DismissState) {
 fun FeedForced(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     content: List<NotePreview>,
 ) {
     Column(
@@ -171,6 +174,7 @@ fun FeedForced(
                 item = item,
                 onNoteClick = onNoteClick,
                 onCollectionClick = null,
+                onChecked = onChecked,
             )
         }
     }
@@ -182,6 +186,7 @@ fun NoteCard(
     item: NotePreview,
     onNoteClick: (NotePreview) -> Unit,
     onCollectionClick: ((CollectionInfo) -> Unit)?,
+    onChecked: (NotePreview) -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
@@ -190,7 +195,7 @@ fun NoteCard(
         supportingContent = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
         leadingContent = { EmojiContainer(item.emoji) },
         overlineContent = feedItemDeadlineFactory(item),
-        trailingContent = feedItemCheckboxFactory(item),
+        trailingContent = feedItemCheckboxFactory(item, onChecked),
         colors = listItemColors(item.done != true),
     )
 }
@@ -206,12 +211,15 @@ fun listItemColors(enabled: Boolean): ListItemColors =
         )
     }
 
-fun feedItemCheckboxFactory(item: NotePreview): @Composable (() -> Unit)? =
+fun feedItemCheckboxFactory(
+    item: NotePreview,
+    onChecked: (NotePreview) -> Unit,
+): @Composable (() -> Unit)? =
     item.done?.let {
         {
             FilledIconToggleButton(
                 modifier = Modifier.size(25.dp),
-                onCheckedChange = { item.done = it },
+                onCheckedChange = { onChecked(item) },
                 shape = MaterialTheme.shapes.small,
                 checked = it,
             ) {

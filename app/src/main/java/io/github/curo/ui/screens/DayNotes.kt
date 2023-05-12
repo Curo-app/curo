@@ -27,6 +27,7 @@ fun DayNotes(
     viewModel: CalendarViewModel,
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit,
     onShareClick: () -> Unit,
     onBackToMenuClick: () -> Unit,
@@ -67,6 +68,7 @@ fun DayNotes(
             modifier = modifier.padding(padding),
             onNoteClick = onNoteClick,
             onCollectionClick = onCollectionClick,
+            onChecked = onChecked,
         )
     }
 }

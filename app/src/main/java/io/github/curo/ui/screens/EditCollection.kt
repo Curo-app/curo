@@ -21,7 +21,7 @@ fun EditCollectionScreen(
     viewModel: CollectionPatchViewModel,
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (CollectionInfo) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     onAddNote: () -> Unit,
     onDeleteCollection: (CollectionInfo) -> Unit,
     onShareCollection: (CollectionPreview) -> Unit,
@@ -101,7 +101,7 @@ fun EditCollectionScreen(
             modifier = modifier.padding(padding),
             content = collectionState.notes,
             onNoteClick = onNoteClick,
-//            onCollectionClick = onCollectionClick
+            onChecked = onChecked,
         )
     }
 }

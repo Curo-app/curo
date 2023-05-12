@@ -11,9 +11,6 @@ interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(note: Note): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(notes: List<Note>): List<Long>
-
     @Update
     suspend fun update(note: Note)
 
@@ -39,8 +36,8 @@ interface NoteDao {
     @Query("SELECT * FROM Note WHERE note_id IN (:noteIds)")
     fun findAll(noteIds: List<Long>): Flow<List<NoteWithCollections>>
 
-    @Query("UPDATE Note SET done = TRUE WHERE note_id = :noteId")
-    suspend fun markCompleted(noteId: Long)
+    @Query("UPDATE Note SET done = NOT done WHERE note_id = :noteId")
+    suspend fun markChecked(noteId: Long)
 
     @Transaction
     @Query("SELECT * FROM Note WHERE deadline_date = :date")

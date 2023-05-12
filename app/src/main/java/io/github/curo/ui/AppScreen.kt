@@ -194,6 +194,7 @@ private fun NavGraphBuilder.searchScreen(
             )
         )
     ) {
+        val coroutineScope = rememberCoroutineScope()
         val query = it.arguments?.getString("query").orEmpty()
         LaunchedEffect(query) {
             searchViewModel.query = query
@@ -211,6 +212,14 @@ private fun NavGraphBuilder.searchScreen(
             },
             onCollectionClick = { collectionName ->
                 mainNavController.navigate(Screen.EditCollection.route + '/' + collectionName.collectionId)
+            },
+            onChecked = { note ->
+                coroutineScope.launch {
+                    searchViewModel.markChecked(note.id)
+                    note.done?.let { done ->
+                        note.done = !done
+                    }
+                }
             }
         )
     }
@@ -246,9 +255,6 @@ private fun NavGraphBuilder.collectionEditScreen(
             onNoteClick = { note ->
                 mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
             },
-            onCollectionClick = { collectionId ->
-                mainNavController.navigate(Screen.EditCollection.route + '/' + collectionId.collectionId)
-            },
             onAddNote = {
                 coroutineScope.launch {
                     val noteId = notePatchViewModel.insertInCollection(collectionPatchViewModel.id)
@@ -268,18 +274,22 @@ private fun NavGraphBuilder.collectionEditScreen(
                 shareScreenViewModel.share(collection)
             },
             onBackToMenu = { mainNavController.popBackStack() },
-            onSaveCollection = { _ ->
-                mainNavController.popBackStack()
+            onChecked = { note ->
                 coroutineScope.launch {
-                    collectionPatchViewModel.updateCollection()
-                    collectionPatchViewModel.clear()
+                    collectionPatchViewModel.markChecked(note.id)
                 }
+            }
+        ) { _ ->
+            mainNavController.popBackStack()
+            coroutineScope.launch {
+                collectionPatchViewModel.updateCollection()
+                collectionPatchViewModel.clear()
+            }
 //                collectionViewModel.update(collection)
 
 //                The only usage of feedViewModel addCollection
 //                feedViewModel.addCollection(collection)
-            }
-        )
+        }
     }
 }
 
@@ -324,6 +334,14 @@ private fun NavGraphBuilder.dayNotesScreen(
                 }
             },
             onBackToMenuClick = { mainNavController.popBackStack() },
+            onChecked = { note ->
+                coroutineScope.launch {
+                    viewModel.markChecked(note.id)
+                    note.done?.let { done ->
+                        note.done = !done
+                    }
+                }
+            }
         )
     }
 }
@@ -457,16 +475,21 @@ private fun FABScreen(
         onDayClick = {
             calendarViewModel.setDay(it)
             mainNavHost.navigate(Screen.DayNotes.route + '/' + it)
+        },
+        onChecked = { note ->
+            coroutineScope.launch {
+                calendarViewModel.markChecked(note.id)
+            }
         }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FloatingActionButtonMenu(
     onSearchClick: (String) -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     onFABMenuSelect: (FABMenuItem) -> Unit,
     onFABMenuAct: () -> Unit,
     onCollectionFilter: (CollectionInfo) -> Unit,
@@ -504,6 +527,7 @@ private fun FloatingActionButtonMenu(
             feedViewModel = feedViewModel,
             collectionViewModel = collectionViewModel,
             calendarViewModel = calendarViewModel,
+            onChecked = onChecked,
         )
         Canvas(
             modifier = Modifier
@@ -533,6 +557,7 @@ private fun BottomNavBarScreen(
     mainNavHost: NavHostController,
     onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     onCollectionFilter: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
     feedViewModel: FeedViewModel,
@@ -581,9 +606,23 @@ private fun BottomNavBarScreen(
             navController = bottomBarNavHost,
             startDestination = BottomNavigationScreen.Feed.route
         ) {
-            navFeedScreen(mainNavHost, onCollectionClick, feedViewModel)
-            navCollectionsScreen(collectionViewModel, onCollectionClick, onNoteClick)
-            navCalendarScreen(calendarViewModel, calendarState, onCollectionFilter, onDayClick)
+            navFeedScreen(
+                mainNavHost = mainNavHost,
+                onCollectionClick = onCollectionClick,
+                feedViewModel = feedViewModel
+            )
+            navCollectionsScreen(
+                collectionViewModel = collectionViewModel,
+                onCollectionClick = onCollectionClick,
+                onChecked = onChecked,
+                onNoteClick = onNoteClick,
+            )
+            navCalendarScreen(
+                calendarViewModel = calendarViewModel,
+                calendarState = calendarState,
+                onCollectionClick = onCollectionFilter,
+                onDayClick = onDayClick
+            )
         }
     }
 }
@@ -607,12 +646,14 @@ private fun NavGraphBuilder.navCalendarScreen(
 private fun NavGraphBuilder.navCollectionsScreen(
     collectionViewModel: CollectionViewModel,
     onCollectionClick: (CollectionInfo) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
 ) = composable(BottomNavigationScreen.Collections.route) {
     Collections(
         viewModel = collectionViewModel,
         onCollectionClick = onCollectionClick,
         onNoteClick = onNoteClick,
+        onChecked = onChecked,
     )
 }
 
@@ -621,12 +662,18 @@ private fun NavGraphBuilder.navFeedScreen(
     onCollectionClick: (CollectionInfo) -> Unit,
     feedViewModel: FeedViewModel,
 ) = composable(BottomNavigationScreen.Feed.route) {
+    val coroutineScope = rememberCoroutineScope()
     Feed(
         onNoteClick = { note ->
             mainNavHost.navigate(Screen.EditNote.route + '/' + note.id)
         },
         onCollectionClick = onCollectionClick,
-        viewModel = feedViewModel
+        viewModel = feedViewModel,
+        onChecked = { note ->
+            coroutineScope.launch {
+                feedViewModel.markChecked(note.id)
+            }
+        }
     )
 }
 

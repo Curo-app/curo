@@ -45,6 +45,7 @@ fun SearchView(
     onLeadingIconClick: () -> Unit,
     searchViewModel: SearchViewModel,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit
 ) {
     Column(
@@ -135,7 +136,8 @@ fun SearchView(
             Feed(
                 onNoteClick = onNoteClick,
                 onCollectionClick = onCollectionClick,
-                viewModel = searchViewModel
+                viewModel = searchViewModel,
+                onChecked = onChecked,
             )
         }
     }
