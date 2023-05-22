@@ -18,9 +18,6 @@ open class NoteViewModel(
         noteDao.find(noteId)
             .map { note -> note?.let { NotePreview.of(it) } }
 
-    suspend fun markCompleted(noteId: Long) =
-        noteDao.markCompleted(noteId)
-
     class NoteViewModelFactory(
         private val noteDao: NoteDao
     ) : ViewModelProvider.Factory {

@@ -24,6 +24,9 @@ open class FeedViewModel(
 //    val notes: List<NotePreview>
 //        get() = _notes
 
+    suspend fun markChecked(noteId: Long) =
+        noteDao.markChecked(noteId)
+
     open val feedUiState: StateFlow<FeedUiState> =
         getAll().map { FeedUiState(it) }
             .stateIn(

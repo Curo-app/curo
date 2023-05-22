@@ -30,11 +30,11 @@ import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CollectionViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
     onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     viewModel: CollectionViewModel,
 ) {
     val collectionState by viewModel.collectionUiState.collectAsState()
@@ -53,6 +53,7 @@ fun Collections(
                     onCollectionClick = onCollectionClick,
                     isExpanded = viewModel.isExpanded(collection.id),
                     onCollectionExpand = { viewModel.expand(collection.id) },
+                    onChecked = onChecked,
                 )
             }
         }
@@ -63,6 +64,7 @@ fun Collections(
 fun ExpandableCollectionView(
     collection: CollectionPreview,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
@@ -70,12 +72,16 @@ fun ExpandableCollectionView(
     Box {
         Column {
             CollectionCard(collection, onCollectionClick, onCollectionExpand, isExpanded)
-            CollectionNotes(collection.notes, onNoteClick, isExpanded)
+            CollectionNotes(
+                notes = collection.notes,
+                onNoteClick = onNoteClick,
+                onChecked = onChecked,
+                isExpanded = isExpanded
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionCard(
     collection: CollectionPreview,
@@ -88,7 +94,7 @@ private fun CollectionCard(
         modifier = Modifier.cardModifier(interactionSource) {
             onCollectionClick(CollectionInfo(collection.id, collection.name))
         },
-        headlineText = { CollectionsItemHeader(collection) },
+        headlineContent = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },
         trailingContent = { CollectionTrailing(collection, isExpanded, onCollectionExpand) },
         colors = listItemColors(collection.progress?.run { !isFinished() } ?: true)
@@ -99,6 +105,7 @@ private fun CollectionCard(
 fun CollectionNotes(
     notes: List<NotePreview>,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     isExpanded: Boolean
 ) {
     // Opening Animation
@@ -130,7 +137,7 @@ fun CollectionNotes(
             modifier = Modifier
                 .padding(start = 25.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
         ) {
-            FeedForced(onNoteClick = onNoteClick, content = notes)
+            FeedForced(onNoteClick = onNoteClick, content = notes, onChecked = onChecked)
         }
     }
 }
@@ -232,6 +239,7 @@ fun ClosedCollectionPreview() {
         onCollectionClick = {},
         isExpanded = false,
         onCollectionExpand = {},
+        onChecked = {},
     )
 }
 
@@ -273,6 +281,7 @@ fun OpenedCollectionPreview() {
         onCollectionClick = {},
         isExpanded = true,
         onCollectionExpand = {},
+        onChecked = {},
     )
 }
 
@@ -303,5 +312,6 @@ fun FinishedCollectionPreview() {
         onCollectionClick = {},
         isExpanded = true,
         onCollectionExpand = {},
+        onChecked = {},
     )
 }

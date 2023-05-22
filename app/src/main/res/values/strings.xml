@@ -71,6 +71,7 @@
     <string name="save_collection">save collection</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="share_description">Your note or collection is available via link below</string>
-    <string name="share_error">Currently link is not available</string>
+    <string name="share_error">Currently link is not available, try again later</string>
     <string name="default_note_name">My note…</string>
+    <string name="share_note">Share note</string>
 </resources>

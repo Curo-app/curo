@@ -80,6 +80,7 @@ fun Feed(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     viewModel: FeedViewModel,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -117,6 +118,7 @@ fun Feed(
                         item = item,
                         onNoteClick = onNoteClick,
                         onCollectionClick = onCollectionClick,
+                        onChecked = onChecked
                     )
                 }
             )
@@ -159,6 +161,7 @@ fun SwipeBackground(dismissState: DismissState) {
 fun FeedForced(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     content: List<NotePreview>,
 ) {
     Column(
@@ -171,33 +174,33 @@ fun FeedForced(
                 item = item,
                 onNoteClick = onNoteClick,
                 onCollectionClick = null,
+                onChecked = onChecked,
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteCard(
     modifier: Modifier = Modifier,
     item: NotePreview,
     onNoteClick: (NotePreview) -> Unit,
     onCollectionClick: ((CollectionInfo) -> Unit)?,
+    onChecked: (NotePreview) -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
         modifier = modifier.cardModifier(interactionSource) { onNoteClick(item) },
-        headlineText = { FeedItemHeader(item) },
-        supportingText = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
+        headlineContent = { FeedItemHeader(item) },
+        supportingContent = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
         leadingContent = { EmojiContainer(item.emoji) },
-        overlineText = feedItemDeadlineFactory(item),
-        trailingContent = feedItemCheckboxFactory(item),
+        overlineContent = feedItemDeadlineFactory(item),
+        trailingContent = feedItemCheckboxFactory(item, onChecked),
         colors = listItemColors(item.done != true),
     )
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun listItemColors(enabled: Boolean): ListItemColors =
     if (enabled) {
         ListItemDefaults.colors()
@@ -208,12 +211,15 @@ fun listItemColors(enabled: Boolean): ListItemColors =
         )
     }
 
-fun feedItemCheckboxFactory(item: NotePreview): @Composable (() -> Unit)? =
+fun feedItemCheckboxFactory(
+    item: NotePreview,
+    onChecked: (NotePreview) -> Unit,
+): @Composable (() -> Unit)? =
     item.done?.let {
         {
             FilledIconToggleButton(
                 modifier = Modifier.size(25.dp),
-                onCheckedChange = { item.done = it },
+                onCheckedChange = { onChecked(item) },
                 shape = MaterialTheme.shapes.small,
                 checked = it,
             ) {
