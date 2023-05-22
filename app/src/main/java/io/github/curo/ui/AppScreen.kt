@@ -193,7 +193,7 @@ private fun NavGraphBuilder.searchScreen(
             onBackClick = {
                 coroutineScope.launch {
                     mainNavController.popBackStack()
-                    searchViewModel.query.value = ""
+                    searchViewModel.clearQuery()
                 }
             },
             searchViewModel = searchViewModel,
