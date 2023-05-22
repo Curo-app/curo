@@ -35,7 +35,7 @@ fun NoteEditMenu(
     }
     val isBodyUnmoved = firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
 
-    BackHandler { notePatchViewModel.clear() }
+    BackHandler { onDiscardNote() }
 
     Scaffold(
         topBar = { NoteOptionsTopBar(onDiscardNote, isBodyUnmoved) },

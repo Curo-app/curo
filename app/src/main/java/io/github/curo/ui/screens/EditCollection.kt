@@ -30,7 +30,7 @@ fun EditCollectionScreen(
 ) {
     val collectionState by collectionPatchViewModel.collectionPatchUiState.collectAsState()
 
-    BackHandler { collectionPatchViewModel.clear() }
+    BackHandler { onBackToMenu() }
 
     Scaffold(
         modifier = modifier,

@@ -1,5 +1,6 @@
 package io.github.curo.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +50,8 @@ fun SearchView(
     onCollectionClick: (CollectionInfo) -> Unit
 ) {
     val searchQuery by searchViewModel.query.collectAsState()
+
+    BackHandler { onBackClick() }
 
     Column(
         modifier = Modifier
