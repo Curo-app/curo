@@ -76,4 +76,5 @@
     <string name="default_note_name">My note…</string>
     <string name="share_note">Share note</string>
     <string name="search_no_results">Nothing found!</string>
+    <string name="no_notes">No notes yet. Add a note!</string>
 </resources>

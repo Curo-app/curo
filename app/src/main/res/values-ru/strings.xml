@@ -76,4 +76,5 @@
     <string name="default_note_name">Моя заметка…</string>
     <string name="share_note">Поделиться заметкой</string>
     <string name="search_no_results">Ничего не найдено!</string>
+    <string name="no_notes">Еще нет заметок. Добавьте заметку!</string>
 </resources>
