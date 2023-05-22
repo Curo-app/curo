@@ -42,7 +42,7 @@ import io.github.curo.ui.base.Feed
 fun SearchView(
     onSearchTextChanged: (String) -> Unit,
     onSearchKeyboardClick: () -> Unit,
-    onLeadingIconClick: () -> Unit,
+    onBackClick: () -> Unit,
     searchViewModel: SearchViewModel,
     onNoteClick: (NotePreview) -> Unit,
     onChecked: (NotePreview) -> Unit,
@@ -66,7 +66,7 @@ fun SearchView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { onLeadingIconClick() },
+                    onClick = { onBackClick() },
                 ) {
                     Icon(Icons.Rounded.ArrowBack, contentDescription = "Back button")
                 }

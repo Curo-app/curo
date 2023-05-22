@@ -183,27 +183,18 @@ private fun NavGraphBuilder.searchScreen(
     searchViewModel: SearchViewModel,
 ) {
     composable(
-        route = Screen.SearchResult.route + "?query={query}",
-        arguments = listOf(
-            navArgument("query",
-                builder = {
-                    type = NavType.StringType
-                    defaultValue = ""
-                }
-            )
-        )
+        route = Screen.SearchResult.route
     ) {
         val coroutineScope = rememberCoroutineScope()
-        val query = it.arguments?.getString("query").orEmpty()
-        LaunchedEffect(query) {
-            searchViewModel.query.value = query
-        }
 
         SearchView(
             onSearchTextChanged = { /* Query updated on SearchView, so do nothing */ },
             onSearchKeyboardClick = { /* Query updated on SearchView, so do nothing */ },
-            onLeadingIconClick = {
-                mainNavController.popBackStack()
+            onBackClick = {
+                coroutineScope.launch {
+                    mainNavController.popBackStack()
+                    searchViewModel.query.value = ""
+                }
             },
             searchViewModel = searchViewModel,
             onNoteClick = { note ->
@@ -431,8 +422,8 @@ private fun FABScreen(
     val coroutineScope = rememberCoroutineScope()
 
     FloatingActionButtonMenu(
-        onSearchClick = { query ->
-            mainNavHost.navigate(Screen.SearchResult.route + "?query=$query")
+        onSearchClick = {
+            mainNavHost.navigate(Screen.SearchResult.route)
         },
         onFABMenuSelect = { menu ->
             // Чтобы не делать два разных экрана для создания и изменения заметки будем считать,
@@ -485,7 +476,7 @@ private fun FABScreen(
 
 @Composable
 private fun FloatingActionButtonMenu(
-    onSearchClick: (String) -> Unit,
+    onSearchClick: () -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
     onChecked: (NotePreview) -> Unit,
@@ -548,7 +539,7 @@ private fun FloatingActionButtonMenu(
 
 @Composable
 private fun BottomNavBarScreen(
-    onSearchClick: (String) -> Unit,
+    onSearchClick: () -> Unit,
     scope: CoroutineScope,
     drawerState: DrawerState,
     bottomBarNavHost: NavHostController,
@@ -562,7 +553,6 @@ private fun BottomNavBarScreen(
     collectionViewModel: CollectionViewModel,
     calendarViewModel: CalendarViewModel,
 ) {
-    var searchText by remember { mutableStateOf("") }
     val calendarState = rememberCuroCalendarState()
 
     val currentBottomMenuItem by bottomBarNavHost.currentBackStackEntryAsState()
@@ -570,11 +560,7 @@ private fun BottomNavBarScreen(
     Scaffold(
         topBar = {
             SearchTopAppBar(
-                onSearchClick = {
-                    val query = it.orEmpty()
-                    searchText = query
-                    onSearchClick(query)
-                },
+                onSearch = onSearchClick,
                 onMenuClick = { scope.launch { drawerState.open() } },
                 content = if (currentRoute == BottomNavigationScreen.Calendar.route) {
                     {

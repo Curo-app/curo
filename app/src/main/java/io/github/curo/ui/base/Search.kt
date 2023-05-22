@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Search
@@ -22,27 +19,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.curo.R
-import io.github.curo.utils.MIN_SEARCH_QUERY_LENGTH
 
 @Composable
 fun SearchTopAppBar(
     modifier: Modifier = Modifier,
     content: (@Composable () -> Unit)?,
-    onSearchClick: (String?) -> Unit = {},
+    onSearch: () -> Unit = {},
     onMenuClick: () -> Unit = {},
 ) {
     Row(
@@ -62,13 +51,13 @@ fun SearchTopAppBar(
         if (content != null) {
             CompactSearch(
                 content = content,
-                onSearch = { onSearchClick(null) }
+                onSearch = { onSearch() }
             )
         } else {
             SearchBar(
                 modifier = Modifier
                     .weight(1f),
-                onSearch = onSearchClick,
+                onSearch = onSearch,
             )
         }
     }
@@ -99,16 +88,15 @@ fun CompactSearch(
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
-    onSearch: (String?) -> Unit = {},
+    onSearch: () -> Unit = {},
 ) {
     val hint: String = stringResource(R.string.search_hint)
-    var text by rememberSaveable { mutableStateOf("") }
-    var isHint by rememberSaveable { mutableStateOf(hint.isNotEmpty()) }
 
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.primary)
+            .clickable { onSearch() },
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 3.dp,
     ) {
@@ -122,36 +110,13 @@ fun SearchBar(
                     .align(Alignment.CenterVertically)
             )
             Box {
-                BasicTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    maxLines = 1,
-                    singleLine = true,
+                Text(
+                    text = hint,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
-                        .padding(end = 16.dp, top = 8.dp, bottom = 8.dp)
-                        .onFocusChanged { isHint = !it.isFocused },
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onSearch = {
-                            if (text.length >= MIN_SEARCH_QUERY_LENGTH) {
-                                onSearch(text)
-                            }
-                        }
-                    ),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
+                        .padding(end = 16.dp, top = 8.dp, bottom = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                if (isHint) {
-                    Text(
-                        text = hint,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .padding(end = 16.dp, top = 8.dp, bottom = 8.dp),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
             }
         }
     }
