@@ -1,5 +1,6 @@
 package io.github.curo.ui.base
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,6 +34,8 @@ fun NoteEditMenu(
         derivedStateOf { listState.firstVisibleItemScrollOffset }
     }
     val isBodyUnmoved = firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+
+    BackHandler { notePatchViewModel.clear() }
 
     Scaffold(
         topBar = { NoteOptionsTopBar(onDiscardNote, isBodyUnmoved) },

@@ -1,5 +1,6 @@
 package io.github.curo.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -28,6 +29,8 @@ fun EditCollectionScreen(
     onSaveCollection: (CollectionPreview) -> Unit,
 ) {
     val collectionState by collectionPatchViewModel.collectionPatchUiState.collectAsState()
+
+    BackHandler { collectionPatchViewModel.clear() }
 
     Scaffold(
         modifier = modifier,
