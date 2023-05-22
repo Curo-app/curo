@@ -5,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,10 +13,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material3.Divider
@@ -71,7 +70,6 @@ import java.time.LocalTime
 
 private val emptyTextFieldValue = TextFieldValue("", TextRange.Zero)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteOptionsScreen(
     note: NotePatchViewModel,
@@ -95,11 +93,11 @@ fun NoteOptionsScreen(
 private fun NoteOptionsTopBar(onReturn: () -> Unit) {
     TopAppBar(
         title = {
-            Text(text = "Settings", style = MaterialTheme.typography.titleLarge)
+            Text(text = stringResource(R.string.settings_screen_name), style = MaterialTheme.typography.titleLarge)
         },
         navigationIcon = {
             IconButton(onClick = onReturn) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Discard changes")
+                Icon(Icons.Rounded.ArrowBack, contentDescription = "Discard changes")
             }
         }
     )
@@ -178,12 +176,11 @@ private fun DeadlineSelector(
     onDateClear: (Deadline) -> Unit,
     onTimeClear: (TimedDeadline) -> Unit,
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
+        horizontalAlignment = Alignment.Start,
     ) {
         DateDeadlineChip(
             deadline = deadline,
@@ -191,13 +188,13 @@ private fun DeadlineSelector(
             onClear = onDateClear,
         )
 
-        Spacer(modifier = Modifier.width(10.dp))
-
-        TimeDeadlineChip(
-            deadline = deadline,
-            onClick = onTimeClick,
-            onClear = onTimeClear
-        )
+        if (deadline != null) {
+            TimeDeadlineChip(
+                deadline = deadline,
+                onClick = onTimeClick,
+                onClear = onTimeClear
+            )
+        }
     }
 }
 
@@ -333,6 +330,10 @@ private fun CollectionAdder(
                 },
             )
 
+            if (collectionViewModel.suggestions.isEmpty()) {
+                return@ExposedDropdownMenuBox
+            }
+
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { suggestionState = Suggestion.Hidden },
@@ -387,7 +388,6 @@ private fun AddCollectionButton(
     ) { Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.add)) }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionNameTextField(
     modifier: Modifier,
@@ -461,17 +461,18 @@ private fun changeDate(
     is TimedDeadline -> deadline.copy(date = it)
 }
 
-private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? = if (mIsTodoNote) {
-    {
+private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? {
+    if (!mIsTodoNote) return null
+
+    return {
         Icon(
             imageVector = Icons.Filled.Check,
             contentDescription = null,
             modifier = Modifier.size(SwitchDefaults.IconSize),
         )
     }
-} else null
+}
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CurrentCollections(
     patchCollection: CollectionInfo?,
@@ -500,10 +501,9 @@ private fun CurrentCollections(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
     current: CollectionInfo,
-    collections: MutableList<CollectionInfo>
+    collections: MutableList<CollectionInfo>,
 ) {
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),
