@@ -196,7 +196,7 @@ private fun NavGraphBuilder.searchScreen(
         val coroutineScope = rememberCoroutineScope()
         val query = it.arguments?.getString("query").orEmpty()
         LaunchedEffect(query) {
-            searchViewModel.query = query
+            searchViewModel.query.value = query
         }
 
         SearchView(

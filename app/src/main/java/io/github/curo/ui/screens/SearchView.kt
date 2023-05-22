@@ -48,6 +48,8 @@ fun SearchView(
     onChecked: (NotePreview) -> Unit,
     onCollectionClick: (CollectionInfo) -> Unit
 ) {
+    val searchQuery by searchViewModel.query.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,9 +72,9 @@ fun SearchView(
                 }
                 Box(modifier = Modifier.weight(1f)) {
                     BasicTextField(
-                        value = searchViewModel.query,
+                        value = searchQuery,
                         onValueChange = {
-                            searchViewModel.query = it
+                            searchViewModel.query.value = it
                             onSearchTextChanged(it)
                         },
                         maxLines = 1,
@@ -88,7 +90,7 @@ fun SearchView(
                             onSearch = { onSearchKeyboardClick() }
                         )
                     )
-                    if (searchViewModel.query.isEmpty()) {
+                    if (searchQuery.isEmpty()) {
                         Text(
                             text = stringResource(R.string.search_hint),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -99,8 +101,8 @@ fun SearchView(
                     }
                 }
 
-                if (searchViewModel.query.isNotEmpty()) {
-                    IconButton(onClick = { searchViewModel.query = "" }) {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchViewModel.query.value = "" }) {
                         Icon(
                             Icons.Rounded.Clear,
                             contentDescription = stringResource(R.string.clear_input)
