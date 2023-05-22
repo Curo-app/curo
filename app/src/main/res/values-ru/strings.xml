@@ -63,6 +63,7 @@
     <string name="calendar_menu">Меню календаря</string>
     <string name="calendar_search">Поиск по календарю</string>
 
+    <string name="add_note_hint">Подсказка добавления заметки</string>
     <string name="add_note">Добавить заметку</string>
     <string name="share_collection">Поделиться коллекцией</string>
     <string name="delete_collection">Удалить коллекцию</string>

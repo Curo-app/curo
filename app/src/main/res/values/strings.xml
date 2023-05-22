@@ -63,6 +63,7 @@
     <string name="calendar_menu">Calendar Menu</string>
     <string name="calendar_search">Calendar search</string>
 
+    <string name="add_note_hint">Add Note Hint</string>
     <string name="add_note">Add note</string>
     <string name="share_collection">Share collection</string>
     <string name="delete_collection">Delete collection</string>

@@ -1,13 +1,21 @@
 package io.github.curo.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.curo.R
 import io.github.curo.data.CollectionPreview
 import io.github.curo.data.NotePreview
@@ -100,12 +108,38 @@ fun EditCollectionScreen(
             )
         },
     ) { padding ->
-        FeedForced(
-            modifier = modifier.padding(padding),
-            content = collectionState.notes,
-            onNoteClick = onNoteClick,
-            onChecked = onChecked,
-        )
+        val notes = collectionState.notes
+        if (notes.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.AddCircle,
+                    contentDescription = stringResource(R.string.add_note_hint),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(48.dp)
+                )
+                Text(
+                    text = stringResource(R.string.no_notes),
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 16.sp
+                    ),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        } else {
+            FeedForced(
+                modifier = modifier.padding(padding),
+                content = notes,
+                onNoteClick = onNoteClick,
+                onChecked = onChecked,
+            )
+        }
     }
 }
 
