@@ -73,4 +73,5 @@
     <string name="share_description">Ваша заметка или коллекция доступны по ссылке ниже</string>
     <string name="share_error">В настоящее время ссылка недоступна</string>
     <string name="default_note_name">Моя заметка…</string>
+    <string name="share_note">Поделиться заметкой</string>
 </resources>
