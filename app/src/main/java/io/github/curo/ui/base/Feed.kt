@@ -118,7 +118,8 @@ fun Feed(
                         item = item,
                         onNoteClick = onNoteClick,
                         onCollectionClick = onCollectionClick,
-                        onChecked = onChecked
+                        onChecked = onChecked,
+                        modifier = Modifier.padding(horizontal = 8.dp),
                     )
                 }
             )
@@ -175,6 +176,7 @@ fun FeedForced(
                 onNoteClick = onNoteClick,
                 onCollectionClick = null,
                 onChecked = onChecked,
+                modifier = Modifier.padding(horizontal = 8.dp),
             )
         }
     }
