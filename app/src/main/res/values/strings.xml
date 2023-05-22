@@ -75,4 +75,5 @@
     <string name="share_error">Currently link is not available, try again later</string>
     <string name="default_note_name">My note…</string>
     <string name="share_note">Share note</string>
+    <string name="search_no_results">Nothing found!</string>
 </resources>

@@ -133,9 +133,14 @@ fun SearchView(
                     modifier = Modifier.size(128.dp),
                     imageVector = Icons.Rounded.Search,
                     contentDescription = "",
-                    tint = MaterialTheme.colorScheme.inversePrimary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text(text = "Nothing found")
+                Text(
+                    text = stringResource(R.string.search_no_results),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
         } else {
             Feed(
