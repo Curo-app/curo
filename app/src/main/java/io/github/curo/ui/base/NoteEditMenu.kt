@@ -16,10 +16,9 @@ import io.github.curo.R
 import io.github.curo.data.NotePreview
 import io.github.curo.viewmodels.NotePatchViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditMenu(
-    note: NotePatchViewModel,
+    notePatchViewModel: NotePatchViewModel,
     onSaveNote: (NotePreview) -> Unit,
     onDiscardNote: () -> Unit,
     onShareNote: (id: Long) -> Unit,
@@ -37,7 +36,7 @@ fun NoteEditMenu(
 
     Scaffold(
         topBar = { NoteOptionsTopBar(onDiscardNote, isBodyUnmoved) },
-        bottomBar = { BottomBar(note, onSaveNote, onShareNote, onDeleteNote, onPropertiesClick) },
+        bottomBar = { BottomBar(notePatchViewModel, onSaveNote, onShareNote, onDeleteNote, onPropertiesClick) },
     ) {
         LazyColumn(
             state = listState,
@@ -48,9 +47,9 @@ fun NoteEditMenu(
         ) {
             item {
                 TransparentHintTextField(
-                    text = note.name,
+                    text = notePatchViewModel.name,
                     hint = stringResource(R.string.title_textfield_hint),
-                    onValueChange = { text -> note.name = text },
+                    onValueChange = { text -> notePatchViewModel.name = text },
                     textStyle = TextStyle(
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize
                     )
@@ -60,9 +59,9 @@ fun NoteEditMenu(
             item {
                 TransparentHintTextField(
                     modifier = Modifier.fillMaxHeight(),
-                    text = note.description,
+                    text = notePatchViewModel.description,
                     hint = stringResource(R.string.note_textfield_hint),
-                    onValueChange = { text -> note.description = text },
+                    onValueChange = { text -> notePatchViewModel.description = text },
                     textStyle = TextStyle(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
                     )

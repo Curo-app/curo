@@ -241,7 +241,7 @@ private fun NavGraphBuilder.collectionEditScreen(
         }
 
         EditCollectionScreen(
-            viewModel = collectionPatchViewModel,
+            collectionPatchViewModel = collectionPatchViewModel,
             onNoteClick = { note ->
                 mainNavController.navigate(Screen.EditNote.route + '/' + note.id)
             },
@@ -360,7 +360,7 @@ private fun NavGraphBuilder.noteEditScreen(
             }
         }
         NoteEditMenu(
-            note = notePatchViewModel,
+            notePatchViewModel = notePatchViewModel,
             onSaveNote = { _ ->
                 mainNavController.popBackStack()
                 coroutineScope.launch {

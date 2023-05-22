@@ -17,7 +17,7 @@ import io.github.curo.viewmodels.CollectionPatchViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditCollectionScreen(
-    viewModel: CollectionPatchViewModel,
+    collectionPatchViewModel: CollectionPatchViewModel,
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
     onChecked: (NotePreview) -> Unit,
@@ -27,7 +27,7 @@ fun EditCollectionScreen(
     onBackToMenu: () -> Unit,
     onSaveCollection: (CollectionPreview) -> Unit,
 ) {
-    val collectionState by viewModel.collectionPatchUiState.collectAsState()
+    val collectionState by collectionPatchViewModel.collectionPatchUiState.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -36,8 +36,8 @@ fun EditCollectionScreen(
                 title = {
                     TransparentHintTextField(
                         hint = stringResource(R.string.collection_name_hint),
-                        text = viewModel.name,
-                        onValueChange = { viewModel.name = it },
+                        text = collectionPatchViewModel.name,
+                        onValueChange = { collectionPatchViewModel.name = it },
                         textStyle = LocalTextStyle.current.copy(
                             color = LocalContentColor.current
                         )
@@ -64,7 +64,7 @@ fun EditCollectionScreen(
                         )
                     }
                     IconButton(
-                        onClick = { onShareCollection(viewModel.toCollectionPreview()) },
+                        onClick = { onShareCollection(collectionPatchViewModel.toCollectionPreview()) },
                         content = {
                             Icon(
                                 imageVector = Icons.Rounded.Share,
@@ -73,7 +73,7 @@ fun EditCollectionScreen(
                         },
                     )
                     IconButton(onClick = {
-                        onDeleteCollection(CollectionInfo(viewModel.id, viewModel.name))
+                        onDeleteCollection(CollectionInfo(collectionPatchViewModel.id, collectionPatchViewModel.name))
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Delete,
@@ -84,7 +84,7 @@ fun EditCollectionScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { onSaveCollection(viewModel.toCollectionPreview()) },
+                        onClick = { onSaveCollection(collectionPatchViewModel.toCollectionPreview()) },
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {
