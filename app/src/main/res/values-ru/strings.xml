@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Curo</string>
 
+    <string name="collection_name_hint">Название коллекции</string>
+
     <string name="collections_screen_name">Коллекции</string>
     <string name="feed_screen_name">Лента</string>
     <string name="calendar_screen_name">Календарь</string>

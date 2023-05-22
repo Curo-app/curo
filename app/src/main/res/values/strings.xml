@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Curo</string>
 
-
+    <string name="collection_name_hint">Collection name</string>
 
     <string name="collections_screen_name">Collections</string>
     <string name="feed_screen_name">Feed</string>

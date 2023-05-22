@@ -1,7 +1,6 @@
 package io.github.curo.ui.screens
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
@@ -9,11 +8,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import io.github.curo.R
-import io.github.curo.viewmodels.CollectionPatchViewModel
 import io.github.curo.data.CollectionPreview
 import io.github.curo.data.NotePreview
 import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.ui.base.*
+import io.github.curo.viewmodels.CollectionPatchViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,12 +34,13 @@ fun EditCollectionScreen(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    BasicTextField(
-                        value = viewModel.name,
+                    TransparentHintTextField(
+                        hint = stringResource(R.string.collection_name_hint),
+                        text = viewModel.name,
                         onValueChange = { viewModel.name = it },
                         textStyle = LocalTextStyle.current.copy(
                             color = LocalContentColor.current
-                        ), // workaround for https://stackoverflow.com/questions/73700656/why-is-mediumtopappbar-and-large-showing-two-textfield-in-compose
+                        )
                     )
                 },
                 navigationIcon = {

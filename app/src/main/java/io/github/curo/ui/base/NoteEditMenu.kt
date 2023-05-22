@@ -73,7 +73,7 @@ fun NoteEditMenu(
 }
 
 @Composable
-private fun TransparentHintTextField(
+fun TransparentHintTextField(
     modifier: Modifier = Modifier,
     text: String = "",
     hint: String = "",
