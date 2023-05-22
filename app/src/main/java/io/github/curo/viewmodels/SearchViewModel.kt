@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 class SearchViewModel(
     noteDao: NoteDao
 ) : FeedViewModel(noteDao) {
-    var query: MutableStateFlow<String> = MutableStateFlow("")
+    val query: MutableStateFlow<String> = MutableStateFlow("")
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val feedUiState: StateFlow<FeedUiState> =
@@ -32,6 +32,10 @@ class SearchViewModel(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = FeedUiState(emptyList())
             )
+
+    fun clearQuery() {
+        query.value = ""
+    }
 
     class SearchViewModelFactory(
         private val noteDao: NoteDao

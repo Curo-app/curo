@@ -105,7 +105,7 @@ fun SearchView(
                 }
 
                 if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchViewModel.query.value = "" }) {
+                    IconButton(onClick = { searchViewModel.clearQuery() }) {
                         Icon(
                             Icons.Rounded.Clear,
                             contentDescription = stringResource(R.string.clear_input)
