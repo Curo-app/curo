@@ -53,19 +53,19 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import io.github.curo.R
-import io.github.curo.viewmodels.CollectionViewModel
 import io.github.curo.data.Deadline
-import io.github.curo.viewmodels.NotePatchViewModel
 import io.github.curo.data.SimpleDeadline
 import io.github.curo.data.TimedDeadline
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
 import io.github.curo.utils.MAX_NOTE_COLLECTIONS_AMOUNT
+import io.github.curo.viewmodels.CollectionViewModel
+import io.github.curo.viewmodels.NotePatchViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -291,7 +291,7 @@ private fun EmptyChip(
 @Composable
 private fun CollectionAdder(
     collectionViewModel: CollectionViewModel,
-    collections: SnapshotStateList<String>,
+    collections: SnapshotStateList<CollectionInfo>,
 ) {
     var suggestionState: Suggestion by remember { mutableStateOf(Suggestion.Hidden) }
     var textFieldValue by remember { mutableStateOf(emptyTextFieldValue) }
@@ -320,6 +320,7 @@ private fun CollectionAdder(
                     if (textFieldValue.text.isNotBlank()) {
                         collectionViewModel.query = textFieldValue.text
                     }
+
                     suggestionState = when (suggestionState) {
                         Suggestion.Hidden -> Suggestion.Shown
                         Suggestion.Shown -> Suggestion.Shown
@@ -341,12 +342,13 @@ private fun CollectionAdder(
                     DropdownMenuItem(
                         onClick = {
                             suggestionState = Suggestion.Suggested
+                            collections += label
                             textFieldValue = TextFieldValue(
-                                text = label,
-                                selection = TextRange(label.length)
+                                text = "",
+                                selection = TextRange(label.collectionName.length)
                             )
                         },
-                        text = { Text(text = label) }
+                        text = { Text(text = label.collectionName) }
                     )
                 }
             }
@@ -357,7 +359,10 @@ private fun CollectionAdder(
                     collections.size != MAX_NOTE_COLLECTIONS_AMOUNT,
             onClick = {
                 suggestionState = Suggestion.Suggested
-                collections += textFieldValue.text
+                collections += CollectionInfo(
+                    collectionId = 0,
+                    collectionName = textFieldValue.text,
+                )
                 textFieldValue = TextFieldValue("", selection = TextRange.Zero)
             },
         )
@@ -469,8 +474,8 @@ private fun toggleIconFactory(mIsTodoNote: Boolean): @Composable (() -> Unit)? =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CurrentCollections(
-    patchCollection: String?,
-    collections: MutableList<String>
+    patchCollection: CollectionInfo?,
+    collections: MutableList<CollectionInfo>
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
@@ -478,15 +483,18 @@ private fun CurrentCollections(
     ) {
         patchCollection?.let { collection ->
             item {
-                SuggestionChip(onClick = { /* DO NOTHING */ },
+                SuggestionChip(
+                    onClick = { /* DO NOTHING */ },
                     modifier = Modifier.padding(vertical = 0.dp),
                     interactionSource = remember { MutableInteractionSource() },
-                    label = { Text(text = collection) },
+                    label = { Text(text = collection.collectionName) },
                 )
             }
         }
         items(collections) { collection ->
-            CollectionChip(collection, collections)
+            if (patchCollection == null || patchCollection.collectionId != collection.collectionId) {
+                CollectionChip(collection, collections)
+            }
         }
     }
 }
@@ -494,13 +502,13 @@ private fun CurrentCollections(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
-    current: String,
-    collections: MutableList<String>
+    current: CollectionInfo,
+    collections: MutableList<CollectionInfo>
 ) {
     SuggestionChip(onClick = { /* DO NOTHING */ },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current) },
+        label = { Text(text = current.collectionName) },
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Clear,
@@ -517,10 +525,10 @@ sealed class Suggestion {
     object Shown : Suggestion()
 }
 
-@Preview
-@Composable
-fun NoteOptionsPreview() {
-    val noteModel = remember { NotePatchViewModel() }
-    val viewModel = remember { CollectionViewModel() }
-    NoteOptionsScreen(noteModel, viewModel) {}
-}
+//@Preview
+//@Composable
+//fun NoteOptionsPreview() {
+//    val noteModel = remember { NotePatchViewModel() }
+//    val viewModel = remember { CollectionViewModel() }
+//    NoteOptionsScreen(noteModel, viewModel) {}
+//}

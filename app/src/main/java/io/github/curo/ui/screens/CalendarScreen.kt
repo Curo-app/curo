@@ -23,12 +23,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CalendarViewModel
 import io.github.curo.ui.base.LandscapeCalendar
 import io.github.curo.ui.base.PortraitCalendar
@@ -43,7 +43,7 @@ private val cellsBackgroundColor: Color @Composable get() = MaterialTheme.colorS
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel,
     calendarState: CalendarState,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
 ) {
     CalendarMenu(
@@ -60,7 +60,7 @@ fun CalendarMenu(
     modifier: Modifier = Modifier,
     calendarState: CalendarState,
     calendarViewModel: CalendarViewModel,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onDayClick: (LocalDate) -> Unit,
 ) {
     Column(modifier = modifier) {
@@ -92,16 +92,18 @@ fun CalendarMenu(
 
 @Composable
 private fun CurrentCollections(
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     viewModel: CalendarViewModel,
 ) {
+    val calendarCollectionUiState by viewModel.collectionsState.collectAsState()
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 5.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        items(viewModel.collectionsNames) { collection ->
+        items(calendarCollectionUiState.getCollectionFilters()) { collection ->
             val currentItem by rememberUpdatedState(collection)
             CollectionChip(currentItem, onCollectionClick)
         }
@@ -112,7 +114,7 @@ private fun CurrentCollections(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CollectionChip(
     current: CalendarViewModel.CollectionFilter,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
 ) {
     FilterChip(
         onClick = {
@@ -121,7 +123,7 @@ private fun CollectionChip(
         },
         modifier = Modifier.padding(vertical = 0.dp),
         interactionSource = remember { MutableInteractionSource() },
-        label = { Text(text = current.name) },
+        label = { Text(text = current.name.collectionName) },
         selected = current.enabled,
     )
 }
@@ -231,9 +233,9 @@ private fun isCurrentDayOfWeek(
     dayOfWeek: DayOfWeek,
 ) = dayOfWeek == LocalDate.now().dayOfWeek
 
-@Preview(showBackground = true)
-@Composable
-fun CalendarPreview() {
-    val viewModel = remember { CalendarViewModel() }
-    CalendarScreen(viewModel, rememberCuroCalendarState(), onCollectionClick = {}, onDayClick = {})
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CalendarPreview() {
+//    val viewModel = remember { CalendarViewModel() }
+//    CalendarScreen(viewModel, rememberCuroCalendarState(), onCollectionClick = {}, onDayClick = {})
+//}

@@ -3,37 +3,100 @@ package io.github.curo.viewmodels
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.curo.data.NotePreview
-import io.github.curo.data.NotePreview.Companion.extractCollections
-import io.github.curo.utils.setAll
+import io.github.curo.database.dao.CollectionDao
+import io.github.curo.database.dao.NoteCollectionCrossRefDao
+import io.github.curo.database.dao.NoteDao
+import io.github.curo.database.entities.CollectionInfo
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
+data class CalendarCollectionsState(
+    val collectionNames: Map<CollectionInfo, CalendarViewModel.CollectionFilter>
+) {
+    fun getCollectionFilters(): List<CalendarViewModel.CollectionFilter> =
+        collectionNames.values.toList()
+}
+
+data class CalendarNotesState(
+    val notes: List<NotePreview>
+)
+
 @Stable
-class CalendarViewModel : FeedViewModel() {
-    private var _currentDay by mutableStateOf(LocalDate.now())
-    val currentDay: LocalDate = _currentDay
+class CalendarViewModel(
+    private val noteDao: NoteDao,
+    collectionDao: CollectionDao,
+    private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
+) : FeedViewModel(noteDao) {
+
+    val collectionsState: StateFlow<CalendarCollectionsState> =
+        collectionDao.getAll()
+            .map { collections -> collections.map { CollectionInfo.of(it) } }
+            .map { names -> CalendarCollectionsState(names.associateWith { CollectionFilter(it) }) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = CalendarCollectionsState(emptyMap())
+            )
+
+    val notesState: StateFlow<CalendarNotesState> =
+        noteDao.getAll()
+            .map { notes -> notes.map { NotePreview.of(it) } }
+            .map { notes -> CalendarNotesState(notes) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = CalendarNotesState(emptyList())
+            )
+
+    private var _currentDay = MutableStateFlow(LocalDate.now())
+
+    val currentDay: LocalDate
+        get() = _currentDay.value
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val feedUiState: StateFlow<FeedUiState> =
+        _currentDay
+            .mapLatest { noteDao.getNotesForDate(it).first() }
+            .map { notes -> notes.map { NotePreview.of(it) } }
+            .map { notes -> FeedUiState(notes) }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = FeedUiState()
+            )
 
     fun setDay(day: LocalDate) {
-        _currentDay = day
-        _notes.setAll(super.notes.filter { note ->
-            note.deadline?.let { it.date == day } ?: false
-        })
+        _currentDay.value = day
+//        _notes.setAll(super.notes.filter { note ->
+//            note.deadline?.let { it.date == day } ?: false
+//        })
     }
 
-    private val _collectionsNames = mutableStateMapOf<String, CollectionFilter>()
-    val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
+//    private var _collectionsNames: Map<CollectionInfo, CollectionFilter> = mutableStateMapOf()
+//    val collectionsNames: List<CollectionFilter> get() = _collectionsNames.values.toList()
 
-    private val _notes = mutableStateListOf<NotePreview>()
-    override val notes: List<NotePreview>
-        get() = _notes
+//    private val _notes = mutableStateListOf<NotePreview>()
+
+    // field is never used, but should be in DayNotes.kt
+//    override val notes: List<NotePreview>
+//        get() = _notes
 
     private val _dayState = mutableStateMapOf<LocalDate, DayState>()
     val dayState: Map<LocalDate, DayState>
@@ -42,16 +105,15 @@ class CalendarViewModel : FeedViewModel() {
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val items = loadItems()
-                val collections = items
-                    .extractCollections()
-                    .associateWith { CollectionFilter(it) }
+                notesState.collect {
+                    val items = it.notes
 
-                val dateCounted = getDateGrouped(items)
+                    // return day state for each day
+                    val dateCounted = getDateGrouped(items)
 
-                withContext(Dispatchers.Main) {
-                    _collectionsNames.putAll(collections)
-                    setDateGrouped(dateCounted)
+                    withContext(Dispatchers.Main) {
+                        setDateGrouped(dateCounted)
+                    }
                 }
             }
         }
@@ -60,7 +122,7 @@ class CalendarViewModel : FeedViewModel() {
     private fun resetFilters() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val items = super.notes
+                val items = noteDao.getAll().first().map { NotePreview.of(it) }
 
                 val dateCounted = getDateGrouped(items)
 
@@ -71,10 +133,12 @@ class CalendarViewModel : FeedViewModel() {
         }
     }
 
+    // onCollectionFilterClick
+    // set day State for each day
     fun updateOnFilters() {
         viewModelScope.launch {
             val showedCollections = buildSet {
-                _collectionsNames.forEach { (name, filter) ->
+                collectionsState.value.collectionNames.forEach { (name, filter) ->
                     if (filter.enabled) {
                         add(name)
                     }
@@ -85,9 +149,15 @@ class CalendarViewModel : FeedViewModel() {
                 return@launch
             }
 
-            val filteredNotes = super.notes.filter { note ->
-                note.collections.any { it in showedCollections }
-            }
+            val filteredNotesIds = showedCollections
+                .map { noteCollectionCrossRefDao.listByCollectionId(it.collectionId).first() }
+                .flatten()
+                .map { it.noteId }
+                .distinct()
+
+            val filteredNotes =
+                noteDao.findAll(filteredNotesIds).first()
+                    .map { NotePreview.of(it) }
 
             val dateCounted = getDateGrouped(filteredNotes)
 
@@ -129,7 +199,7 @@ class CalendarViewModel : FeedViewModel() {
 
     @Stable
     data class CollectionFilter(
-        val name: String,
+        val name: CollectionInfo,
     ) {
         var enabled: Boolean by mutableStateOf(false)
     }
@@ -145,5 +215,19 @@ class CalendarViewModel : FeedViewModel() {
         value class NoWarn(val amount: Int) : DayState
 
         object Empty : DayState
+    }
+
+    class CalendarViewModelFactory(
+        private val noteDao: NoteDao,
+        private val collectionDao: CollectionDao,
+        private val noteCollectionCrossRefDao: NoteCollectionCrossRefDao
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(CalendarViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return CalendarViewModel(noteDao, collectionDao, noteCollectionCrossRefDao) as T
+            }
+            throw IllegalArgumentException("Unknown VieModel Class")
+        }
     }
 }

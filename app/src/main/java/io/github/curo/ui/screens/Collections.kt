@@ -26,16 +26,19 @@ import io.github.curo.ui.base.cardModifier
 import io.github.curo.ui.base.listItemColors
 import kotlin.random.Random
 import androidx.compose.foundation.lazy.items
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.viewmodels.CollectionViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collections(
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     viewModel: CollectionViewModel,
 ) {
+    val collectionState by viewModel.collectionUiState.collectAsState()
+
     Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
@@ -43,13 +46,14 @@ fun Collections(
                 .background(color = MaterialTheme.colorScheme.background)
                 .wrapContentSize()
         ) {
-            items(viewModel.collections) { collection ->
+            items(collectionState.collections) { collection ->
                 ExpandableCollectionView(
                     collection = collection,
                     onNoteClick = onNoteClick,
                     onCollectionClick = onCollectionClick,
-                    isExpanded = collection.name in viewModel.expanded,
-                    onCollectionExpand = { viewModel.expand(collection.name) },
+                    isExpanded = viewModel.isExpanded(collection.id),
+                    onCollectionExpand = { viewModel.expand(collection.id) },
+                    onChecked = onChecked,
                 )
             }
         }
@@ -60,32 +64,37 @@ fun Collections(
 fun ExpandableCollectionView(
     collection: CollectionPreview,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onChecked: (NotePreview) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
 ) {
     Box {
         Column {
             CollectionCard(collection, onCollectionClick, onCollectionExpand, isExpanded)
-            CollectionNotes(collection.notes, onNoteClick, isExpanded)
+            CollectionNotes(
+                notes = collection.notes,
+                onNoteClick = onNoteClick,
+                onChecked = onChecked,
+                isExpanded = isExpanded
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionCard(
     collection: CollectionPreview,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
     onCollectionExpand: () -> Unit,
     isExpanded: Boolean,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
         modifier = Modifier.cardModifier(interactionSource) {
-            onCollectionClick(collection.name)
+            onCollectionClick(CollectionInfo(collection.id, collection.name))
         },
-        headlineText = { CollectionsItemHeader(collection) },
+        headlineContent = { CollectionsItemHeader(collection) },
         leadingContent = { EmojiContainer(collection.emoji) },
         trailingContent = { CollectionTrailing(collection, isExpanded, onCollectionExpand) },
         colors = listItemColors(collection.progress?.run { !isFinished() } ?: true)
@@ -96,6 +105,7 @@ private fun CollectionCard(
 fun CollectionNotes(
     notes: List<NotePreview>,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     isExpanded: Boolean
 ) {
     // Opening Animation
@@ -127,7 +137,7 @@ fun CollectionNotes(
             modifier = Modifier
                 .padding(start = 25.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
         ) {
-            FeedForced(onNoteClick = onNoteClick, content = notes)
+            FeedForced(onNoteClick = onNoteClick, content = notes, onChecked = onChecked)
         }
     }
 }
@@ -184,12 +194,12 @@ private fun CollectionTrailing(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CollectionsScreenPreview() {
-    val viewModel = remember { CollectionViewModel() }
-    Collections(viewModel = viewModel, onCollectionClick = {}, onNoteClick = {})
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CollectionsScreenPreview() {
+//    val viewModel = remember { CollectionViewModel() }
+//    Collections(viewModel = viewModel, onCollectionClick = {}, onNoteClick = {})
+//}
 
 @Preview(showBackground = true)
 @Composable
@@ -216,10 +226,10 @@ fun ClosedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
@@ -229,6 +239,7 @@ fun ClosedCollectionPreview() {
         onCollectionClick = {},
         isExpanded = false,
         onCollectionExpand = {},
+        onChecked = {},
     )
 }
 
@@ -257,10 +268,10 @@ fun OpenedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
@@ -270,6 +281,7 @@ fun OpenedCollectionPreview() {
         onCollectionClick = {},
         isExpanded = true,
         onCollectionExpand = {},
+        onChecked = {},
     )
 }
 
@@ -287,10 +299,10 @@ fun FinishedCollectionPreview() {
                     name = "FP HW 3",
                     description = "Надо быстрее сделать",
                     collections = listOf(
-                        "Домашка",
-                        "Важное",
-                        "Haskell",
-                        "Ненавижу ФП"
+                        CollectionInfo(0, "Домашка"),
+                        CollectionInfo(1, "Важное"),
+                        CollectionInfo(2, "Haskell"),
+                        CollectionInfo(3, "Ненавижу ФП"),
                     ),
                     done = true
                 )
@@ -300,5 +312,6 @@ fun FinishedCollectionPreview() {
         onCollectionClick = {},
         isExpanded = true,
         onCollectionExpand = {},
+        onChecked = {},
     )
 }

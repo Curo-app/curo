@@ -8,6 +8,7 @@ import io.github.curo.database.entities.CollectionWithNotes
 
 @Stable
 class CollectionPreview(
+    val id: Long = 0,
     val emoji: Emoji = Emoji("\uD83D\uDDC2"),
     val name: String,
     val notes: List<NotePreview>
@@ -28,14 +29,18 @@ class CollectionPreview(
     companion object {
         fun of(collectionWithNotes: CollectionWithNotes): CollectionPreview =
             CollectionPreview(
+                id = collectionWithNotes.collection.collectionId,
                 emoji = Emoji(collectionWithNotes.collection.emoji),
                 name = collectionWithNotes.collection.collectionName,
                 notes = collectionWithNotes.notes.map { NotePreview.of(it) }
             )
+
+        fun Collection<CollectionWithNotes>.toCollectionPreviews(): List<CollectionPreview> =
+            this.map { of(it) }
     }
 
     override fun toString(): String {
-        return "CollectionPreviewModel(emoji=$emoji, name='$name', notes=$notes, progress=$progress)"
+        return "CollectionPreview(id=$id, emoji=$emoji, name='$name', notes=$notes, progress=$progress)"
     }
 }
 

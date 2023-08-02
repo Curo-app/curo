@@ -42,8 +42,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,18 +58,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.curo.R
 import io.github.curo.data.Deadline
 import io.github.curo.data.Emoji
-import io.github.curo.viewmodels.FeedViewModel
 import io.github.curo.data.NotePreview
 import io.github.curo.data.SwipeDeleteProperties
 import io.github.curo.data.TimedDeadline
+import io.github.curo.database.entities.CollectionInfo
 import io.github.curo.utils.DateTimeUtils.dateFormatter
 import io.github.curo.utils.DateTimeUtils.timeShortFormatter
+import io.github.curo.viewmodels.FeedViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 
@@ -76,20 +79,26 @@ import java.time.LocalDate
 fun Feed(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     viewModel: FeedViewModel,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val feedUiState by viewModel.feedUiState.collectAsState()
+
     LazyColumn(
         modifier = modifier
             .background(color = MaterialTheme.colorScheme.background)
             .wrapContentSize()
     ) {
-        items(viewModel.notes, { it.id }) { item ->
+        items(feedUiState.notes, { it.id }) { item ->
             val currentItem by rememberUpdatedState(item)
             val dismissState = rememberDismissState(
                 confirmStateChange = {
                     if (it == DismissValue.DismissedToStart) {
-                        viewModel.delete(currentItem.id)
+                        coroutineScope.launch {
+                            viewModel.deleteNote(currentItem.id)
+                        }
                         true
                     } else false
                 }
@@ -109,6 +118,7 @@ fun Feed(
                         item = item,
                         onNoteClick = onNoteClick,
                         onCollectionClick = onCollectionClick,
+                        onChecked = onChecked
                     )
                 }
             )
@@ -151,6 +161,7 @@ fun SwipeBackground(dismissState: DismissState) {
 fun FeedForced(
     modifier: Modifier = Modifier,
     onNoteClick: (NotePreview) -> Unit,
+    onChecked: (NotePreview) -> Unit,
     content: List<NotePreview>,
 ) {
     Column(
@@ -163,33 +174,33 @@ fun FeedForced(
                 item = item,
                 onNoteClick = onNoteClick,
                 onCollectionClick = null,
+                onChecked = onChecked,
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteCard(
     modifier: Modifier = Modifier,
     item: NotePreview,
     onNoteClick: (NotePreview) -> Unit,
-    onCollectionClick: ((String) -> Unit)?,
+    onCollectionClick: ((CollectionInfo) -> Unit)?,
+    onChecked: (NotePreview) -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     ListItem(
         modifier = modifier.cardModifier(interactionSource) { onNoteClick(item) },
-        headlineText = { FeedItemHeader(item) },
-        supportingText = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
+        headlineContent = { FeedItemHeader(item) },
+        supportingContent = onCollectionClick?.let { feedItemSupportingTextFactory(item, it) },
         leadingContent = { EmojiContainer(item.emoji) },
-        overlineText = feedItemDeadlineFactory(item),
-        trailingContent = feedItemCheckboxFactory(item),
+        overlineContent = feedItemDeadlineFactory(item),
+        trailingContent = feedItemCheckboxFactory(item, onChecked),
         colors = listItemColors(item.done != true),
     )
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun listItemColors(enabled: Boolean): ListItemColors =
     if (enabled) {
         ListItemDefaults.colors()
@@ -200,12 +211,15 @@ fun listItemColors(enabled: Boolean): ListItemColors =
         )
     }
 
-fun feedItemCheckboxFactory(item: NotePreview): @Composable (() -> Unit)? =
+fun feedItemCheckboxFactory(
+    item: NotePreview,
+    onChecked: (NotePreview) -> Unit,
+): @Composable (() -> Unit)? =
     item.done?.let {
         {
             FilledIconToggleButton(
                 modifier = Modifier.size(25.dp),
-                onCheckedChange = { item.done = it },
+                onCheckedChange = { onChecked(item) },
                 shape = MaterialTheme.shapes.small,
                 checked = it,
             ) {
@@ -308,7 +322,7 @@ private fun formatHeader(deadline: Deadline): String {
 
 private fun feedItemSupportingTextFactory(
     item: NotePreview,
-    onCollectionClick: (String) -> Unit,
+    onCollectionClick: (CollectionInfo) -> Unit,
 ): @Composable (() -> Unit)? = if (item.description != null || item.collections.isNotEmpty()) {
     {
         Column {
@@ -335,8 +349,8 @@ private fun feedItemSupportingTextFactory(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectionChip(
-    name: String,
-    onClick: (String) -> Unit,
+    name: CollectionInfo,
+    onClick: (CollectionInfo) -> Unit,
 ) {
     SuggestionChip(
         modifier = Modifier
@@ -344,7 +358,7 @@ private fun CollectionChip(
             .height(30.dp),
         onClick = { onClick(name) },
         label = {
-            Text(text = name)
+            Text(text = name.collectionName)
         })
 }
 
@@ -362,13 +376,13 @@ fun EmojiContainer(item: Emoji, size: Float = 30F) {
     )
 }
 
-@Preview
-@Composable
-fun NoteCardPreview() {
-    val viewModel = remember { FeedViewModel() }
-    Feed(
-        viewModel = viewModel,
-        onCollectionClick = {},
-        onNoteClick = {},
-    )
-}
+//@Preview
+//@Composable
+//fun NoteCardPreview() {
+//    val viewModel = remember { FeedViewModel() }
+//    Feed(
+//        viewModel = viewModel,
+//        onCollectionClick = {},
+//        onNoteClick = {},
+//    )
+//}

@@ -31,12 +31,19 @@
     <string name="home_content_description">Go to home screen</string>
     <string name="settings_content_description">App settings</string>
     <string name="about_us_content_description">Info about app</string>
-    <string name="about_us_text">Donec efficitur mi nulla, maximus tincidunt massa pellentesque a. Vivamus blandit, erat a rutrum mollis, tortor mauris luctus elit, eget lobortis quam tortor non lacus. In luctus auctor scelerisque. Vivamus pellentesque nisl sed ligula imperdiet vehicula. Aliquam auctor non sem vitae dictum. In non ipsum faucibus, vulputate nisl quis, accumsan augue. Aliquam non aliquam lacus.Donec efficitur mi nulla, maximus tincidunt massa pellentesque a. Vivamus blandit, erat a rutrum mollis, tortor mauris luctus elit, eget lobortis quam tortor non lacus. In luctus auctor scelerisque. Vivamus pellentesque nisl sed ligula imperdiet vehicula. Aliquam auctor non sem vitae dictum. In non ipsum faucibus, vulputate nisl quis, accumsan augue. Aliquam non aliquam lacus.</string>
+    <string name="about_us_text">
+        Welcome to Curo! We are a team of passionate students who have come together to create a helpful Android app that will make your daily life easier. Curo was created as part of our course project, but we believe it has the potential to be something much more.\n\n
+        Curo is a multi-functional app that provides several features to help you stay organized and on top of your schedule. Our app includes notes, reminders, and a calendar, all in one place. With Curo, you can keep track of important events, meetings, and deadlines. You can set reminders for yourself and create to-do lists to ensure that you never miss a task.\n\n
+        Our team has worked hard to create a user-friendly and visually appealing app. We understand the importance of having an app that is easy to use and navigate, so we have designed Curo with simplicity in mind. The app is intuitive and user-friendly, with a clean and modern design.\n\n
+        At Curo, we are committed to making our app the best it can be. We are constantly working on improving the app and adding new features to enhance your experience. Our team welcomes feedback and suggestions from our users, as we want to create an app that meets the needs of our users.\n\n
+        Thank you for choosing Curo. We hope that our app helps you stay organized and productive, and we look forward to continuing to improve and evolve our app to meet your needs.
+    </string>
 
-    <string name="russian_lang">Russian</string>
-    <string name="english_lang">English</string>
-    <string name="lang_label">Language</string>
-    <string name="lang_content_description">Select language</string>
+    <string name="system_theme">System</string>
+    <string name="light_theme">Light</string>
+    <string name="dark_theme">Dark</string>
+    <string name="theme_label">Theme</string>
+    <string name="theme_content_description">Select theme</string>
     <string name="main_emoji">&#127814;</string>
 
     <string name="setup_deadline_date">Setup deadline date</string>
@@ -64,6 +71,7 @@
     <string name="save_collection">save collection</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="share_description">Your note or collection is available via link below</string>
-    <string name="share_error">Currently link is not available</string>
+    <string name="share_error">Currently link is not available, try again later</string>
     <string name="default_note_name">My note…</string>
+    <string name="share_note">Share note</string>
 </resources>

@@ -8,10 +8,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CollectionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(collection: Collection)
+    suspend fun insert(collection: Collection): Long
 
-    @Query("DELETE FROM Collection WHERE collection_name = :collectionName")
-    suspend fun delete(collectionName: String)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(collections: List<Collection>): List<Long>
+
+    @Query("DELETE FROM Collection WHERE collection_id = :collectionId")
+    suspend fun delete(collectionId: Long)
 
     @Update
     suspend fun update(collection: Collection)
@@ -21,6 +24,6 @@ interface CollectionDao {
     fun getAll(): Flow<List<CollectionWithNotes>>
 
     @Transaction
-    @Query("SELECT * FROM Collection WHERE collection_name = :collectionName")
-    fun find(collectionName: String): Flow<CollectionWithNotes?>
+    @Query("SELECT * FROM Collection WHERE collection_id = :collectionId")
+    fun find(collectionId: Long): Flow<CollectionWithNotes?>
 }
